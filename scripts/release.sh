@@ -58,8 +58,8 @@ read_current_version() {
     BEGIN { in_package=0 }
     /^\[package\]/ { in_package=1; next }
     /^\[/ && $0 != "[package]" { in_package=0 }
-    in_package && /^version\s*=\s*"[0-9]+\.[0-9]+\.[0-9]+"/ {
-      gsub(/version\s*=\s*"/, "", $0)
+    in_package && /^version[[:space:]]*=[[:space:]]*"[0-9]+\.[0-9]+\.[0-9]+"/ {
+      gsub(/version[[:space:]]*=[[:space:]]*"/, "", $0)
       gsub(/".*/, "", $0)
       print $0
       exit
@@ -110,7 +110,7 @@ update_cargo_version() {
     BEGIN { in_package=0; updated=0 }
     /^\[package\]/ { in_package=1; print; next }
     /^\[/ && $0 != "[package]" { in_package=0; print; next }
-    in_package && !updated && /^version\s*=\s*"[0-9]+\.[0-9]+\.[0-9]+"/ {
+    in_package && !updated && /^version[[:space:]]*=[[:space:]]*"[0-9]+\.[0-9]+\.[0-9]+"/ {
       print "version = \"" next "\""
       updated=1
       next
