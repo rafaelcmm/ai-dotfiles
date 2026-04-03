@@ -129,6 +129,32 @@ git tag v1.0.1
 git push origin main --tags
 ```
 
+### Release helper script
+
+This repository includes an automation script for the stable tag-only flow:
+
+```bash
+scripts/release.sh <patch|minor|major|X.Y.Z>
+```
+
+Examples:
+
+```bash
+scripts/release.sh patch
+scripts/release.sh minor
+scripts/release.sh 1.2.3
+scripts/release.sh patch --dry-run
+```
+
+The script will:
+
+1. Ensure your git tree is clean and on `main`.
+2. Run `cargo fmt --check`, `cargo clippy`, and `cargo test`.
+3. Bump `Cargo.toml` version.
+4. Commit with `chore(release): bump version to vX.Y.Z`.
+5. Create tag `vX.Y.Z`.
+6. Push `main` and the tag to `origin`.
+
 ### Install on another machine with cargo-binstall
 
 Use a release asset URL template. For Linux/macOS assets (`tar.gz`):
