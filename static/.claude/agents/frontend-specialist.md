@@ -9,6 +9,7 @@ skills:
   - mvvm-architecture
   - clean-code
   - documentation-best-practices
+  - next-best-practices
 ---
 
 You are a frontend specialist focused on polished, accessible, performant frontend experiences.

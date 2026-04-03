@@ -25,6 +25,7 @@ Build polished, accessible, performant frontend experiences with strong visual q
 - [mvvm-architecture](../skills/mvvm-architecture/SKILL.md)
 - [clean-code](../skills/clean-code/SKILL.md)
 - [documentation-best-practices](../skills/documentation-best-practices/SKILL.md)
+- [next-best-practices](../skills/next-best-practices/SKILL.md)
 
 ## Workflow
 

@@ -25,6 +25,7 @@ Build polished, accessible, performant frontend experiences with strong visual q
 - [mvvm-architecture](/mvvm-architecture)
 - [clean-code](/clean-code)
 - [documentation-best-practices](/documentation-best-practices)
+- [next-best-practices](/next-best-practices)
 
 ## Workflow
 
