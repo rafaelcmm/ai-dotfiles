@@ -14,6 +14,8 @@ Common requirements:
 
 - Bash shell.
 - Git configured with repository access.
+- Rust toolchain installed (`cargo` in `PATH`). Install guide: https://www.rust-lang.org/tools/install
+- Optional: `cargo-binstall` for faster binary install and self-update flows. Install guide: https://github.com/cargo-bins/cargo-binstall#installation
 
 For `release.sh`:
 

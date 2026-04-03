@@ -9,8 +9,8 @@ Rust CLI to install, update, and debloat Rafael Monteiro AI configuration files 
 
 ## Prerequisites
 
-- Rust toolchain installed (`cargo` available in `PATH`).
-- Optional: `cargo-binstall` for faster binary installation and self-update flow.
+- Rust toolchain installed (`cargo` available in `PATH`). Install guide: https://www.rust-lang.org/tools/install
+- Optional: `cargo-binstall` for faster binary installation and self-update flow. Install guide: https://github.com/cargo-bins/cargo-binstall#installation
 - Network access to GitHub for update checks and release downloads.
 
 ## Installation
