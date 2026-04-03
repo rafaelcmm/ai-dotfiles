@@ -63,17 +63,34 @@ pub fn maybe_self_update_and_reexec(
 
     let status = Command::new("cargo")
         .arg("binstall")
+        .arg("--git")
+        .arg(env!("CARGO_PKG_REPOSITORY"))
+        .arg("--version")
+        .arg(latest_version.to_string())
         .arg(BIN_NAME)
         .arg("--no-confirm")
+        .arg("--disable-strategies")
+        .arg("compile")
         .arg("--pkg-url")
         .arg(&release_url)
         .arg("--pkg-fmt")
         .arg(format)
-        .status()
-        .context("failed to execute cargo-binstall")?;
+        .status();
 
-    if !status.success() {
-        anyhow::bail!("cargo-binstall failed while installing v{latest_version}");
+    match status {
+        Ok(s) if s.success() => {}
+        Ok(_) => {
+            eprintln!(
+                "[update] warning: cargo-binstall could not install v{latest_version}. Proceeding with current binary."
+            );
+            return Ok(false);
+        }
+        Err(err) => {
+            eprintln!(
+                "[update] warning: failed to execute cargo-binstall ({err}). Proceeding with current binary."
+            );
+            return Ok(false);
+        }
     }
 
     let mut cmd = Command::new(BIN_NAME);

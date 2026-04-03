@@ -34,6 +34,7 @@ rafaelcmm-ai-dotfiles update
 
 - By default, checks GitHub Releases for a newer CLI version.
 - If newer version exists, asks confirmation, self-updates via `cargo-binstall`, then re-runs update with the new binary.
+- If self-update is unavailable on the machine (or `cargo-binstall` fails), the command warns and continues the config update using the current binary.
 - If installed version equals current package version, exits with `Configuration is already up to date.`
 - If no previous installation is detected, `update` bootstraps a fresh installation.
 - Otherwise:
@@ -164,7 +165,23 @@ The script will:
 5. Create tag `vX.Y.Z`.
 6. Push `main` and the tag to `origin`.
 
-### Install on another machine with cargo-binstall
+### Install on another machine
+
+Preferred (deterministic) method: install directly from release assets.
+
+Linux x86_64 example (`v1.1.1`):
+
+```bash
+VERSION="1.1.1"
+curl -fsSL -o /tmp/rafaelcmm-ai-dotfiles.tar.gz \
+  "https://github.com/rafaelcmm/rafaelcmm-ai-dotfiles/releases/download/v${VERSION}/rafaelcmm-ai-dotfiles-x86_64-unknown-linux-gnu.tar.gz"
+tar -xzf /tmp/rafaelcmm-ai-dotfiles.tar.gz -C /tmp
+install -m 0755 /tmp/rafaelcmm-ai-dotfiles ~/.local/bin/rafaelcmm-ai-dotfiles
+```
+
+Ensure `~/.local/bin` is in your `PATH`.
+
+Alternative: install with `cargo-binstall` (binary-only mode).
 
 Install `cargo-binstall` first (one-time):
 
@@ -182,6 +199,9 @@ Use a release asset URL template. For Linux/macOS assets (`tar.gz`):
 
 ```bash
 cargo binstall rafaelcmm-ai-dotfiles \
+  --git "https://github.com/rafaelcmm/rafaelcmm-ai-dotfiles.git" \
+  --version "{ version }" \
+  --disable-strategies compile \
   --pkg-url "https://github.com/rafaelcmm/rafaelcmm-ai-dotfiles/releases/download/v{ version }/rafaelcmm-ai-dotfiles-{ target }.tar.gz" \
   --pkg-fmt tgz
 ```
@@ -190,6 +210,9 @@ Example for Linux x86_64 and `v1.1.1`:
 
 ```bash
 cargo binstall rafaelcmm-ai-dotfiles \
+  --git "https://github.com/rafaelcmm/rafaelcmm-ai-dotfiles.git" \
+  --version "1.1.1" \
+  --disable-strategies compile \
   --pkg-url "https://github.com/rafaelcmm/rafaelcmm-ai-dotfiles/releases/download/v1.1.1/rafaelcmm-ai-dotfiles-x86_64-unknown-linux-gnu.tar.gz" \
   --pkg-fmt tgz
 ```
@@ -197,13 +220,13 @@ cargo binstall rafaelcmm-ai-dotfiles \
 For Windows assets (`zip`):
 
 ```powershell
-cargo binstall rafaelcmm-ai-dotfiles --pkg-url "https://github.com/rafaelcmm/rafaelcmm-ai-dotfiles/releases/download/v{ version }/rafaelcmm-ai-dotfiles-{ target }.zip" --pkg-fmt zip
+cargo binstall rafaelcmm-ai-dotfiles --git "https://github.com/rafaelcmm/rafaelcmm-ai-dotfiles.git" --version "{ version }" --disable-strategies compile --pkg-url "https://github.com/rafaelcmm/rafaelcmm-ai-dotfiles/releases/download/v{ version }/rafaelcmm-ai-dotfiles-{ target }.zip" --pkg-fmt zip
 ```
 
 Example for Windows x86_64 and `v1.1.1`:
 
 ```powershell
-cargo binstall rafaelcmm-ai-dotfiles --pkg-url "https://github.com/rafaelcmm/rafaelcmm-ai-dotfiles/releases/download/v1.1.1/rafaelcmm-ai-dotfiles-x86_64-pc-windows-msvc.zip" --pkg-fmt zip
+cargo binstall rafaelcmm-ai-dotfiles --git "https://github.com/rafaelcmm/rafaelcmm-ai-dotfiles.git" --version "1.1.1" --disable-strategies compile --pkg-url "https://github.com/rafaelcmm/rafaelcmm-ai-dotfiles/releases/download/v1.1.1/rafaelcmm-ai-dotfiles-x86_64-pc-windows-msvc.zip" --pkg-fmt zip
 ```
 
 ### Verify release artifact integrity
