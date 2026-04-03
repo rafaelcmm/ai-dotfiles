@@ -100,14 +100,14 @@ pub fn maybe_self_update_and_reexec(
     }
 
     let mut cmd = Command::new(BIN_NAME);
-    cmd.arg("update")
-        .arg("--no-self-update")
-        .arg("--home")
-        .arg(home);
+    cmd.arg("--home").arg(home);
 
     if allow_outside_home {
         cmd.arg("--allow-outside-home");
     }
+
+    cmd.arg("update").arg("--no-self-update");
+
     if assume_yes {
         cmd.arg("--yes");
     }
