@@ -101,18 +101,61 @@ Examples for version `1.0.0`:
    - `skills/<skill-name>/SKILL.md`
 4. Run `cargo test` to validate behavior.
 
-## Private package distribution on GitHub
+## Release and distribution model
 
-Recommended approach for a private installable CLI:
+This project uses a tag-only stable release flow:
 
-1. Publish GitHub Releases with Linux/macOS/Windows binaries built by GitHub Actions.
-2. Install on any machine with one command using `cargo-binstall`:
+- Pushes to `main` run CI only (`fmt`, `clippy`, `test`, `build --release`).
+- Releases are created only when a semantic version tag is pushed (for example `v1.2.3`).
+- GitHub Releases provide pre-built binaries for supported platforms.
+
+### Maintainer release checklist
+
+1. Ensure local branch is up to date and clean.
+2. Run local validation:
 
 ```bash
-cargo binstall --git https://github.com/rafaelcmm/rafaelcmm-ai-dotfiles rafaelcmm-ai-dotfiles
+cargo fmt --check
+cargo clippy --all-targets --all-features -- -D warnings
+cargo test
 ```
 
-If you need npm-style global install semantics, ship a thin private npm wrapper package that downloads the release binary during `postinstall` and exposes the `rafaelcmm-ai-dotfiles` command.
+3. Update version in `Cargo.toml`.
+4. Commit version bump.
+5. Create and push release tag:
+
+```bash
+git tag v1.0.1
+git push origin main --tags
+```
+
+### Install on another machine with cargo-binstall
+
+Use a release asset URL template. For Linux/macOS assets (`tar.gz`):
+
+```bash
+cargo binstall rafaelcmm-ai-dotfiles \
+  --pkg-url "https://github.com/rafaelcmm/rafaelcmm-ai-dotfiles/releases/download/v{ version }/rafaelcmm-ai-dotfiles-{ target }.tar.gz" \
+  --pkg-fmt tgz
+```
+
+For Windows assets (`zip`):
+
+```powershell
+cargo binstall rafaelcmm-ai-dotfiles --pkg-url "https://github.com/rafaelcmm/rafaelcmm-ai-dotfiles/releases/download/v{ version }/rafaelcmm-ai-dotfiles-{ target }.zip" --pkg-fmt zip
+```
+
+### Verify release artifact integrity
+
+Download `SHA256SUMS` from the same release and verify checksums:
+
+```bash
+sha256sum -c SHA256SUMS
+```
+
+### Roll back to a previous version
+
+Install using an older tag in the URL template (for example `v1.0.0`).
 
 ## Troubleshooting
 
