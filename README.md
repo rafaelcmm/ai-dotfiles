@@ -166,6 +166,18 @@ The script will:
 
 ### Install on another machine with cargo-binstall
 
+Install `cargo-binstall` first (one-time):
+
+```bash
+cargo install --locked cargo-binstall
+```
+
+Release assets are named with the target triple, not with the version number in the filename:
+
+- `rafaelcmm-ai-dotfiles-x86_64-unknown-linux-gnu.tar.gz`
+- `rafaelcmm-ai-dotfiles-aarch64-apple-darwin.tar.gz`
+- `rafaelcmm-ai-dotfiles-x86_64-pc-windows-msvc.zip`
+
 Use a release asset URL template. For Linux/macOS assets (`tar.gz`):
 
 ```bash
@@ -174,10 +186,24 @@ cargo binstall rafaelcmm-ai-dotfiles \
   --pkg-fmt tgz
 ```
 
+Example for Linux x86_64 and `v1.1.1`:
+
+```bash
+cargo binstall rafaelcmm-ai-dotfiles \
+  --pkg-url "https://github.com/rafaelcmm/rafaelcmm-ai-dotfiles/releases/download/v1.1.1/rafaelcmm-ai-dotfiles-x86_64-unknown-linux-gnu.tar.gz" \
+  --pkg-fmt tgz
+```
+
 For Windows assets (`zip`):
 
 ```powershell
 cargo binstall rafaelcmm-ai-dotfiles --pkg-url "https://github.com/rafaelcmm/rafaelcmm-ai-dotfiles/releases/download/v{ version }/rafaelcmm-ai-dotfiles-{ target }.zip" --pkg-fmt zip
+```
+
+Example for Windows x86_64 and `v1.1.1`:
+
+```powershell
+cargo binstall rafaelcmm-ai-dotfiles --pkg-url "https://github.com/rafaelcmm/rafaelcmm-ai-dotfiles/releases/download/v1.1.1/rafaelcmm-ai-dotfiles-x86_64-pc-windows-msvc.zip" --pkg-fmt zip
 ```
 
 ### Verify release artifact integrity
