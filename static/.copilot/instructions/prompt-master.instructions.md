@@ -1,0 +1,27 @@
+---
+description: "Load when writing, fixing, improving, adapting, or self-generating any prompt for any AI tool. Covers LLMs, coding agents, image AI, video AI, workflow AI, and agentic systems."
+---
+
+# Prompt Master
+
+When the task involves writing a new prompt, fixing a broken prompt, improving an existing one, adapting it for a different tool, or self-generating prompts/agent instructions used in downstream AI calls — load and follow the `prompt-master` skill before producing output.
+
+**Skill path:** `skills/prompt-master/SKILL.md`
+
+## When this rule applies
+
+- Writing or creating a prompt for a user
+- Fixing, improving, or decompiling an existing prompt
+- Adapting a prompt for a specific AI tool (Claude, Cursor, Copilot, Midjourney, etc.)
+- Self-prompting: generating instructions, system prompts, or task definitions used in downstream AI calls
+- Composing agent instructions, agentic task descriptions, or multi-step orchestration prompts
+
+## Required behaviour
+
+- Load `skills/prompt-master/SKILL.md` before producing any prompt output
+- Confirm the target tool before writing — ask if ambiguous (counts as one of the 3-question limit)
+- Route through the correct tool template from the skill
+- Run the diagnostic checklist from the skill before delivering
+- Never embed fabricated techniques (MoE, ToT, GoT, USC, or prompt-chaining as a layered technique)
+- Never add Chain of Thought to reasoning-native models (o3, o4-mini, DeepSeek-R1, Qwen3 thinking mode)
+- Output a single copyable prompt block ready to paste — not a discussion of prompting theory
