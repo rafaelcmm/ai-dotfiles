@@ -63,6 +63,7 @@ pub fn maybe_self_update_and_reexec(
 
     let status = Command::new("cargo")
         .arg("binstall")
+        .arg("--no-discover-github-token")
         .arg("--git")
         .arg(env!("CARGO_PKG_REPOSITORY"))
         .arg("--version")
