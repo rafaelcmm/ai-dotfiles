@@ -1,3 +1,14 @@
+//! Self-update flow for the `update` command.
+//!
+//! When a newer release is available on GitHub, this module can install that
+//! version via `cargo-binstall` and re-exec `rafaelcmm-ai-dotfiles update`
+//! with `--no-self-update` to avoid recursion.
+//!
+//! # Security
+//!
+//! Before invoking `cargo-binstall`, this module verifies that release
+//! checksums contain an entry for the expected platform artifact.
+
 use std::io::{self, Write};
 use std::path::Path;
 use std::process::Command;
@@ -14,6 +25,25 @@ struct GitHubRelease {
     tag_name: String,
 }
 
+/// Attempts to self-update before running the dotfile update operation.
+///
+/// Returns `Ok(true)` when a new binary was installed and control was handed
+/// off to the updated binary process. Returns `Ok(false)` when no self-update
+/// occurred (no newer version, user declined, or update checks failed safely).
+///
+/// This function is intentionally fail-open: network/install failures emit a
+/// warning and allow the normal update flow to continue with the current
+/// binary.
+///
+/// # Errors
+///
+/// Returns an error only for local, deterministic failures such as invalid
+/// build metadata, unsupported platform mapping, or failed re-exec of the
+/// updated binary after a successful install.
+///
+/// # Panics
+///
+/// Does not panic.
 pub fn maybe_self_update_and_reexec(
     home: &Path,
     allow_outside_home: bool,
@@ -57,9 +87,10 @@ pub fn maybe_self_update_and_reexec(
     }
 
     let (target, format, ext) = detect_target_and_format()?;
-    let release_url = format!(
-        "https://github.com/{repo_slug}/releases/download/v{latest_version}/{BIN_NAME}-{target}.{ext}"
-    );
+    let asset_name = format!("{BIN_NAME}-{target}.{ext}");
+    let release_url =
+        format!("https://github.com/{repo_slug}/releases/download/v{latest_version}/{asset_name}");
+    ensure_release_has_checksum_entry(&repo_slug, &latest_version, &asset_name)?;
 
     let status = Command::new("cargo")
         .arg("binstall")
@@ -115,6 +146,53 @@ pub fn maybe_self_update_and_reexec(
     Ok(true)
 }
 
+/// Ensures release checksums include an entry for the expected asset.
+///
+/// # Errors
+///
+/// Returns an error if checksum metadata cannot be downloaded or if the asset
+/// entry is missing from the release checksums file.
+fn ensure_release_has_checksum_entry(
+    repo_slug: &str,
+    version: &Version,
+    asset_name: &str,
+) -> Result<()> {
+    let checksums_url =
+        format!("https://github.com/{repo_slug}/releases/download/v{version}/SHA256SUMS");
+
+    let client = reqwest::blocking::Client::builder()
+        .timeout(Duration::from_secs(10))
+        .build()
+        .context("failed to build HTTP client")?;
+
+    let checksums = client
+        .get(checksums_url)
+        .header("User-Agent", BIN_NAME)
+        .send()
+        .context("failed to download release checksums")?
+        .error_for_status()
+        .context("release checksums endpoint returned error status")?
+        .text()
+        .context("failed to decode release checksums payload")?;
+
+    let has_asset_entry = checksums.lines().any(|line| {
+        let trimmed = line.trim();
+        trimmed.ends_with(asset_name) || trimmed.ends_with(&format!("./{asset_name}"))
+    });
+
+    if !has_asset_entry {
+        anyhow::bail!("release checksums do not contain expected asset entry: {asset_name}");
+    }
+
+    Ok(())
+}
+
+/// Fetches the latest release tag (`vX.Y.Z`) from GitHub Releases API.
+///
+/// # Errors
+///
+/// Returns an error when HTTP requests fail, return non-success status, or
+/// JSON payload decoding fails.
 fn fetch_latest_release_tag(repo_slug: &str) -> Result<String> {
     let url = format!("https://api.github.com/repos/{repo_slug}/releases/latest");
 
@@ -136,11 +214,23 @@ fn fetch_latest_release_tag(repo_slug: &str) -> Result<String> {
     Ok(release.tag_name)
 }
 
+/// Parses a release tag into semantic version.
+///
+/// Accepts either `vX.Y.Z` or `X.Y.Z`.
+///
+/// # Errors
+///
+/// Returns an error when the tag is not a valid semantic version.
 fn parse_release_tag(tag: &str) -> Result<Version> {
     let version = tag.trim_start_matches('v');
     Version::parse(version).context("tag is not valid semantic version")
 }
 
+/// Extracts `owner/repo` from a GitHub HTTPS repository URL.
+///
+/// # Errors
+///
+/// Returns an error for unsupported URL formats.
 fn repository_slug_from_url(url: &str) -> Result<String> {
     if let Some(stripped) = url.strip_prefix("https://github.com/") {
         return Ok(stripped.trim_end_matches('/').to_string());
@@ -149,6 +239,13 @@ fn repository_slug_from_url(url: &str) -> Result<String> {
     anyhow::bail!("unsupported repository URL format: {url}")
 }
 
+/// Resolves current host target triple and release package format.
+///
+/// Returns `(target_triple, cargo_binstall_format, archive_extension)`.
+///
+/// # Errors
+///
+/// Returns an error for unsupported OS/architecture combinations.
 fn detect_target_and_format() -> Result<(&'static str, &'static str, &'static str)> {
     match (std::env::consts::OS, std::env::consts::ARCH) {
         ("linux", "x86_64") => Ok(("x86_64-unknown-linux-gnu", "tgz", "tar.gz")),
@@ -158,6 +255,13 @@ fn detect_target_and_format() -> Result<(&'static str, &'static str, &'static st
     }
 }
 
+/// Prompts for a yes/no confirmation with a conservative default.
+///
+/// Empty input is treated as "no".
+///
+/// # Errors
+///
+/// Returns an error when stdin/stdout interaction fails.
 fn confirm(prompt: &str) -> Result<bool> {
     print!("{prompt} [y/N]: ");
     io::stdout().flush().context("failed to flush stdout")?;

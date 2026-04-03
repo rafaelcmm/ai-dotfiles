@@ -1,3 +1,8 @@
+//! Integration-style tests for high-level install/update/debloat behavior.
+//!
+//! Tests focus on safety properties such as non-destructive updates and
+//! symlink handling during cleanup.
+
 use std::fs;
 
 #[cfg(unix)]
