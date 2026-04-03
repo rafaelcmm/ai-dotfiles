@@ -179,6 +179,28 @@ Download `SHA256SUMS` from the same release and verify checksums:
 sha256sum -c SHA256SUMS
 ```
 
+### Post-release smoke check script
+
+Use the helper script to validate one release on your current machine architecture:
+
+```bash
+scripts/smoke-release.sh v1.0.1
+```
+
+Dry-run mode (prints actions without downloading/executing):
+
+```bash
+scripts/smoke-release.sh v1.0.1 --dry-run
+```
+
+The script will:
+
+1. Resolve repository slug from `origin`.
+2. Detect current platform target.
+3. Download the target asset and `SHA256SUMS` from the tagged release.
+4. Validate SHA256 checksum for the selected asset.
+5. Extract the binary and run `--version`.
+
 ### Roll back to a previous version
 
 Install using an older tag in the URL template (for example `v1.0.0`).
