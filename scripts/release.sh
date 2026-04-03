@@ -28,9 +28,16 @@ log() {
 
 safe_exit() {
   local code="$1"
-  if [[ "${BASH_SOURCE[0]}" != "$0" ]]; then
+  local bash_source="${BASH_SOURCE[0]-}"
+
+  if [[ -n "$bash_source" && "$bash_source" != "$0" ]]; then
     return "$code"
   fi
+
+  if [[ -n "${ZSH_VERSION-}" && "${ZSH_EVAL_CONTEXT-}" == *:file ]]; then
+    return "$code"
+  fi
+
   exit "$code"
 }
 
@@ -108,18 +115,18 @@ is_valid_semver() {
 }
 
 update_cargo_version() {
-  local next="$1"
+  local new_version="$1"
   if [[ "$DRY_RUN" == "true" ]]; then
-    log "would update Cargo.toml version to $next"
+    log "would update Cargo.toml version to $new_version"
     return
   fi
 
-  awk -v next="$next" '
+  awk -v new_version="$new_version" '
     BEGIN { in_package=0; updated=0 }
     /^\[package\]/ { in_package=1; print; next }
     /^\[/ && $0 != "[package]" { in_package=0; print; next }
     in_package && !updated && /^version[[:space:]]*=[[:space:]]*"[0-9]+\.[0-9]+\.[0-9]+"/ {
-      print "version = \"" next "\""
+      print "version = \"" new_version "\""
       updated=1
       next
     }
