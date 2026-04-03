@@ -1,0 +1,12 @@
+{
+  "name": "rafaelcmm-ai-dotfiles",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Dotfiles to configure AI tools for rafaelcmm",
+  "packageManager": "yarn@1.22.22",
+  "author": {
+    "name": "Rafael Monteiro",
+    "email": "rafaelcmmm@icloud.com",
+    "url": "https://github.com/rafaelcmm"
+  }
+}

@@ -1,0 +1,7 @@
+# Folders
+.next/
+dist/
+node_modules
+
+# Environment
+.env

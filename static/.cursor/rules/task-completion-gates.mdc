@@ -1,0 +1,19 @@
+---
+description: "Run security and documentation validation once at task completion with actionable remediation guidance."
+alwaysApply: true
+---
+
+# Task Completion Gates
+
+Before completing any task, run one final-pass validation with:
+
+1. `security-reviewer`
+2. `documentation-specialist`
+
+## Required behavior
+
+- Run reviewer subagents once near completion, not after every code change.
+- Reviewer outputs must include both findings and concrete remediation steps (specific file edits and commands).
+- Avoid report-only loops. Main thread should apply returned fixes directly and continue to completion.
+- Execute this one-shot validation after the final code edits. If edits happen after review, rerun one final-pass review before completion.
+- Preserve lint/format and commit-readiness checks as final gates.
