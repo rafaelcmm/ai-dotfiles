@@ -1,0 +1,26 @@
+# External skills bootstrapped at install/update time.
+# Sources are pinned to immutable commit SHAs for reproducible results.
+#
+# Security:
+# - commit: MUST be full 40-char SHA-1 or 64-char SHA-256 hash (not branch/tag)
+# - checksum: Optional SHA256 of SKILL.md for integrity verification
+# - path: Validated against directory traversal attacks
+# - Files limited to 100 per source, max depth 10 directories
+# - Network timeouts: 10s connect, 30s total per request
+
+[[source]]
+id = "react-best-practices"
+repository = "https://github.com/vercel-labs/agent-skills"
+commit = "73140fc5b3a214ad3222bcf557b397b3c02d11c1"
+path = "skills/react-best-practices"
+platforms = ["all"]
+enabled = true
+# checksum = "abc123..." # Optional: SHA256 of SKILL.md for verification
+
+[[source]]
+id = "next-best-practices"
+repository = "https://github.com/vercel-labs/next-skills"
+commit = "038954e07bfc313e97fa5f6ff7caf87226e4a782"
+path = "skills/next-best-practices"
+platforms = ["all"]
+enabled = true

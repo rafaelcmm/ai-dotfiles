@@ -52,7 +52,7 @@ Update without self-update check:
 rafaelcmm-ai-dotfiles update --no-self-update
 ```
 
-Non-interactive update confirmation:
+Auto-confirm self-update prompt during update:
 
 ```bash
 rafaelcmm-ai-dotfiles update --yes
@@ -68,4 +68,27 @@ Convenience wrapper (equivalent to `update`):
 
 ```bash
 scripts/update.sh
+```
+
+## External skills bootstrap
+
+This tool can bootstrap external skill folders during `install` and `update`.
+
+- Source manifest: `static/external-skills.toml`
+- Current bundled external sources:
+	- `react-best-practices` from `vercel-labs/agent-skills`
+	- `next-best-practices` from `vercel-labs/next-skills`
+- Sources are pinned by commit SHA for reproducible installs.
+- Downloaded external files are cached under:
+	- `~/.cache/rafaelcmm-ai-dotfiles/external-skills`
+- External source fetch is fail-open: if one source fails, install/update continues and prints a warning to stderr.
+- A source is considered valid only if `SKILL.md` exists under the configured source path.
+
+External skills are installed as managed files under `skills/rafaelcmm-<version>-<skill-id>/...`, so they participate in both update reconciliation and `debloat` cleanup just like embedded managed content.
+
+Force refresh external skill cache:
+
+```bash
+rm -rf ~/.cache/rafaelcmm-ai-dotfiles/external-skills
+rafaelcmm-ai-dotfiles update --no-self-update
 ```

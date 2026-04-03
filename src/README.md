@@ -6,6 +6,7 @@ This document describes how the Rust implementation works, module boundaries, an
 
 - CLI command model and execution flow.
 - Embedded file mapping and metadata generation.
+- External skill source resolution and cache behavior.
 - Managed file lifecycle (install, update, debloat).
 - Safety guarantees and test coverage.
 
@@ -42,6 +43,16 @@ This document describes how the Rust implementation works, module boundaries, an
   - Applies destination path transformation and version prefixing.
   - Adds generated `_meta.md` into desired outputs.
 
+- `external_skills.rs`
+  - Loads `static/external-skills.toml` for external source definitions.
+  - Source contract: `id`, `repository`, `commit`, `path`, optional `platforms`, optional `enabled`, optional `checksum`.
+  - Validates source safety constraints (non-empty `id`/`path`, `id` cannot include slash, commit must be a full SHA hash).
+  - Filters by platform using `all` or normalized platform names (`claude`, `copilot`, `cursor`).
+  - Requires `SKILL.md` under the configured source path.
+  - Downloads enabled sources from pinned GitHub commits and caches files under `~/.cache/rafaelcmm-ai-dotfiles/external-skills`.
+  - On source fetch/parse errors, emits a warning and continues with other sources.
+  - Maps external skill files into managed versioned destinations under `skills/`.
+
 - `meta.rs`
   - Renders `_meta.md` from `static/_meta_template.md`.
   - Extracts installed version from existing metadata.
@@ -66,14 +77,14 @@ This document describes how the Rust implementation works, module boundaries, an
 
 - Creates managed files only when no prior metadata is found.
 - If an installation is already present, returns a message instructing to use `update`.
-- Writes versioned managed files across supported platform roots.
+- Writes versioned embedded and external managed files across supported platform roots.
 
 ### Update
 
 - If all installed platform metadata versions match current package version, exits as up to date.
 - If not installed yet, bootstraps managed files as a fresh synchronization.
 - Otherwise:
-  - Computes desired managed set for current version.
+  - Computes desired managed set for current version (embedded + external sources).
   - Removes only stale managed files.
   - Writes only changed/new files.
   - Preserves unmanaged user files.
@@ -100,6 +111,7 @@ Example mapping (version `1.0.0`):
 
 - `static/.claude/agents/rust-specialist.md` -> `~/.claude/agents/rafaelcmm-1.0.0-rust-specialist.md`
 - `static/__shared__/skills/clean-code/SKILL.md` -> `~/.copilot/skills/rafaelcmm-1.0.0-clean-code/SKILL.md`
+- External source `react-best-practices/SKILL.md` -> `~/.claude/skills/rafaelcmm-1.0.0-react-best-practices/SKILL.md`
 
 ## Safety and security guarantees
 

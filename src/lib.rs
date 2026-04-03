@@ -2,6 +2,7 @@
 
 mod constants;
 mod embedded;
+mod external_skills;
 mod fs_ops;
 mod meta;
 mod operations;

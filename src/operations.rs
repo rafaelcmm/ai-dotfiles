@@ -8,6 +8,7 @@ use anyhow::{Context, Result};
 
 use crate::constants::{Command, Platform, PLATFORMS};
 use crate::embedded::desired_files_for_platform;
+use crate::external_skills::desired_external_skill_files_for_platform;
 use crate::fs_ops::{cleanup_empty_managed_dirs, collect_existing_managed_files};
 use crate::meta::installed_version;
 
@@ -36,7 +37,11 @@ fn install(home: &Path) -> Result<String> {
     let mut written_files = 0usize;
 
     for platform in PLATFORMS {
-        let desired = desired_files_for_platform(platform, version)?;
+        let mut desired = desired_files_for_platform(platform, version)?;
+        desired.extend(desired_external_skill_files_for_platform(
+            home, platform, version,
+        )?);
+
         for (relative_path, contents) in desired {
             let destination = home.join(relative_path);
             if destination.exists() {
@@ -79,7 +84,13 @@ fn update(home: &Path) -> Result<String> {
     let mut written = 0usize;
 
     for platform in PLATFORMS {
-        let desired = desired_files_for_platform(platform, current_version)?;
+        let mut desired = desired_files_for_platform(platform, current_version)?;
+        desired.extend(desired_external_skill_files_for_platform(
+            home,
+            platform,
+            current_version,
+        )?);
+
         let desired_paths: HashSet<PathBuf> = desired.keys().cloned().collect();
         let existing_managed = collect_existing_managed_files(home, platform)?;
 
