@@ -56,11 +56,7 @@ fn main() -> Result<()> {
             yes,
         } => {
             if !no_self_update
-                && self_update::maybe_self_update_and_reexec(
-                    &home,
-                    cli.allow_outside_home,
-                    yes,
-                )?
+                && self_update::maybe_self_update_and_reexec(&home, cli.allow_outside_home, yes)?
             {
                 return Ok(());
             }

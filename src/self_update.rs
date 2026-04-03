@@ -49,9 +49,7 @@ pub fn maybe_self_update_and_reexec(
         return Ok(false);
     }
 
-    println!(
-        "A newer version is available: v{latest_version} (current: v{current_version})."
-    );
+    println!("A newer version is available: v{latest_version} (current: v{current_version}).");
 
     if !assume_yes && !confirm("Install latest release before updating dotfiles?")? {
         println!("Proceeding with current binary version.");
