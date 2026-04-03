@@ -15,6 +15,7 @@ use std::process::Command;
 use std::time::Duration;
 
 use anyhow::{Context, Result};
+use reqwest::header::{HeaderMap, HeaderValue, AUTHORIZATION};
 use semver::Version;
 use serde::Deserialize;
 
@@ -170,10 +171,7 @@ fn ensure_release_has_checksum_entry(
 fn fetch_latest_release_tag(repo_slug: &str) -> Result<String> {
     let url = format!("https://api.github.com/repos/{repo_slug}/releases/latest");
 
-    let client = reqwest::blocking::Client::builder()
-        .timeout(Duration::from_secs(10))
-        .build()
-        .context("failed to build HTTP client")?;
+    let client = build_github_client(Duration::from_secs(10))?;
 
     let release: GitHubRelease = client
         .get(url)
@@ -186,6 +184,25 @@ fn fetch_latest_release_tag(repo_slug: &str) -> Result<String> {
         .context("failed to decode GitHub release payload")?;
 
     Ok(release.tag_name)
+}
+
+/// Builds an HTTP client for GitHub requests.
+///
+/// If `GITHUB_TOKEN` is set, requests are authenticated to increase API rate
+/// limits for release checks.
+fn build_github_client(timeout: Duration) -> Result<reqwest::blocking::Client> {
+    let mut headers = HeaderMap::new();
+    if let Ok(token) = std::env::var("GITHUB_TOKEN") {
+        let auth_value = HeaderValue::from_str(&format!("Bearer {token}"))
+            .context("GITHUB_TOKEN contains invalid header characters")?;
+        headers.insert(AUTHORIZATION, auth_value);
+    }
+
+    reqwest::blocking::Client::builder()
+        .default_headers(headers)
+        .timeout(timeout)
+        .build()
+        .context("failed to build HTTP client")
 }
 
 /// Parses a release tag into semantic version.
