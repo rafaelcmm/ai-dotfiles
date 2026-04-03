@@ -1,4 +1,11 @@
 #!/usr/bin/env bash
+
+# Prevent sourcing: this script is intended to run as an executable only.
+if [[ ( -n "${BASH_SOURCE[0]-}" && "${BASH_SOURCE[0]}" != "$0" ) || ( -n "${ZSH_EVAL_CONTEXT-}" && "${ZSH_EVAL_CONTEXT}" == *:file ) ]]; then
+  printf '[release] ERROR: do not source this script; run it as ./scripts/release.sh ...\n' >&2
+  return 1 2>/dev/null || exit 1
+fi
+
 set -euo pipefail
 
 usage() {
