@@ -32,12 +32,21 @@ rafaelcmm-ai-dotfiles install
 rafaelcmm-ai-dotfiles update
 ```
 
+- By default, checks GitHub Releases for a newer CLI version.
+- If newer version exists, asks confirmation, self-updates via `cargo-binstall`, then re-runs update with the new binary.
 - If installed version equals current package version, exits with `Configuration is already up to date.`
 - If no previous installation is detected, `update` bootstraps a fresh installation.
 - Otherwise:
   - Writes only files that changed.
   - Removes only stale managed files from older versions.
   - Keeps unmanaged files untouched.
+
+Optional flags:
+
+```bash
+rafaelcmm-ai-dotfiles update --no-self-update
+rafaelcmm-ai-dotfiles update --yes
+```
 
 ### Debloat
 
@@ -204,6 +213,27 @@ The script will:
 ### Roll back to a previous version
 
 Install using an older tag in the URL template (for example `v1.0.0`).
+
+### Self-update and config-update script
+
+The script remains available as a thin wrapper around the CLI command, useful
+for convenience:
+
+```bash
+scripts/update.sh
+```
+
+Options:
+
+```bash
+scripts/update.sh --yes
+scripts/update.sh --no-self-update
+```
+
+Behavior:
+
+1. Delegates to `rafaelcmm-ai-dotfiles update`.
+2. Applies the same built-in self-update flow and dotfile synchronization.
 
 ## Troubleshooting
 

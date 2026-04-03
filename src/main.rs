@@ -6,6 +6,8 @@ use clap::{Parser, Subcommand};
 
 use rafaelcmm_ai_dotfiles::{run, Command};
 
+mod self_update;
+
 #[derive(Debug, Parser)]
 #[command(name = "rafaelcmm-ai-dotfiles")]
 #[command(version)]
@@ -24,7 +26,13 @@ struct Cli {
 #[derive(Debug, Subcommand)]
 enum Commands {
     Install,
-    Update,
+    Update {
+        #[arg(long, default_value_t = false)]
+        no_self_update: bool,
+
+        #[arg(long, default_value_t = false)]
+        yes: bool,
+    },
     Debloat,
 }
 
@@ -43,7 +51,21 @@ fn main() -> Result<()> {
 
     let command = match cli.command {
         Commands::Install => Command::Install,
-        Commands::Update => Command::Update,
+        Commands::Update {
+            no_self_update,
+            yes,
+        } => {
+            if !no_self_update
+                && self_update::maybe_self_update_and_reexec(
+                    &home,
+                    cli.allow_outside_home,
+                    yes,
+                )?
+            {
+                return Ok(());
+            }
+            Command::Update
+        }
         Commands::Debloat => Command::Debloat,
     };
 
