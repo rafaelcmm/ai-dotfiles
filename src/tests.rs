@@ -41,7 +41,8 @@ fn second_install_requests_update() {
     let home = tempdir().expect("tempdir should be created");
     run(Command::Install, home.path()).expect("first install should succeed");
 
-    let second = run(Command::Install, home.path()).expect("second install should succeed with no changes");
+    let second =
+        run(Command::Install, home.path()).expect("second install should succeed with no changes");
     assert_eq!(
         second,
         "Configuration already installed. Run `update` instead.".to_string()

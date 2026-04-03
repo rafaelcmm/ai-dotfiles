@@ -6,7 +6,7 @@ use std::path::{Path, PathBuf};
 use anyhow::{Context, Result};
 use include_dir::{include_dir, Dir, DirEntry};
 
-use crate::constants::{MANAGED_PREFIX, MANAGED_ROOTS, Platform};
+use crate::constants::{Platform, MANAGED_PREFIX, MANAGED_ROOTS};
 use crate::meta::render_meta;
 
 static STATIC_DIR: Dir<'_> = include_dir!("$CARGO_MANIFEST_DIR/static");

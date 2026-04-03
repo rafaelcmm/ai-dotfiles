@@ -45,7 +45,10 @@ fn install(home: &Path) -> Result<String> {
 
             if let Some(parent) = destination.parent() {
                 fs::create_dir_all(parent).with_context(|| {
-                    format!("failed to create destination directory {}", parent.display())
+                    format!(
+                        "failed to create destination directory {}",
+                        parent.display()
+                    )
                 })?;
             }
 
@@ -55,7 +58,9 @@ fn install(home: &Path) -> Result<String> {
         }
     }
 
-    Ok(format!("Installed configuration version {version} ({written_files} files created)."))
+    Ok(format!(
+        "Installed configuration version {version} ({written_files} files created)."
+    ))
 }
 
 /// Updates managed files to the currently packaged version.
@@ -128,7 +133,10 @@ fn remove_stale_managed_files(
     Ok(removed)
 }
 
-fn write_changed_files(home: &Path, desired: std::collections::HashMap<PathBuf, Vec<u8>>) -> Result<usize> {
+fn write_changed_files(
+    home: &Path,
+    desired: std::collections::HashMap<PathBuf, Vec<u8>>,
+) -> Result<usize> {
     let mut written = 0usize;
 
     for (relative, bytes) in desired {
@@ -144,8 +152,12 @@ fn write_changed_files(home: &Path, desired: std::collections::HashMap<PathBuf, 
         }
 
         if let Some(parent) = destination.parent() {
-            fs::create_dir_all(parent)
-                .with_context(|| format!("failed to create destination directory {}", parent.display()))?;
+            fs::create_dir_all(parent).with_context(|| {
+                format!(
+                    "failed to create destination directory {}",
+                    parent.display()
+                )
+            })?;
         }
 
         fs::write(&destination, bytes)
@@ -169,6 +181,7 @@ fn remove_generated_meta_if_present(home: &Path, platform: Platform) -> Result<u
         return Ok(0);
     }
 
-    fs::remove_file(&meta_path).with_context(|| format!("failed to remove {}", meta_path.display()))?;
+    fs::remove_file(&meta_path)
+        .with_context(|| format!("failed to remove {}", meta_path.display()))?;
     Ok(1)
 }

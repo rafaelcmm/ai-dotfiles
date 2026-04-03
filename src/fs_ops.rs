@@ -5,12 +5,15 @@ use std::path::{Path, PathBuf};
 
 use anyhow::{Context, Result};
 
-use crate::constants::{MANAGED_PREFIX, MANAGED_ROOTS, Platform};
+use crate::constants::{Platform, MANAGED_PREFIX, MANAGED_ROOTS};
 
 /// Collects managed files under a platform root.
 ///
 /// Symlinks are treated as leaf entries and never traversed.
-pub(crate) fn collect_existing_managed_files(home: &Path, platform: Platform) -> Result<Vec<PathBuf>> {
+pub(crate) fn collect_existing_managed_files(
+    home: &Path,
+    platform: Platform,
+) -> Result<Vec<PathBuf>> {
     let mut managed = Vec::<PathBuf>::new();
     let platform_root = home.join(platform.root);
 
@@ -24,7 +27,10 @@ pub(crate) fn collect_existing_managed_files(home: &Path, platform: Platform) ->
             .with_context(|| format!("failed to read managed root {}", managed_root.display()))?
         {
             let entry = entry.with_context(|| {
-                format!("failed to read directory entry in {}", managed_root.display())
+                format!(
+                    "failed to read directory entry in {}",
+                    managed_root.display()
+                )
             })?;
 
             let file_name = entry.file_name().to_string_lossy().to_string();
@@ -107,8 +113,9 @@ fn remove_empty_descendants(path: &Path) -> Result<bool> {
         if metadata.is_dir() {
             let child_empty = remove_empty_descendants(&entry_path)?;
             if child_empty {
-                fs::remove_dir(&entry_path)
-                    .with_context(|| format!("failed to remove empty dir {}", entry_path.display()))?;
+                fs::remove_dir(&entry_path).with_context(|| {
+                    format!("failed to remove empty dir {}", entry_path.display())
+                })?;
             } else {
                 is_empty = false;
             }
