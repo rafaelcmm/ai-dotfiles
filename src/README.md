@@ -53,7 +53,7 @@ This document describes how the Rust implementation works, module boundaries, an
 
 - `self_update.rs`
   - Checks latest GitHub release tag.
-  - Optionally installs newer binary via `cargo-binstall`.
+  - Downloads and installs newer binary directly from GitHub Releases.
   - Verifies `SHA256SUMS` contains expected target asset entry before install.
   - Re-executes `update` with `--no-self-update` after successful upgrade.
 
