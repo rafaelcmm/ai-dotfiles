@@ -26,9 +26,17 @@ log() {
   printf '[release] %s\n' "$*"
 }
 
+safe_exit() {
+  local code="$1"
+  if [[ "${BASH_SOURCE[0]}" != "$0" ]]; then
+    return "$code"
+  fi
+  exit "$code"
+}
+
 die() {
   printf '[release] ERROR: %s\n' "$*" >&2
-  exit 1
+  safe_exit 1
 }
 
 run_cmd() {
@@ -151,8 +159,9 @@ push_release() {
 
 main() {
   if [[ $# -lt 1 || $# -gt 2 ]]; then
+    printf '[release] ERROR: missing or invalid arguments\n' >&2
     usage
-    exit 1
+    safe_exit 1
   fi
 
   local target="$1"
@@ -161,7 +170,7 @@ main() {
   if [[ $# -eq 2 ]]; then
     if [[ "$2" != "--dry-run" ]]; then
       usage
-      exit 1
+      safe_exit 1
     fi
     DRY_RUN="true"
   fi
