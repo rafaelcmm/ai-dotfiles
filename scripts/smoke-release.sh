@@ -1,5 +1,26 @@
 #!/usr/bin/env bash
 
+# Release artifact smoke validation for the current host platform.
+# - run_cmd executes argv directly (no eval).
+# - Keep arguments passed as separate, quoted words at call sites.
+# - Never build command arguments from unvalidated user-controlled input.
+# - Download one release artifact plus SHA256SUMS for a tag
+# - Verify artifact integrity via sha256sum
+# - Extract and execute binary --version as a runtime smoke check
+#
+# Prerequisites:
+# - git, curl, grep, sha256sum
+# - tar for .tar.gz assets and unzip for .zip assets
+#
+# Notes:
+# - This script validates one host-specific artifact per invocation.
+# - Use --dry-run to inspect commands without downloading/executing.
+#
+# Security contract:
+# - run_cmd executes commands via "$@" expansion (not eval).
+# - All arguments are passed as individual parameters, preventing injection.
+# - Never pass unvalidated user-controlled data to command constructors.
+
 # Prevent sourcing: this script is intended to run as an executable only.
 if [[ ( -n "${BASH_SOURCE[0]-}" && "${BASH_SOURCE[0]}" != "$0" ) || ( -n "${ZSH_EVAL_CONTEXT-}" && "${ZSH_EVAL_CONTEXT}" == *:file ) ]]; then
   printf '[smoke] ERROR: do not source this script; run it as ./scripts/smoke-release.sh ...\n' >&2
@@ -36,9 +57,11 @@ die() {
 
 run_cmd() {
   if [[ "$DRY_RUN" == "true" ]]; then
-    printf '[dry-run] %s\n' "$*"
+    printf '[dry-run]'
+    printf ' %q' "$@"
+    printf '\n'
   else
-    eval "$*"
+    "$@"
   fi
 }
 
@@ -102,27 +125,33 @@ download_artifacts() {
   log "target: ${TARGET}"
   log "asset:  ${ASSET_NAME}"
 
-  run_cmd "curl -fsSL -o \"$WORKDIR/${ASSET_NAME}\" \"${base_url}/${ASSET_NAME}\""
-  run_cmd "curl -fsSL -o \"$WORKDIR/SHA256SUMS\" \"${base_url}/SHA256SUMS\""
+  run_cmd curl -fsSL -o "$WORKDIR/${ASSET_NAME}" "${base_url}/${ASSET_NAME}"
+  run_cmd curl -fsSL -o "$WORKDIR/SHA256SUMS" "${base_url}/SHA256SUMS"
 }
 
 verify_checksum() {
-  run_cmd "grep \"  ${ASSET_NAME}\" \"$WORKDIR/SHA256SUMS\" > \"$WORKDIR/${ASSET_NAME}.sha\""
-  run_cmd "(cd \"$WORKDIR\" && sha256sum -c \"${ASSET_NAME}.sha\")"
+  if [[ "$DRY_RUN" == "true" ]]; then
+    printf '[dry-run] grep %q %q > %q\n' "  ${ASSET_NAME}" "$WORKDIR/SHA256SUMS" "$WORKDIR/${ASSET_NAME}.sha"
+    printf '[dry-run] (cd %q && sha256sum -c %q)\n' "$WORKDIR" "${ASSET_NAME}.sha"
+    return
+  fi
+
+  grep "  ${ASSET_NAME}" "$WORKDIR/SHA256SUMS" > "$WORKDIR/${ASSET_NAME}.sha"
+  (cd "$WORKDIR" && sha256sum -c "${ASSET_NAME}.sha")
 }
 
 extract_and_run() {
-  run_cmd "mkdir -p \"$WORKDIR/unpack\""
+  run_cmd mkdir -p "$WORKDIR/unpack"
 
   if [[ "$ASSET_EXT" == "tar.gz" ]]; then
-    run_cmd "tar -xzf \"$WORKDIR/${ASSET_NAME}\" -C \"$WORKDIR/unpack\""
+    run_cmd tar -xzf "$WORKDIR/${ASSET_NAME}" -C "$WORKDIR/unpack"
   else
-    run_cmd "unzip -q \"$WORKDIR/${ASSET_NAME}\" -d \"$WORKDIR/unpack\""
+    run_cmd unzip -q "$WORKDIR/${ASSET_NAME}" -d "$WORKDIR/unpack"
   fi
 
   local binary_path
   binary_path="$WORKDIR/unpack/$BIN_NAME"
-  run_cmd "\"$binary_path\" --version"
+  run_cmd "$binary_path" --version
 }
 
 main() {

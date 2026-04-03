@@ -1,5 +1,27 @@
 #!/usr/bin/env bash
 
+# Release automation for semantic version tags.
+# - run_cmd executes argv directly (no eval).
+# - Keep arguments passed as separate, quoted words at call sites.
+# - Never build command arguments from unvalidated user-controlled input.
+# - Run Rust quality gates (fmt, clippy, test)
+# - Bump Cargo.toml package version
+# - Create and push release commit/tag
+#
+# Prerequisites:
+# - git with push permissions to origin/main
+# - Rust toolchain with cargo, fmt, clippy, and test dependencies
+#
+# Safety behavior:
+# - Refuses to run from a dirty worktree
+# - Refuses to run outside main branch
+# - Supports --dry-run to print actions without mutating state
+#
+# Security contract:
+# - run_cmd executes commands via "$@" expansion (not eval).
+# - All arguments are passed as individual parameters, preventing injection.
+# - Never pass unvalidated user-controlled data to command constructors.
+
 # Prevent sourcing: this script is intended to run as an executable only.
 if [[ ( -n "${BASH_SOURCE[0]-}" && "${BASH_SOURCE[0]}" != "$0" ) || ( -n "${ZSH_EVAL_CONTEXT-}" && "${ZSH_EVAL_CONTEXT}" == *:file ) ]]; then
   printf '[release] ERROR: do not source this script; run it as ./scripts/release.sh ...\n' >&2
@@ -55,9 +77,11 @@ die() {
 
 run_cmd() {
   if [[ "$DRY_RUN" == "true" ]]; then
-    printf '[dry-run] %s\n' "$*"
+    printf '[dry-run]'
+    printf ' %q' "$@"
+    printf '\n'
   else
-    eval "$*"
+    "$@"
   fi
 }
 
@@ -149,26 +173,26 @@ update_cargo_version() {
 }
 
 run_checks() {
-  run_cmd "cargo fmt --check"
-  run_cmd "cargo clippy --all-targets --all-features -- -D warnings"
-  run_cmd "cargo test"
+  run_cmd cargo fmt --check
+  run_cmd cargo clippy --all-targets --all-features -- -D warnings
+  run_cmd cargo test
 }
 
 commit_and_tag() {
   local next="$1"
   local tag="v$next"
 
-  run_cmd "git add Cargo.toml"
-  run_cmd "git commit -m \"chore(release): bump version to $tag\""
-  run_cmd "git tag $tag"
+  run_cmd git add Cargo.toml
+  run_cmd git commit -m "chore(release): bump version to $tag"
+  run_cmd git tag "$tag"
 }
 
 push_release() {
   local next="$1"
   local tag="v$next"
 
-  run_cmd "git push origin main"
-  run_cmd "git push origin $tag"
+  run_cmd git push origin main
+  run_cmd git push origin "$tag"
 }
 
 main() {
