@@ -7,6 +7,7 @@ use std::time::Duration;
 
 use anyhow::{Context, Result};
 use reqwest::blocking::Client;
+use reqwest::header::{HeaderMap, HeaderValue, AUTHORIZATION};
 use serde::Deserialize;
 
 use crate::constants::{
@@ -168,11 +169,20 @@ fn validate_source(source: &ExternalSkillSource) -> Result<()> {
 
 fn fetch_from_github(source: &ExternalSkillSource) -> Result<Vec<(PathBuf, Vec<u8>)>> {
     let (owner, repo) = parse_github_repo(&source.repository)?;
+
+    let mut headers = HeaderMap::new();
+    if let Ok(token) = std::env::var("GITHUB_TOKEN") {
+        let auth_value = HeaderValue::from_str(&format!("Bearer {token}"))
+            .context("GITHUB_TOKEN contains invalid header characters")?;
+        headers.insert(AUTHORIZATION, auth_value);
+    }
+
     let client = Client::builder()
         .user_agent(format!(
             "rafaelcmm-ai-dotfiles/{}",
             env!("CARGO_PKG_VERSION")
         ))
+        .default_headers(headers)
         .timeout(Duration::from_secs(30))
         .connect_timeout(Duration::from_secs(10))
         .build()
