@@ -199,6 +199,7 @@ Use a release asset URL template. For Linux/macOS assets (`tar.gz`):
 
 ```bash
 cargo binstall rafaelcmm-ai-dotfiles \
+  --git "https://github.com/rafaelcmm/rafaelcmm-ai-dotfiles.git" \
   --version "{ version }" \
   --disable-strategies compile \
   --pkg-url "https://github.com/rafaelcmm/rafaelcmm-ai-dotfiles/releases/download/v{ version }/rafaelcmm-ai-dotfiles-{ target }.tar.gz" \
@@ -209,6 +210,7 @@ Example for Linux x86_64 and `v1.1.2`:
 
 ```bash
 cargo binstall rafaelcmm-ai-dotfiles \
+  --git "https://github.com/rafaelcmm/rafaelcmm-ai-dotfiles.git" \
   --version "1.1.2" \
   --disable-strategies compile \
   --pkg-url "https://github.com/rafaelcmm/rafaelcmm-ai-dotfiles/releases/download/v1.1.2/rafaelcmm-ai-dotfiles-x86_64-unknown-linux-gnu.tar.gz" \
@@ -219,6 +221,7 @@ Example for macOS Apple Silicon (`aarch64`) and `v1.1.2`:
 
 ```bash
 cargo binstall rafaelcmm-ai-dotfiles \
+  --git "https://github.com/rafaelcmm/rafaelcmm-ai-dotfiles.git" \
   --version "1.1.2" \
   --disable-strategies compile \
   --pkg-url "https://github.com/rafaelcmm/rafaelcmm-ai-dotfiles/releases/download/v1.1.2/rafaelcmm-ai-dotfiles-aarch64-apple-darwin.tar.gz" \
@@ -228,13 +231,13 @@ cargo binstall rafaelcmm-ai-dotfiles \
 For Windows assets (`zip`):
 
 ```powershell
-cargo binstall rafaelcmm-ai-dotfiles --version "{ version }" --disable-strategies compile --pkg-url "https://github.com/rafaelcmm/rafaelcmm-ai-dotfiles/releases/download/v{ version }/rafaelcmm-ai-dotfiles-{ target }.zip" --pkg-fmt zip
+cargo binstall rafaelcmm-ai-dotfiles --git "https://github.com/rafaelcmm/rafaelcmm-ai-dotfiles.git" --version "{ version }" --disable-strategies compile --pkg-url "https://github.com/rafaelcmm/rafaelcmm-ai-dotfiles/releases/download/v{ version }/rafaelcmm-ai-dotfiles-{ target }.zip" --pkg-fmt zip
 ```
 
 Example for Windows x86_64 and `v1.1.2`:
 
 ```powershell
-cargo binstall rafaelcmm-ai-dotfiles --version "1.1.2" --disable-strategies compile --pkg-url "https://github.com/rafaelcmm/rafaelcmm-ai-dotfiles/releases/download/v1.1.2/rafaelcmm-ai-dotfiles-x86_64-pc-windows-msvc.zip" --pkg-fmt zip
+cargo binstall rafaelcmm-ai-dotfiles --git "https://github.com/rafaelcmm/rafaelcmm-ai-dotfiles.git" --version "1.1.2" --disable-strategies compile --pkg-url "https://github.com/rafaelcmm/rafaelcmm-ai-dotfiles/releases/download/v1.1.2/rafaelcmm-ai-dotfiles-x86_64-pc-windows-msvc.zip" --pkg-fmt zip
 ```
 
 ### Verify release artifact integrity
@@ -304,6 +307,8 @@ Behavior:
   - Use a target path inside `HOME`, or pass `--allow-outside-home` only for controlled automation/testing.
 - `Fallback to cargo-install is disabled` from `cargo binstall`:
   - Remove `--disable-strategies compile` to allow source-compile fallback, or use `cargo install --locked --git ... --tag ...` directly.
+- `rafaelcmm-ai-dotfiles is not found` from `cargo binstall`:
+  - Add `--git "https://github.com/rafaelcmm/rafaelcmm-ai-dotfiles.git"` so `cargo-binstall` can resolve package metadata outside crates.io.
 - `Failed to parse url: relative URL without a base` when using `--git`:
   - Do not use scp-style SSH (`git@github.com:owner/repo.git`) with `cargo binstall --git`.
   - Use URL-style SSH instead: `ssh://git@github.com/owner/repo.git`.
