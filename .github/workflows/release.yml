@@ -26,6 +26,10 @@ jobs:
 
       - name: Cache cargo
         uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: cargo-linux-x86_64
+          workspaces: |
+            . -> target
 
       - name: Check formatting
         run: cargo fmt --check
@@ -68,6 +72,10 @@ jobs:
 
       - name: Cache cargo
         uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: cargo-${{ matrix.target }}
+          workspaces: |
+            . -> target/${{ matrix.target }}
 
       - name: Build
         run: cargo build --release --target ${{ matrix.target }}

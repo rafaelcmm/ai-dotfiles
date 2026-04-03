@@ -27,6 +27,10 @@ jobs:
 
       - name: Cache cargo
         uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: cargo-linux-x86_64
+          workspaces: |
+            . -> target
 
       - name: Check formatting
         run: cargo fmt --check
