@@ -2,6 +2,26 @@
 
 Rust CLI to install, update and debloat Rafael Monteiro AI configuration files for Claude, Copilot and Cursor.
 
+## Prerequisites
+
+- Rust toolchain installed (`cargo` available in `PATH`).
+- Optional: `cargo-binstall` for faster install/self-update experience.
+- Network access to GitHub for self-update and release-asset downloads.
+
+## Quick validation
+
+After install/update, verify:
+
+```bash
+rafaelcmm-ai-dotfiles --version
+rafaelcmm-ai-dotfiles update --yes
+```
+
+Expected outcome:
+
+- Version prints successfully.
+- Update completes without modifying unmanaged user files.
+
 ## Features
 
 - Installs platform configuration from the embedded `static/` tree.
@@ -11,6 +31,32 @@ Rust CLI to install, update and debloat Rafael Monteiro AI configuration files f
 - Non-destructive behavior: unmanaged files are never modified or removed.
 - Managed content is identified by names starting with `rafaelcmm-` under `agents`, `rules`, `instructions`, and `skills`.
 - Symlinks are never traversed during update/debloat operations.
+
+## Source and script reference
+
+### Rust modules (`src/`)
+
+- `main.rs`: CLI parsing, HOME safety boundary checks, and self-update trigger before delegating to library logic.
+- `lib.rs`: library entrypoint exposing command model and the high-level `run` API.
+- `operations.rs`: install/update/debloat orchestration and non-destructive managed-file behavior.
+- `embedded.rs`: embedded `static/` tree access and versioned destination-path mapping.
+- `fs_ops.rs`: managed filesystem traversal and cleanup with symlink-safe behavior.
+- `meta.rs`: `_meta.md` rendering from template and installed-version discovery.
+- `constants.rs`: shared command/platform constants and managed-root definitions.
+- `self_update.rs`: GitHub release check, optional `cargo-binstall` upgrade, and re-exec flow.
+- `tests.rs`: end-to-end behavior tests for install/update/debloat safety guarantees.
+
+### Shell scripts (`scripts/`)
+
+- `release.sh`: validates repository state, runs Rust checks, bumps version, tags, and pushes release.
+- `smoke-release.sh`: downloads one tagged release asset for the current platform, validates checksum, and runs `--version` smoke test.
+- `update.sh`: thin wrapper for `rafaelcmm-ai-dotfiles update`.
+
+### Documentation expectations for contributors
+
+- Public Rust APIs should keep rustdoc comments with `# Errors` and `# Panics` sections when relevant.
+- Module-level docs (`//!`) should explain responsibility boundaries and safety assumptions.
+- Script headers should document purpose, prerequisites, and safety constraints before executable logic.
 
 ## Commands
 
@@ -136,7 +182,8 @@ cargo test
 
 ```bash
 git tag v1.0.1
-git push origin main --tags
+git push origin main
+git push origin v1.0.1
 ```
 
 ### Release helper script
@@ -173,13 +220,9 @@ Preferred method (simple package manager): `cargo install` from a release tag.
 cargo install --locked --git https://github.com/rafaelcmm/rafaelcmm-ai-dotfiles.git --tag v1.1.2 rafaelcmm-ai-dotfiles
 ```
 
-Example for Linux/macOS and `v1.1.2`:
-
-```bash
-cargo install --locked --git https://github.com/rafaelcmm/rafaelcmm-ai-dotfiles.git --tag v1.1.2 rafaelcmm-ai-dotfiles
-```
-
 This compiles from source and works well for a public repository.
+
+The same command applies on Linux, macOS, and Windows (with Rust toolchain installed).
 
 Alternative (faster, prebuilt binary): `cargo-binstall`.
 
