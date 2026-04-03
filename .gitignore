@@ -4,6 +4,7 @@
 .prompts/
 dist/
 node_modules/
+target/
 
 # Environment
 .env

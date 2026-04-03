@@ -1,0 +1,20 @@
+[package]
+name = "rafaelcmm-ai-dotfiles"
+version = "1.0.0"
+edition = "2021"
+description = "CLI to install, update and debloat Rafael Monteiro AI tool configuration"
+authors = ["Rafael Monteiro <rafaelcmmm@icloud.com>"]
+license-file = "LICENSE"
+repository = "https://github.com/rafaelcmm/rafaelcmm-ai-dotfiles"
+
+[[bin]]
+name = "rafaelcmm-ai-dotfiles"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = "1.0"
+clap = { version = "4.5", features = ["derive"] }
+include_dir = "0.7"
+
+[dev-dependencies]
+tempfile = "3.20"
