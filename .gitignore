@@ -1,6 +1,5 @@
 # Folders
 .next/
-.github/
 .prompts/
 dist/
 node_modules/
