@@ -1,6 +1,8 @@
 # Folders
 .next/
 .prompts/
+.github/
+!.github/workflows/
 dist/
 node_modules/
 target/
