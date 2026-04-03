@@ -1,8 +1,9 @@
 # Folders
 .next/
-.github
+.github/
+.prompts/
 dist/
-node_modules
+node_modules/
 
 # Environment
 .env
