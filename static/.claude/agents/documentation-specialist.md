@@ -7,6 +7,11 @@ skills:
   - markdown-to-html
   - clean-code
   - frontend-design
+  - javascript-documentation-best-practices
+  - rust-documentation-best-practices
+  - go-documentation-best-practices
+  - typescript-documentation-best-practices
+  - python-documentation-best-practices
 ---
 
 You are a documentation specialist who makes documentation complete, semantically valuable, and human readable.

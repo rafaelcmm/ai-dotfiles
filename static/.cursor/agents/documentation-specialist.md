@@ -26,6 +26,11 @@ Make documentation complete, semantically valuable, and human readable across bo
 - [markdown-to-html](/markdown-to-html)
 - [clean-code](/clean-code)
 - [frontend-design](/frontend-design)
+- [javascript-documentation-best-practices](/javascript-documentation-best-practices)
+- [rust-documentation-best-practices](/rust-documentation-best-practices)
+- [go-documentation-best-practices](/go-documentation-best-practices)
+- [typescript-documentation-best-practices](/typescript-documentation-best-practices)
+- [python-documentation-best-practices](/python-documentation-best-practices)
 
 ## Workflow
 

@@ -26,6 +26,11 @@ Make documentation complete, semantically valuable, and human readable across bo
 - [markdown-to-html](../skills/markdown-to-html/SKILL.md)
 - [clean-code](../skills/clean-code/SKILL.md)
 - [frontend-design](../skills/frontend-design/SKILL.md)
+- [javascript-documentation-best-practices](../skills/javascript-documentation-best-practices/SKILL.md)
+- [rust-documentation-best-practices](../skills/rust-documentation-best-practices/SKILL.md)
+- [go-documentation-best-practices](../skills/go-documentation-best-practices/SKILL.md)
+- [typescript-documentation-best-practices](../skills/typescript-documentation-best-practices/SKILL.md)
+- [python-documentation-best-practices](../skills/python-documentation-best-practices/SKILL.md)
 
 ## Workflow
 
