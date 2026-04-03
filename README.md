@@ -173,6 +173,12 @@ Preferred method (simple package manager): `cargo install` from a release tag.
 cargo install --locked --git https://github.com/rafaelcmm/rafaelcmm-ai-dotfiles.git --tag v1.1.2 rafaelcmm-ai-dotfiles
 ```
 
+Example for Linux/macOS and `v1.1.2`:
+
+```bash
+cargo install --locked --git https://github.com/rafaelcmm/rafaelcmm-ai-dotfiles.git --tag v1.1.2 rafaelcmm-ai-dotfiles
+```
+
 This compiles from source and works well for a public repository.
 
 Alternative (faster, prebuilt binary): `cargo-binstall`.
@@ -206,6 +212,16 @@ cargo binstall rafaelcmm-ai-dotfiles \
   --version "1.1.2" \
   --disable-strategies compile \
   --pkg-url "https://github.com/rafaelcmm/rafaelcmm-ai-dotfiles/releases/download/v1.1.2/rafaelcmm-ai-dotfiles-x86_64-unknown-linux-gnu.tar.gz" \
+  --pkg-fmt tgz
+```
+
+Example for macOS Apple Silicon (`aarch64`) and `v1.1.2`:
+
+```bash
+cargo binstall rafaelcmm-ai-dotfiles \
+  --version "1.1.2" \
+  --disable-strategies compile \
+  --pkg-url "https://github.com/rafaelcmm/rafaelcmm-ai-dotfiles/releases/download/v1.1.2/rafaelcmm-ai-dotfiles-aarch64-apple-darwin.tar.gz" \
   --pkg-fmt tgz
 ```
 
