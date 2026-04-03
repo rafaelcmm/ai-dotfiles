@@ -167,21 +167,15 @@ The script will:
 
 ### Install on another machine
 
-Preferred (deterministic) method: install directly from release assets.
-
-Linux x86_64 example (`v1.1.1`):
+Preferred method (simple package manager): `cargo install` from a release tag.
 
 ```bash
-VERSION="1.1.1"
-curl -fsSL -o /tmp/rafaelcmm-ai-dotfiles.tar.gz \
-  "https://github.com/rafaelcmm/rafaelcmm-ai-dotfiles/releases/download/v${VERSION}/rafaelcmm-ai-dotfiles-x86_64-unknown-linux-gnu.tar.gz"
-tar -xzf /tmp/rafaelcmm-ai-dotfiles.tar.gz -C /tmp
-install -m 0755 /tmp/rafaelcmm-ai-dotfiles ~/.local/bin/rafaelcmm-ai-dotfiles
+cargo install --locked --git https://github.com/rafaelcmm/rafaelcmm-ai-dotfiles.git --tag v1.1.2 rafaelcmm-ai-dotfiles
 ```
 
-Ensure `~/.local/bin` is in your `PATH`.
+This compiles from source and works well for a public repository.
 
-Alternative: install with `cargo-binstall` (binary-only mode).
+Alternative (faster, prebuilt binary): `cargo-binstall`.
 
 Install `cargo-binstall` first (one-time):
 
@@ -199,34 +193,32 @@ Use a release asset URL template. For Linux/macOS assets (`tar.gz`):
 
 ```bash
 cargo binstall rafaelcmm-ai-dotfiles \
-  --git "https://github.com/rafaelcmm/rafaelcmm-ai-dotfiles.git" \
   --version "{ version }" \
   --disable-strategies compile \
   --pkg-url "https://github.com/rafaelcmm/rafaelcmm-ai-dotfiles/releases/download/v{ version }/rafaelcmm-ai-dotfiles-{ target }.tar.gz" \
   --pkg-fmt tgz
 ```
 
-Example for Linux x86_64 and `v1.1.1`:
+Example for Linux x86_64 and `v1.1.2`:
 
 ```bash
 cargo binstall rafaelcmm-ai-dotfiles \
-  --git "https://github.com/rafaelcmm/rafaelcmm-ai-dotfiles.git" \
-  --version "1.1.1" \
+  --version "1.1.2" \
   --disable-strategies compile \
-  --pkg-url "https://github.com/rafaelcmm/rafaelcmm-ai-dotfiles/releases/download/v1.1.1/rafaelcmm-ai-dotfiles-x86_64-unknown-linux-gnu.tar.gz" \
+  --pkg-url "https://github.com/rafaelcmm/rafaelcmm-ai-dotfiles/releases/download/v1.1.2/rafaelcmm-ai-dotfiles-x86_64-unknown-linux-gnu.tar.gz" \
   --pkg-fmt tgz
 ```
 
 For Windows assets (`zip`):
 
 ```powershell
-cargo binstall rafaelcmm-ai-dotfiles --git "https://github.com/rafaelcmm/rafaelcmm-ai-dotfiles.git" --version "{ version }" --disable-strategies compile --pkg-url "https://github.com/rafaelcmm/rafaelcmm-ai-dotfiles/releases/download/v{ version }/rafaelcmm-ai-dotfiles-{ target }.zip" --pkg-fmt zip
+cargo binstall rafaelcmm-ai-dotfiles --version "{ version }" --disable-strategies compile --pkg-url "https://github.com/rafaelcmm/rafaelcmm-ai-dotfiles/releases/download/v{ version }/rafaelcmm-ai-dotfiles-{ target }.zip" --pkg-fmt zip
 ```
 
-Example for Windows x86_64 and `v1.1.1`:
+Example for Windows x86_64 and `v1.1.2`:
 
 ```powershell
-cargo binstall rafaelcmm-ai-dotfiles --git "https://github.com/rafaelcmm/rafaelcmm-ai-dotfiles.git" --version "1.1.1" --disable-strategies compile --pkg-url "https://github.com/rafaelcmm/rafaelcmm-ai-dotfiles/releases/download/v1.1.1/rafaelcmm-ai-dotfiles-x86_64-pc-windows-msvc.zip" --pkg-fmt zip
+cargo binstall rafaelcmm-ai-dotfiles --version "1.1.2" --disable-strategies compile --pkg-url "https://github.com/rafaelcmm/rafaelcmm-ai-dotfiles/releases/download/v1.1.2/rafaelcmm-ai-dotfiles-x86_64-pc-windows-msvc.zip" --pkg-fmt zip
 ```
 
 ### Verify release artifact integrity
@@ -261,7 +253,11 @@ The script will:
 
 ### Roll back to a previous version
 
-Install using an older tag in the URL template (for example `v1.0.0`).
+Install using an older git tag (for example `v1.0.0`):
+
+```bash
+cargo install --locked --git https://github.com/rafaelcmm/rafaelcmm-ai-dotfiles.git --tag v1.0.0 rafaelcmm-ai-dotfiles
+```
 
 ### Self-update and config-update script
 
@@ -290,3 +286,8 @@ Behavior:
   - Export `HOME` in the current shell session.
 - `refusing to operate outside HOME`:
   - Use a target path inside `HOME`, or pass `--allow-outside-home` only for controlled automation/testing.
+- `Fallback to cargo-install is disabled` from `cargo binstall`:
+  - Remove `--disable-strategies compile` to allow source-compile fallback, or use `cargo install --locked --git ... --tag ...` directly.
+- `Failed to parse url: relative URL without a base` when using `--git`:
+  - Do not use scp-style SSH (`git@github.com:owner/repo.git`) with `cargo binstall --git`.
+  - Use URL-style SSH instead: `ssh://git@github.com/owner/repo.git`.
