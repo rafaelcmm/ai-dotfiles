@@ -14,15 +14,16 @@ This document describes how the Rust implementation works, module boundaries, an
 
 1. The binary entrypoint parses CLI arguments and enforces runtime safety checks.
 2. The library orchestrates install/update/debloat operations against a target HOME.
-3. Embedded static files are transformed into versioned managed destinations.
-4. Filesystem helpers manage only package-owned content, without traversing symlinked directories.
+3. Embedded and external sources resolve to canonical platform-relative destinations.
+4. Each platform keeps one `_meta.md` whose YAML frontmatter is the authoritative inventory of managed files and directories.
+5. Filesystem helpers manage only tracked package-owned content, without traversing symlinked directories.
 
 ## Module map
 
 - `main.rs`
   - Defines CLI commands and flags.
   - Validates HOME boundary before running operations.
-  - Triggers self-update flow on `update` (unless disabled).
+  - Triggers self-update flow on `update` unless disabled.
 
 - `lib.rs`
   - Library entrypoint.
@@ -31,68 +32,73 @@ This document describes how the Rust implementation works, module boundaries, an
 - `constants.rs`
   - Shared constants and enums.
   - Defines managed roots: `agents`, `rules`, `instructions`, `skills`.
-  - Defines managed filename prefix: `rafaelcmm-`.
+  - Keeps the legacy prefix constant only for migration helpers.
 
 - `operations.rs`
   - Core behavior for `install`, `update`, and `debloat`.
+  - Builds desired canonical file trees, reconciles tracked paths from `_meta.md`, and rewrites `_meta.md` last.
   - Applies non-destructive managed-file rules.
 
 - `embedded.rs`
-  - Reads embedded files from `static/` (via `include_dir`).
+  - Reads embedded files from `static/` via `include_dir`.
   - Merges platform-specific and shared trees.
-  - Applies destination path transformation and version prefixing.
-  - Adds generated `_meta.md` into desired outputs.
+  - Emits canonical platform-relative destinations and rejects duplicate embedded outputs.
 
 - `external_skills.rs`
   - Loads `static/external-skills.toml` for external source definitions.
   - Source contract: `id`, `repository`, `commit`, `path`, optional `platforms`, optional `enabled`, optional `checksum`.
-  - Validates source safety constraints (non-empty `id`/`path`, `id` cannot include slash, commit must be a full SHA hash).
+  - Validates source safety constraints such as non-empty `id` and `path`, slash-free `id`, and full SHA commit pinning.
   - Filters by platform using `all` or normalized platform names (`claude`, `copilot`, `cursor`).
   - Requires `SKILL.md` under the configured source path.
   - Downloads enabled sources from pinned GitHub commits and caches files under `~/.cache/rafaelcmm-ai-dotfiles/external-skills`.
-  - On source fetch/parse errors, emits a warning and continues with other sources.
-  - Maps external skill files into managed versioned destinations under `skills/`.
+  - On source fetch or parse errors, emits a warning and continues with other sources.
+  - Maps external skill files into canonical destinations under `skills/<id>/...`.
 
 - `meta.rs`
-  - Renders `_meta.md` from `static/_meta_template.md`.
-  - Extracts installed version from existing metadata.
+  - Renders `_meta.md` from `static/_meta_template.md` plus YAML frontmatter.
+  - Parses structured manifests from existing metadata.
+  - Falls back to legacy version-only metadata parsing for migration.
 
 - `fs_ops.rs`
-  - Collects existing managed files for cleanup/update.
-  - Removes empty managed directories after cleanup.
-  - Treats symlinks as leaf entries and never traverses them.
+  - Resolves tracked files and directories from `_meta.md`.
+  - Handles legacy prefixed path discovery used only during migration.
+  - Removes empty tracked directories while preserving symlinks.
 
 - `self_update.rs`
-  - Checks latest GitHub release tag.
-  - Downloads and installs newer binary directly from GitHub Releases.
-  - Verifies `SHA256SUMS` contains expected target asset entry before install.
-  - Re-executes `update` with `--no-self-update` after successful upgrade.
+  - Checks the latest GitHub release tag.
+  - Downloads and installs newer binaries directly from GitHub Releases.
+  - Verifies `SHA256SUMS` contains the expected target asset entry before install.
+  - Re-executes `update` with `--no-self-update` after a successful upgrade.
 
 - `tests.rs`
-  - Integration-style tests for install/update/debloat safety and behavior.
+  - Integration-style tests for canonical installs, metadata lifecycle, migration, and symlink safety.
 
 ## Command behavior details
 
 ### Install
 
 - Creates managed files only when no prior metadata is found.
-- If an installation is already present, returns a message instructing to use `update`.
-- Writes versioned embedded and external managed files across supported platform roots.
+- If an installation is already present, returns a message instructing the user to run `update`.
+- Writes canonical embedded and external files across supported platform roots.
+- Writes `_meta.md` last so the manifest reflects the final successful state.
 
 ### Update
 
-- If all installed platform metadata versions match current package version, exits as up to date.
-- If not installed yet, bootstraps managed files as a fresh synchronization.
+- Bootstraps managed files as a fresh synchronization when no installation exists yet.
 - Otherwise:
-  - Computes desired managed set for current version (embedded + external sources).
-  - Removes only stale managed files.
-  - Writes only changed/new files.
+  - Computes the desired canonical managed set for the current package version from embedded and external sources.
+  - Removes stale tracked files from the current manifest.
+  - Migrates any legacy `rafaelcmm-<version>-...` installs in place.
+  - Writes only changed and new files.
+  - Rebuilds `_meta.md` from the final desired state.
   - Preserves unmanaged user files.
+- Returns `Configuration is already up to date.` only when no tracked paths changed and no migration work was needed.
 
 ### Debloat
 
-- Removes only managed files that match managed prefix/rules.
-- Removes `_meta.md` only when it appears tool-generated based on a marker phrase check.
+- Removes only files and directories tracked in `_meta.md`.
+- Falls back to legacy prefixed cleanup when only an older installation is present.
+- Removes generated `_meta.md` after tracked content is cleaned up.
 - Leaves custom unmanaged files untouched.
 
 ## Managed path model
@@ -104,21 +110,22 @@ Static source layout:
 
 Destination model:
 
-- Content under managed roots is prefixed as `rafaelcmm-<version>-...`.
-- `_meta.md` is written directly under each platform root.
+- Managed content is installed as-is under canonical names.
+- `_meta.md` is written directly under each platform root and stores the authoritative inventory used by `update` and `debloat`.
 
-Example mapping (version `1.0.0`):
+Example mapping:
 
-- `static/.claude/agents/rust-specialist.md` -> `~/.claude/agents/rafaelcmm-1.0.0-rust-specialist.md`
-- `static/__shared__/skills/clean-code/SKILL.md` -> `~/.copilot/skills/rafaelcmm-1.0.0-clean-code/SKILL.md`
-- External source `react-best-practices/SKILL.md` -> `~/.claude/skills/rafaelcmm-1.0.0-react-best-practices/SKILL.md`
+- `static/.claude/agents/rust-specialist.md` -> `~/.claude/agents/rust-specialist.md`
+- `static/__shared__/skills/clean-code/SKILL.md` -> `~/.copilot/skills/clean-code/SKILL.md`
+- External source `react-best-practices/SKILL.md` -> `~/.claude/skills/react-best-practices/SKILL.md`
 
 ## Safety and security guarantees
 
 - CLI operations are constrained to HOME unless explicit override is provided via hidden flags.
-- Symlinked directories are never traversed during update/debloat cleanup.
-- Self-update is fail-open: network/install errors do not block config synchronization.
-- Release checksum list is verified for expected asset presence before self-update install.
+- Symlinked directories are never traversed during update or debloat cleanup.
+- Self-update is fail-open: network or install errors do not block config synchronization.
+- Release checksum lists are verified for expected asset presence before self-update install.
+- External cache state remains separate from installed ownership state.
 
 ## Development and validation
 
@@ -147,6 +154,6 @@ cargo test
 When adding new managed configuration content:
 
 1. Add files under one of the static trees.
-2. Keep content under managed roots (`agents`, `rules`/`instructions`, `skills`).
+2. Keep content under managed roots such as `agents`, `rules` or `instructions`, and `skills`.
 3. Validate behavior with `cargo test`.
-4. Confirm generated destination paths still follow managed prefix/versioning rules.
+4. Confirm the new content installs under the intended canonical path and appears in `_meta.md`.
