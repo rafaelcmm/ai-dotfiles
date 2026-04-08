@@ -8,6 +8,12 @@
 # - Files limited to 100 per source, max depth 10 directories
 # - Network timeouts: 10s connect, 30s total per request
 
+# -----------------------------------------------------------------------------
+# Repository zone: Vercel Labs
+# Repo: https://github.com/vercel-labs/agent-skills
+# Repo: https://github.com/vercel-labs/next-skills
+# -----------------------------------------------------------------------------
+
 [[source]]
 id = "react-best-practices"
 repository = "https://github.com/vercel-labs/agent-skills"
@@ -15,7 +21,7 @@ commit = "73140fc5b3a214ad3222bcf557b397b3c02d11c1"
 path = "skills/react-best-practices"
 platforms = ["all"]
 enabled = true
-# checksum = "abc123..." # Optional: SHA256 of SKILL.md for verification
+checksum = "50b55178a2da8ee931850193596601fa0517cd800e171366a903769f25bf4dda"
 
 [[source]]
 id = "next-best-practices"
@@ -24,7 +30,12 @@ commit = "038954e07bfc313e97fa5f6ff7caf87226e4a782"
 path = "skills/next-best-practices"
 platforms = ["all"]
 enabled = true
+checksum = "c78f952d4e98bf3694856dbf70c03a6037d4e258ff3701f2642bfdf108549a25"
 
+# -----------------------------------------------------------------------------
+# Repository zone: OpenAEC Foundation Docker package
+# Repo: https://github.com/OpenAEC-Foundation/Docker-Claude-Skill-Package
+# -----------------------------------------------------------------------------
 # Docker skills sourced from OpenAEC Foundation package.
 # Grouped upstream paths are split into one source per skill so each source
 # has a root SKILL.md and maps directly to skills/<id>/... destinations.
@@ -227,6 +238,10 @@ platforms = ["all"]
 enabled = true
 checksum = "d3f2efd18a983d6b067d1c212e55aa4dbf75d2c6bbee41ad79e42d06af28856c"
 
+# -----------------------------------------------------------------------------
+# Repository zone: OpenAEC Foundation n8n package
+# Repo: https://github.com/OpenAEC-Foundation/n8n-Claude-Skill-Package
+# -----------------------------------------------------------------------------
 # n8n skills sourced from OpenAEC Foundation package.
 # Grouped upstream paths are split into one source per skill so each source
 # has a root SKILL.md and maps directly to skills/<id>/... destinations.
@@ -419,3 +434,17 @@ path = "skills/source/n8n-syntax/n8n-syntax-workflow-json"
 platforms = ["all"]
 enabled = true
 checksum = "b69ea553ff76fb4172bea8cf3e2ad5e28405185c60d29fc5cf3754e356bbdd3e"
+
+# -----------------------------------------------------------------------------
+# Repository zone: NikiforovAll claude-code-rules
+# Repo: https://github.com/NikiforovAll/claude-code-rules
+# -----------------------------------------------------------------------------
+
+[[source]]
+id = "glab-skill"
+repository = "https://github.com/NikiforovAll/claude-code-rules"
+commit = "402264dbd9a3d15b2edff0c3b0f156d97bf6fb46"
+path = "plugins/handbook-glab/skills/glab-skill"
+platforms = ["all"]
+enabled = true
+checksum = "681ed5414a305efeb7c6f56431f383ed95c5ff4e086ad10bd474dca123b59a42"
