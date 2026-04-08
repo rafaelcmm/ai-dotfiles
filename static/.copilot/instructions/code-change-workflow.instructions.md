@@ -102,9 +102,10 @@ When running reviewer subagents for Final Checkup TODOs:
 
 ## Skill link topology
 
-- For Claude templates in `packages/platform-config/.claude/skills`, most entries link through `../../static/skills`.
-- Docker grouped entries (`docker-agents`, `docker-core`, `docker-errors`, `docker-impl`, `docker-syntax`) link to grouped trees under `../../.github/skills`.
-- Validate Claude skill links with: `find packages/platform-config/.claude/skills -xtype l -print`.
+- Shared local skills are embedded from `static/__shared__/skills` and installed under `~/.copilot/skills/<skill-id>/`.
+- External skills are declared in `static/external-skills.toml` and installed under `~/.copilot/skills/<source-id>/`.
+- Docker skills are sourced externally as individual ids (for example `docker-core-architecture`) rather than grouped static folders.
+- Validate source mapping with: `grep '^id = "' static/external-skills.toml`.
 
 ## Stop condition
 
