@@ -6,11 +6,36 @@ use std::path::{Path, PathBuf};
 use anyhow::{Context, Result};
 
 use crate::constants::{Platform, MANAGED_PREFIX, MANAGED_ROOTS};
+use crate::meta::PlatformManifest;
 
-/// Collects managed files under a platform root.
-///
-/// Symlinks are treated as leaf entries and never traversed.
-pub(crate) fn collect_existing_managed_files(
+/// Collects files tracked by the platform manifest.
+pub(crate) fn collect_tracked_files(
+    home: &Path,
+    platform: Platform,
+    manifest: &PlatformManifest,
+) -> Vec<PathBuf> {
+    manifest
+        .managed_files
+        .iter()
+        .map(|relative| home.join(platform.root).join(relative))
+        .collect()
+}
+
+/// Collects directories tracked by the platform manifest.
+pub(crate) fn collect_tracked_directories(
+    home: &Path,
+    platform: Platform,
+    manifest: &PlatformManifest,
+) -> Vec<PathBuf> {
+    manifest
+        .managed_directories
+        .iter()
+        .map(|relative| home.join(platform.root).join(relative))
+        .collect()
+}
+
+/// Collects legacy top-level managed entries still using the versioned prefix.
+pub(crate) fn collect_legacy_managed_entries(
     home: &Path,
     platform: Platform,
 ) -> Result<Vec<PathBuf>> {
@@ -38,37 +63,94 @@ pub(crate) fn collect_existing_managed_files(
                 continue;
             }
 
-            let path = entry.path();
-            let metadata = fs::symlink_metadata(&path)
-                .with_context(|| format!("failed to read metadata for {}", path.display()))?;
-
-            if metadata.file_type().is_symlink() {
-                managed.push(path);
-            } else if metadata.is_dir() {
-                collect_files_from_fs(&path, &mut managed)?;
-            } else {
-                managed.push(path);
-            }
+            managed.push(entry.path());
         }
     }
 
     Ok(managed)
 }
 
-/// Removes empty directories under managed roots while preserving symlinks.
-pub(crate) fn cleanup_empty_managed_dirs(home: &Path, platform: Platform) -> Result<()> {
-    let platform_root = home.join(platform.root);
+/// Collects files reachable from legacy managed entries.
+pub(crate) fn collect_legacy_managed_files(
+    home: &Path,
+    platform: Platform,
+) -> Result<Vec<PathBuf>> {
+    let mut managed = Vec::<PathBuf>::new();
 
-    for root in MANAGED_ROOTS {
-        let managed_root = platform_root.join(root);
-        if !managed_root.exists() {
+    for path in collect_legacy_managed_entries(home, platform)? {
+        let metadata = fs::symlink_metadata(&path)
+            .with_context(|| format!("failed to read metadata for {}", path.display()))?;
+
+        if metadata.file_type().is_symlink() {
+            managed.push(path);
+        } else if metadata.is_dir() {
+            collect_files_from_fs(&path, &mut managed)?;
+        } else {
+            managed.push(path);
+        }
+    }
+
+    Ok(managed)
+}
+
+/// Removes empty tracked directories in reverse depth order while preserving symlinks.
+pub(crate) fn cleanup_tracked_directories(paths: &[PathBuf]) -> Result<usize> {
+    let mut removed = 0usize;
+    let mut ordered = paths.to_vec();
+    ordered.sort_by(|left, right| {
+        right
+            .components()
+            .count()
+            .cmp(&left.components().count())
+            .then_with(|| right.cmp(left))
+    });
+
+    for path in ordered {
+        if !path.exists() {
             continue;
         }
 
-        remove_empty_descendants(&managed_root)?;
+        let metadata = fs::symlink_metadata(&path)
+            .with_context(|| format!("failed to read metadata for {}", path.display()))?;
+
+        if metadata.file_type().is_symlink() {
+            continue;
+        }
+
+        if metadata.is_dir() && directory_is_empty(&path)? {
+            fs::remove_dir(&path)
+                .with_context(|| format!("failed to remove empty dir {}", path.display()))?;
+            removed += 1;
+        }
     }
 
-    Ok(())
+    Ok(removed)
+}
+
+/// Removes empty legacy prefixed directories after their contents have been deleted.
+pub(crate) fn cleanup_legacy_managed_entries(home: &Path, platform: Platform) -> Result<usize> {
+    let mut removed = 0usize;
+
+    for path in collect_legacy_managed_entries(home, platform)? {
+        if !path.exists() {
+            continue;
+        }
+
+        let metadata = fs::symlink_metadata(&path)
+            .with_context(|| format!("failed to read metadata for {}", path.display()))?;
+
+        if metadata.file_type().is_symlink() || !metadata.is_dir() {
+            continue;
+        }
+
+        if remove_empty_descendants(&path)? {
+            fs::remove_dir(&path)
+                .with_context(|| format!("failed to remove empty dir {}", path.display()))?;
+            removed += 1;
+        }
+    }
+
+    Ok(removed)
 }
 
 fn collect_files_from_fs(path: &Path, output: &mut Vec<PathBuf>) -> Result<()> {
@@ -125,4 +207,10 @@ fn remove_empty_descendants(path: &Path) -> Result<bool> {
     }
 
     Ok(is_empty)
+}
+
+fn directory_is_empty(path: &Path) -> Result<bool> {
+    let mut entries =
+        fs::read_dir(path).with_context(|| format!("failed to read {}", path.display()))?;
+    Ok(entries.next().is_none())
 }
