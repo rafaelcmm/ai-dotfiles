@@ -46,7 +46,8 @@ Do not skip unless the user explicitly asks not to use this workflow.
 7. Generate Final Checkup TODOs and execute them.
 8. Run reviewer subagents for final checks.
 9. Apply reviewer-requested fixes.
-10. Create a final commit for final checkup and approvals.
+10. Run the mandatory Documentation Completion Step as the final pre-commit gate.
+11. Create a final commit for final checkup and approvals.
 
 ## Conventions
 
@@ -83,6 +84,51 @@ Final Checkup TODOs must include at least:
 
 Final Checkup TODOs must run near completion, not after every code change. If new edits are introduced after final reviews, rerun one final-pass review.
 
+## Mandatory code documentation gate
+
+Code changes are not complete until documentation is complete.
+
+For every code-change request, run a mandatory Documentation Completion Step as the final pre-commit gate.
+
+Documentation Completion Step (required):
+
+- Every new or modified function must be documented.
+- Every new or modified structure, type, class, interface, and enum must be documented.
+- Every new or modified non-trivial or complex code path must include intent-focused comments.
+- Public APIs must include contract-level documentation (parameters, returns, errors, side effects).
+- Internal logic must include maintenance-facing documentation where behavior is non-obvious.
+- Documentation must be updated in the same change set as the code.
+
+Documentation quality caveats (required):
+
+- Documentation is mandatory, but low-value comments are not acceptable.
+- Comments must explain intent, invariants, constraints, side effects, failure modes, and non-obvious decisions.
+- Comments must not restate obvious syntax, variable names, or trivial control flow.
+
+Commit restriction:
+
+- The final commit is blocked until the Documentation Completion Step passes.
+
+Specialist and skills requirement:
+
+- Documentation verification and remediation must be delegated to `documentation-specialist`.
+- Before closing Final Checkup TODOs or creating the final commit, the workflow must consult and apply all documentation skills below on relevant changed files:
+  - `documentation-best-practices`
+  - `go-documentation-best-practices`
+  - `javascript-documentation-best-practices`
+  - `python-documentation-best-practices`
+  - `rust-documentation-best-practices`
+  - `typescript-documentation-best-practices`
+
+Final Checkup TODOs must include these documentation checks:
+
+- Run `documentation-specialist` review on all changed code.
+- Verify every changed function has documentation appropriate to visibility and complexity.
+- Verify every changed structure, type, class, interface, and enum has documentation.
+- Verify complex logic comments capture intent, constraints, edge cases, and side effects.
+- Verify API docs match current behavior (parameters, returns, errors, and examples where relevant).
+- Verify stale or contradictory comments were corrected or removed.
+
 ## Atomic commit requirements
 
 After each completed TODO:
@@ -115,5 +161,6 @@ Task is complete only when:
 - All implementation TODOs are done
 - All testing TODOs are done
 - All Final Checkup TODOs are done
+- Mandatory Documentation Completion Step is done
 - Atomic commits were created after each TODO
 - Final checkup fixes are applied and committed
