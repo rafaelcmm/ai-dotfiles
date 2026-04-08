@@ -36,6 +36,7 @@ commit = "993be7933ece050ff8c57002a6ff976549aebbe1"
 path = "skills/source/docker-agents/docker-agents-generator"
 platforms = ["all"]
 enabled = true
+checksum = "0f1d63732215a795572b0c073a71eacf5a132e82debac45b89ba42b67d171af1"
 
 [[source]]
 id = "docker-agents-review"
@@ -44,6 +45,7 @@ commit = "993be7933ece050ff8c57002a6ff976549aebbe1"
 path = "skills/source/docker-agents/docker-agents-review"
 platforms = ["all"]
 enabled = true
+checksum = "f9e0e7db2f1a9a3f3ac90c933caf88cf08fd3d9696e83fa42802f4b55f890519"
 
 [[source]]
 id = "docker-core-architecture"
@@ -52,6 +54,7 @@ commit = "993be7933ece050ff8c57002a6ff976549aebbe1"
 path = "skills/source/docker-core/docker-core-architecture"
 platforms = ["all"]
 enabled = true
+checksum = "3c8742d553d318f37d381c9892c91b457a04b5a1f558870a92c136b5db0b5a87"
 
 [[source]]
 id = "docker-core-networking"
@@ -60,6 +63,7 @@ commit = "993be7933ece050ff8c57002a6ff976549aebbe1"
 path = "skills/source/docker-core/docker-core-networking"
 platforms = ["all"]
 enabled = true
+checksum = "f8d16b522f51ed1cd6cf9cd3220a8a9b1263ae7b1bd18eeecd8f6fb5be0c234f"
 
 [[source]]
 id = "docker-core-security"
@@ -68,6 +72,7 @@ commit = "993be7933ece050ff8c57002a6ff976549aebbe1"
 path = "skills/source/docker-core/docker-core-security"
 platforms = ["all"]
 enabled = true
+checksum = "3b1b59bf32c923be4be72fe2bd3d2ab9ed3cae21de42c5bb6b85b590b65a4cc5"
 
 [[source]]
 id = "docker-errors-build"
@@ -76,6 +81,7 @@ commit = "993be7933ece050ff8c57002a6ff976549aebbe1"
 path = "skills/source/docker-errors/docker-errors-build"
 platforms = ["all"]
 enabled = true
+checksum = "a6398beb4ef0292aa6eda19ac5f1923b917f0e8286e9d26e5187cde98e602854"
 
 [[source]]
 id = "docker-errors-compose"
@@ -84,6 +90,7 @@ commit = "993be7933ece050ff8c57002a6ff976549aebbe1"
 path = "skills/source/docker-errors/docker-errors-compose"
 platforms = ["all"]
 enabled = true
+checksum = "d175ed7b8d88381f40bca87760b1e8fb29b4bf1be1237d79140f7210b453a58b"
 
 [[source]]
 id = "docker-errors-networking"
@@ -92,6 +99,7 @@ commit = "993be7933ece050ff8c57002a6ff976549aebbe1"
 path = "skills/source/docker-errors/docker-errors-networking"
 platforms = ["all"]
 enabled = true
+checksum = "46f7288e1307eff32e813f5cab17a7d09995e5586d6cdc8da88665a51da7f1ec"
 
 [[source]]
 id = "docker-errors-runtime"
@@ -100,6 +108,7 @@ commit = "993be7933ece050ff8c57002a6ff976549aebbe1"
 path = "skills/source/docker-errors/docker-errors-runtime"
 platforms = ["all"]
 enabled = true
+checksum = "a921ae4ee5b3a1aaa6a919680af41f076682297829e28e2188223a9b04d09020"
 
 [[source]]
 id = "docker-impl-build-optimization"
@@ -108,6 +117,7 @@ commit = "993be7933ece050ff8c57002a6ff976549aebbe1"
 path = "skills/source/docker-impl/docker-impl-build-optimization"
 platforms = ["all"]
 enabled = true
+checksum = "ea418c09631de4e56256eab977a96672974a086038d2d49daae90c4c919b2fea"
 
 [[source]]
 id = "docker-impl-cicd"
@@ -116,6 +126,7 @@ commit = "993be7933ece050ff8c57002a6ff976549aebbe1"
 path = "skills/source/docker-impl/docker-impl-cicd"
 platforms = ["all"]
 enabled = true
+checksum = "e0734c20054afe2211a074954d87b5a7e4d7623662d3b25c3cf97310ba655b5c"
 
 [[source]]
 id = "docker-impl-compose-workflows"
@@ -124,6 +135,7 @@ commit = "993be7933ece050ff8c57002a6ff976549aebbe1"
 path = "skills/source/docker-impl/docker-impl-compose-workflows"
 platforms = ["all"]
 enabled = true
+checksum = "2d5c6ad3d0ebff6c93e62b96bfaaa22a7080d8d85e379f39f2c51cbd554b48a4"
 
 [[source]]
 id = "docker-impl-go-templates"
@@ -132,6 +144,7 @@ commit = "993be7933ece050ff8c57002a6ff976549aebbe1"
 path = "skills/source/docker-impl/docker-impl-go-templates"
 platforms = ["all"]
 enabled = true
+checksum = "dbdc838dc2e370f286cf4f8464e9213b7957c3ef8544cd71adfcde04d62f74a0"
 
 [[source]]
 id = "docker-impl-production"
@@ -140,6 +153,7 @@ commit = "993be7933ece050ff8c57002a6ff976549aebbe1"
 path = "skills/source/docker-impl/docker-impl-production"
 platforms = ["all"]
 enabled = true
+checksum = "fd6f1963262eca68ab841861f9327b2d6a5c96925c0e5911167d64c63f8c59a6"
 
 [[source]]
 id = "docker-impl-storage"
@@ -148,6 +162,7 @@ commit = "993be7933ece050ff8c57002a6ff976549aebbe1"
 path = "skills/source/docker-impl/docker-impl-storage"
 platforms = ["all"]
 enabled = true
+checksum = "af230c375070901045258ca283499971527c20958cb5cc9fc9ebd4dac40acac4"
 
 [[source]]
 id = "docker-syntax-buildkit"
@@ -156,6 +171,7 @@ commit = "993be7933ece050ff8c57002a6ff976549aebbe1"
 path = "skills/source/docker-syntax/docker-syntax-buildkit"
 platforms = ["all"]
 enabled = true
+checksum = "6185b2280f4676deffdd543c5c97913632e1ad333df555a64d0d74c67bfb8fed"
 
 [[source]]
 id = "docker-syntax-cli-containers"
@@ -164,6 +180,7 @@ commit = "993be7933ece050ff8c57002a6ff976549aebbe1"
 path = "skills/source/docker-syntax/docker-syntax-cli-containers"
 platforms = ["all"]
 enabled = true
+checksum = "e30f7b9fc6bf281b45f6cc6ea9c114dc2cdec3b032cbfab83f9bc9d9e66156e0"
 
 [[source]]
 id = "docker-syntax-cli-images"
@@ -172,6 +189,7 @@ commit = "993be7933ece050ff8c57002a6ff976549aebbe1"
 path = "skills/source/docker-syntax/docker-syntax-cli-images"
 platforms = ["all"]
 enabled = true
+checksum = "77dcba188633575cfd6865fb432aa82a520faf46d341030d78db6c6aa28aa3aa"
 
 [[source]]
 id = "docker-syntax-compose-resources"
@@ -180,6 +198,7 @@ commit = "993be7933ece050ff8c57002a6ff976549aebbe1"
 path = "skills/source/docker-syntax/docker-syntax-compose-resources"
 platforms = ["all"]
 enabled = true
+checksum = "e15d539a67e4bba1e36ef49bac833d492cd30328007b71a111a7f92bf7c5ba86"
 
 [[source]]
 id = "docker-syntax-compose-services"
@@ -188,6 +207,7 @@ commit = "993be7933ece050ff8c57002a6ff976549aebbe1"
 path = "skills/source/docker-syntax/docker-syntax-compose-services"
 platforms = ["all"]
 enabled = true
+checksum = "503bf42e67f761390fefe974008a50c5f294627a6173389515d768b6222e1f0c"
 
 [[source]]
 id = "docker-syntax-dockerfile"
@@ -196,6 +216,7 @@ commit = "993be7933ece050ff8c57002a6ff976549aebbe1"
 path = "skills/source/docker-syntax/docker-syntax-dockerfile"
 platforms = ["all"]
 enabled = true
+checksum = "b2b2b6b255be9fdc3389c6edec9453b3ba2493c2ec94105bb1fdcfd2d6501db3"
 
 [[source]]
 id = "docker-syntax-multistage"
@@ -204,3 +225,4 @@ commit = "993be7933ece050ff8c57002a6ff976549aebbe1"
 path = "skills/source/docker-syntax/docker-syntax-multistage"
 platforms = ["all"]
 enabled = true
+checksum = "d3f2efd18a983d6b067d1c212e55aa4dbf75d2c6bbee41ad79e42d06af28856c"
