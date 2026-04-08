@@ -10,9 +10,7 @@ use reqwest::blocking::Client;
 use reqwest::header::{HeaderMap, HeaderValue, AUTHORIZATION};
 use serde::Deserialize;
 
-use crate::constants::{
-    Platform, EXTERNAL_SKILLS_CACHE_DIR, EXTERNAL_SKILLS_MANIFEST, MANAGED_PREFIX,
-};
+use crate::constants::{Platform, EXTERNAL_SKILLS_CACHE_DIR, EXTERNAL_SKILLS_MANIFEST};
 use crate::embedded::static_dir;
 
 #[derive(Debug, Deserialize)]
@@ -49,11 +47,10 @@ fn default_enabled() -> bool {
     true
 }
 
-/// Builds desired managed files for external skills enabled for one platform.
+/// Builds desired platform-relative files for external skills enabled for one platform.
 pub(crate) fn desired_external_skill_files_for_platform(
     home: &Path,
     platform: Platform,
-    version: &str,
 ) -> Result<HashMap<PathBuf, Vec<u8>>> {
     let manifest = load_manifest()?;
     if manifest.source.is_empty() {
@@ -78,12 +75,13 @@ pub(crate) fn desired_external_skill_files_for_platform(
         };
 
         for (relative, bytes) in files {
-            let destination = PathBuf::from(platform.root)
-                .join("skills")
-                .join(format!("{MANAGED_PREFIX}{version}-{}", source.id))
-                .join(relative);
-
-            output.insert(destination, bytes);
+            let destination = PathBuf::from("skills").join(&source.id).join(relative);
+            if output.insert(destination.clone(), bytes).is_some() {
+                anyhow::bail!(
+                    "duplicate external skill destination {}",
+                    destination.display()
+                );
+            }
         }
     }
 
