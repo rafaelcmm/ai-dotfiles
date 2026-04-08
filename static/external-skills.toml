@@ -24,3 +24,183 @@ commit = "038954e07bfc313e97fa5f6ff7caf87226e4a782"
 path = "skills/next-best-practices"
 platforms = ["all"]
 enabled = true
+
+# Docker skills sourced from OpenAEC Foundation package.
+# Grouped upstream paths are split into one source per skill so each source
+# has a root SKILL.md and maps directly to skills/<id>/... destinations.
+
+[[source]]
+id = "docker-agents-generator"
+repository = "https://github.com/OpenAEC-Foundation/Docker-Claude-Skill-Package"
+commit = "993be7933ece050ff8c57002a6ff976549aebbe1"
+path = "skills/source/docker-agents/docker-agents-generator"
+platforms = ["all"]
+enabled = true
+
+[[source]]
+id = "docker-agents-review"
+repository = "https://github.com/OpenAEC-Foundation/Docker-Claude-Skill-Package"
+commit = "993be7933ece050ff8c57002a6ff976549aebbe1"
+path = "skills/source/docker-agents/docker-agents-review"
+platforms = ["all"]
+enabled = true
+
+[[source]]
+id = "docker-core-architecture"
+repository = "https://github.com/OpenAEC-Foundation/Docker-Claude-Skill-Package"
+commit = "993be7933ece050ff8c57002a6ff976549aebbe1"
+path = "skills/source/docker-core/docker-core-architecture"
+platforms = ["all"]
+enabled = true
+
+[[source]]
+id = "docker-core-networking"
+repository = "https://github.com/OpenAEC-Foundation/Docker-Claude-Skill-Package"
+commit = "993be7933ece050ff8c57002a6ff976549aebbe1"
+path = "skills/source/docker-core/docker-core-networking"
+platforms = ["all"]
+enabled = true
+
+[[source]]
+id = "docker-core-security"
+repository = "https://github.com/OpenAEC-Foundation/Docker-Claude-Skill-Package"
+commit = "993be7933ece050ff8c57002a6ff976549aebbe1"
+path = "skills/source/docker-core/docker-core-security"
+platforms = ["all"]
+enabled = true
+
+[[source]]
+id = "docker-errors-build"
+repository = "https://github.com/OpenAEC-Foundation/Docker-Claude-Skill-Package"
+commit = "993be7933ece050ff8c57002a6ff976549aebbe1"
+path = "skills/source/docker-errors/docker-errors-build"
+platforms = ["all"]
+enabled = true
+
+[[source]]
+id = "docker-errors-compose"
+repository = "https://github.com/OpenAEC-Foundation/Docker-Claude-Skill-Package"
+commit = "993be7933ece050ff8c57002a6ff976549aebbe1"
+path = "skills/source/docker-errors/docker-errors-compose"
+platforms = ["all"]
+enabled = true
+
+[[source]]
+id = "docker-errors-networking"
+repository = "https://github.com/OpenAEC-Foundation/Docker-Claude-Skill-Package"
+commit = "993be7933ece050ff8c57002a6ff976549aebbe1"
+path = "skills/source/docker-errors/docker-errors-networking"
+platforms = ["all"]
+enabled = true
+
+[[source]]
+id = "docker-errors-runtime"
+repository = "https://github.com/OpenAEC-Foundation/Docker-Claude-Skill-Package"
+commit = "993be7933ece050ff8c57002a6ff976549aebbe1"
+path = "skills/source/docker-errors/docker-errors-runtime"
+platforms = ["all"]
+enabled = true
+
+[[source]]
+id = "docker-impl-build-optimization"
+repository = "https://github.com/OpenAEC-Foundation/Docker-Claude-Skill-Package"
+commit = "993be7933ece050ff8c57002a6ff976549aebbe1"
+path = "skills/source/docker-impl/docker-impl-build-optimization"
+platforms = ["all"]
+enabled = true
+
+[[source]]
+id = "docker-impl-cicd"
+repository = "https://github.com/OpenAEC-Foundation/Docker-Claude-Skill-Package"
+commit = "993be7933ece050ff8c57002a6ff976549aebbe1"
+path = "skills/source/docker-impl/docker-impl-cicd"
+platforms = ["all"]
+enabled = true
+
+[[source]]
+id = "docker-impl-compose-workflows"
+repository = "https://github.com/OpenAEC-Foundation/Docker-Claude-Skill-Package"
+commit = "993be7933ece050ff8c57002a6ff976549aebbe1"
+path = "skills/source/docker-impl/docker-impl-compose-workflows"
+platforms = ["all"]
+enabled = true
+
+[[source]]
+id = "docker-impl-go-templates"
+repository = "https://github.com/OpenAEC-Foundation/Docker-Claude-Skill-Package"
+commit = "993be7933ece050ff8c57002a6ff976549aebbe1"
+path = "skills/source/docker-impl/docker-impl-go-templates"
+platforms = ["all"]
+enabled = true
+
+[[source]]
+id = "docker-impl-production"
+repository = "https://github.com/OpenAEC-Foundation/Docker-Claude-Skill-Package"
+commit = "993be7933ece050ff8c57002a6ff976549aebbe1"
+path = "skills/source/docker-impl/docker-impl-production"
+platforms = ["all"]
+enabled = true
+
+[[source]]
+id = "docker-impl-storage"
+repository = "https://github.com/OpenAEC-Foundation/Docker-Claude-Skill-Package"
+commit = "993be7933ece050ff8c57002a6ff976549aebbe1"
+path = "skills/source/docker-impl/docker-impl-storage"
+platforms = ["all"]
+enabled = true
+
+[[source]]
+id = "docker-syntax-buildkit"
+repository = "https://github.com/OpenAEC-Foundation/Docker-Claude-Skill-Package"
+commit = "993be7933ece050ff8c57002a6ff976549aebbe1"
+path = "skills/source/docker-syntax/docker-syntax-buildkit"
+platforms = ["all"]
+enabled = true
+
+[[source]]
+id = "docker-syntax-cli-containers"
+repository = "https://github.com/OpenAEC-Foundation/Docker-Claude-Skill-Package"
+commit = "993be7933ece050ff8c57002a6ff976549aebbe1"
+path = "skills/source/docker-syntax/docker-syntax-cli-containers"
+platforms = ["all"]
+enabled = true
+
+[[source]]
+id = "docker-syntax-cli-images"
+repository = "https://github.com/OpenAEC-Foundation/Docker-Claude-Skill-Package"
+commit = "993be7933ece050ff8c57002a6ff976549aebbe1"
+path = "skills/source/docker-syntax/docker-syntax-cli-images"
+platforms = ["all"]
+enabled = true
+
+[[source]]
+id = "docker-syntax-compose-resources"
+repository = "https://github.com/OpenAEC-Foundation/Docker-Claude-Skill-Package"
+commit = "993be7933ece050ff8c57002a6ff976549aebbe1"
+path = "skills/source/docker-syntax/docker-syntax-compose-resources"
+platforms = ["all"]
+enabled = true
+
+[[source]]
+id = "docker-syntax-compose-services"
+repository = "https://github.com/OpenAEC-Foundation/Docker-Claude-Skill-Package"
+commit = "993be7933ece050ff8c57002a6ff976549aebbe1"
+path = "skills/source/docker-syntax/docker-syntax-compose-services"
+platforms = ["all"]
+enabled = true
+
+[[source]]
+id = "docker-syntax-dockerfile"
+repository = "https://github.com/OpenAEC-Foundation/Docker-Claude-Skill-Package"
+commit = "993be7933ece050ff8c57002a6ff976549aebbe1"
+path = "skills/source/docker-syntax/docker-syntax-dockerfile"
+platforms = ["all"]
+enabled = true
+
+[[source]]
+id = "docker-syntax-multistage"
+repository = "https://github.com/OpenAEC-Foundation/Docker-Claude-Skill-Package"
+commit = "993be7933ece050ff8c57002a6ff976549aebbe1"
+path = "skills/source/docker-syntax/docker-syntax-multistage"
+platforms = ["all"]
+enabled = true
