@@ -577,4 +577,44 @@ mod tests {
         };
         assert!(validate_source(&invalid_branch).is_err());
     }
+
+    #[test]
+    fn docker_manifest_sources_require_checksums() {
+        let manifest = load_manifest().expect("embedded external skills manifest should parse");
+
+        let docker_sources: Vec<_> = manifest
+            .source
+            .iter()
+            .filter(|source| {
+                source.id.starts_with("docker-")
+                    && source
+                        .repository
+                        .contains("OpenAEC-Foundation/Docker-Claude-Skill-Package")
+            })
+            .collect();
+
+        assert_eq!(
+            docker_sources.len(),
+            22,
+            "expected all Docker external sources to be present"
+        );
+
+        for source in docker_sources {
+            let checksum = source
+                .checksum
+                .as_ref()
+                .expect("docker source must include checksum");
+            assert_eq!(
+                checksum.len(),
+                64,
+                "checksum for {} must be 64-char hex",
+                source.id
+            );
+            assert!(
+                checksum.chars().all(|ch| ch.is_ascii_hexdigit()),
+                "checksum for {} must be hex",
+                source.id
+            );
+        }
+    }
 }
