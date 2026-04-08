@@ -226,3 +226,196 @@ path = "skills/source/docker-syntax/docker-syntax-multistage"
 platforms = ["all"]
 enabled = true
 checksum = "d3f2efd18a983d6b067d1c212e55aa4dbf75d2c6bbee41ad79e42d06af28856c"
+
+# n8n skills sourced from OpenAEC Foundation package.
+# Grouped upstream paths are split into one source per skill so each source
+# has a root SKILL.md and maps directly to skills/<id>/... destinations.
+
+[[source]]
+id = "n8n-agents-project-scaffolder"
+repository = "https://github.com/OpenAEC-Foundation/n8n-Claude-Skill-Package"
+commit = "178f3c77f54c9d498953e0742f7b6ae896729e4c"
+path = "skills/source/n8n-agents/n8n-agents-project-scaffolder"
+platforms = ["all"]
+enabled = true
+checksum = "685a147ea4a9e8d7fe0c27eeadb6cf38302ace7b6372a105391409092fe9c265"
+
+[[source]]
+id = "n8n-agents-review"
+repository = "https://github.com/OpenAEC-Foundation/n8n-Claude-Skill-Package"
+commit = "178f3c77f54c9d498953e0742f7b6ae896729e4c"
+path = "skills/source/n8n-agents/n8n-agents-review"
+platforms = ["all"]
+enabled = true
+checksum = "e9c2bc87aa75fe7dcb648bdd92d37aef521b7122f7539d8f6379c2a4ea1b3898"
+
+[[source]]
+id = "n8n-core-api"
+repository = "https://github.com/OpenAEC-Foundation/n8n-Claude-Skill-Package"
+commit = "178f3c77f54c9d498953e0742f7b6ae896729e4c"
+path = "skills/source/n8n-core/n8n-core-api"
+platforms = ["all"]
+enabled = true
+checksum = "2f7b97ebeb07e5b5df05c9d9fec379b4bb40038f2bdf9a5acd1a71ed1fbe3236"
+
+[[source]]
+id = "n8n-core-architecture"
+repository = "https://github.com/OpenAEC-Foundation/n8n-Claude-Skill-Package"
+commit = "178f3c77f54c9d498953e0742f7b6ae896729e4c"
+path = "skills/source/n8n-core/n8n-core-architecture"
+platforms = ["all"]
+enabled = true
+checksum = "9515a70e3734804d2406a796848b1a55049480ff9976ec162a6e365711b87711"
+
+[[source]]
+id = "n8n-errors-connection"
+repository = "https://github.com/OpenAEC-Foundation/n8n-Claude-Skill-Package"
+commit = "178f3c77f54c9d498953e0742f7b6ae896729e4c"
+path = "skills/source/n8n-errors/n8n-errors-connection"
+platforms = ["all"]
+enabled = true
+checksum = "0fc362777ee4ea6836ea930d996d1e96d637eaed338adf750a08e8ae8045bcfd"
+
+[[source]]
+id = "n8n-errors-execution"
+repository = "https://github.com/OpenAEC-Foundation/n8n-Claude-Skill-Package"
+commit = "178f3c77f54c9d498953e0742f7b6ae896729e4c"
+path = "skills/source/n8n-errors/n8n-errors-execution"
+platforms = ["all"]
+enabled = true
+checksum = "39572bf5f94082926b285bd10a22f0c04596c6c889053ffcda8a5633fdb5de68"
+
+[[source]]
+id = "n8n-errors-expressions"
+repository = "https://github.com/OpenAEC-Foundation/n8n-Claude-Skill-Package"
+commit = "178f3c77f54c9d498953e0742f7b6ae896729e4c"
+path = "skills/source/n8n-errors/n8n-errors-expressions"
+platforms = ["all"]
+enabled = true
+checksum = "6e402c804e377c2f46e2a43e39a5dd08a577bba7622a8281c54c95b9fd258658"
+
+[[source]]
+id = "n8n-impl-custom-nodes"
+repository = "https://github.com/OpenAEC-Foundation/n8n-Claude-Skill-Package"
+commit = "178f3c77f54c9d498953e0742f7b6ae896729e4c"
+path = "skills/source/n8n-impl/n8n-impl-custom-nodes"
+platforms = ["all"]
+enabled = true
+checksum = "d177a97700951a12022c89cf1e132e570bf5d6b03d4aafe807c91dc61b36a1a6"
+
+[[source]]
+id = "n8n-impl-deployment"
+repository = "https://github.com/OpenAEC-Foundation/n8n-Claude-Skill-Package"
+commit = "178f3c77f54c9d498953e0742f7b6ae896729e4c"
+path = "skills/source/n8n-impl/n8n-impl-deployment"
+platforms = ["all"]
+enabled = true
+checksum = "8b1e015d56b8608243198bbf33ffdc815b3248da499b0f30a8d909ac12106854"
+
+[[source]]
+id = "n8n-impl-integrations"
+repository = "https://github.com/OpenAEC-Foundation/n8n-Claude-Skill-Package"
+commit = "178f3c77f54c9d498953e0742f7b6ae896729e4c"
+path = "skills/source/n8n-impl/n8n-impl-integrations"
+platforms = ["all"]
+enabled = true
+checksum = "2c7c423d4e43b46675727973bb4e899ce9bc4a9b17e408425b68bd87a9e939d0"
+
+[[source]]
+id = "n8n-impl-security"
+repository = "https://github.com/OpenAEC-Foundation/n8n-Claude-Skill-Package"
+commit = "178f3c77f54c9d498953e0742f7b6ae896729e4c"
+path = "skills/source/n8n-impl/n8n-impl-security"
+platforms = ["all"]
+enabled = true
+checksum = "66fd6c0658cec3c97d2b7eded7a832e9697d6acfc8ccbb23a5b88127a46e0342"
+
+[[source]]
+id = "n8n-impl-webhooks"
+repository = "https://github.com/OpenAEC-Foundation/n8n-Claude-Skill-Package"
+commit = "178f3c77f54c9d498953e0742f7b6ae896729e4c"
+path = "skills/source/n8n-impl/n8n-impl-webhooks"
+platforms = ["all"]
+enabled = true
+checksum = "d769a0b7467d058738e2fe2515c55c61e32215d5cf6398c840f432e189ab6d61"
+
+[[source]]
+id = "n8n-impl-workflow-design"
+repository = "https://github.com/OpenAEC-Foundation/n8n-Claude-Skill-Package"
+commit = "178f3c77f54c9d498953e0742f7b6ae896729e4c"
+path = "skills/source/n8n-impl/n8n-impl-workflow-design"
+platforms = ["all"]
+enabled = true
+checksum = "ab9336c55e8f2e33415b20ebeb282e0147b57fab7bf87719c8ef21262354f7c9"
+
+[[source]]
+id = "n8n-syntax-ai-nodes"
+repository = "https://github.com/OpenAEC-Foundation/n8n-Claude-Skill-Package"
+commit = "178f3c77f54c9d498953e0742f7b6ae896729e4c"
+path = "skills/source/n8n-syntax/n8n-syntax-ai-nodes"
+platforms = ["all"]
+enabled = true
+checksum = "1fe6c4c540b3671f3e3676c4489c0a92bbb1dd5ba792e76c6c02ddb0d445ba8c"
+
+[[source]]
+id = "n8n-syntax-code-node"
+repository = "https://github.com/OpenAEC-Foundation/n8n-Claude-Skill-Package"
+commit = "178f3c77f54c9d498953e0742f7b6ae896729e4c"
+path = "skills/source/n8n-syntax/n8n-syntax-code-node"
+platforms = ["all"]
+enabled = true
+checksum = "aef8717680f64d581aae3aaaefe9b3b656147631dd17496fdc67ddf6cb7dc065"
+
+[[source]]
+id = "n8n-syntax-credentials"
+repository = "https://github.com/OpenAEC-Foundation/n8n-Claude-Skill-Package"
+commit = "178f3c77f54c9d498953e0742f7b6ae896729e4c"
+path = "skills/source/n8n-syntax/n8n-syntax-credentials"
+platforms = ["all"]
+enabled = true
+checksum = "1684b8e5c9e62f68b383d5fbdd9de4baa696b9e79e1e16ce552a0f041c3720e1"
+
+[[source]]
+id = "n8n-syntax-expressions"
+repository = "https://github.com/OpenAEC-Foundation/n8n-Claude-Skill-Package"
+commit = "178f3c77f54c9d498953e0742f7b6ae896729e4c"
+path = "skills/source/n8n-syntax/n8n-syntax-expressions"
+platforms = ["all"]
+enabled = true
+checksum = "275746a154fb7fb7de01324a10622540eceda06ab725bc4e51df95b62173c7e3"
+
+[[source]]
+id = "n8n-syntax-extension-methods"
+repository = "https://github.com/OpenAEC-Foundation/n8n-Claude-Skill-Package"
+commit = "178f3c77f54c9d498953e0742f7b6ae896729e4c"
+path = "skills/source/n8n-syntax/n8n-syntax-extension-methods"
+platforms = ["all"]
+enabled = true
+checksum = "c4b139c91c5d0d0247a5fd96041a40fd9b9f8fd1608a036b80a84e2c4619e339"
+
+[[source]]
+id = "n8n-syntax-node-types"
+repository = "https://github.com/OpenAEC-Foundation/n8n-Claude-Skill-Package"
+commit = "178f3c77f54c9d498953e0742f7b6ae896729e4c"
+path = "skills/source/n8n-syntax/n8n-syntax-node-types"
+platforms = ["all"]
+enabled = true
+checksum = "ceb167ade837df888dbefb996b8da1d69ab1bc04e6c052534bd6ddb9b787de18"
+
+[[source]]
+id = "n8n-syntax-trigger-nodes"
+repository = "https://github.com/OpenAEC-Foundation/n8n-Claude-Skill-Package"
+commit = "178f3c77f54c9d498953e0742f7b6ae896729e4c"
+path = "skills/source/n8n-syntax/n8n-syntax-trigger-nodes"
+platforms = ["all"]
+enabled = true
+checksum = "452c894c38453f3c8d7a7cc99309c2741bf33eea3b914cfb5b00b8da40657f2e"
+
+[[source]]
+id = "n8n-syntax-workflow-json"
+repository = "https://github.com/OpenAEC-Foundation/n8n-Claude-Skill-Package"
+commit = "178f3c77f54c9d498953e0742f7b6ae896729e4c"
+path = "skills/source/n8n-syntax/n8n-syntax-workflow-json"
+platforms = ["all"]
+enabled = true
+checksum = "b69ea553ff76fb4172bea8cf3e2ad5e28405185c60d29fc5cf3754e356bbdd3e"
