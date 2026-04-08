@@ -579,31 +579,32 @@ mod tests {
     }
 
     #[test]
-    fn docker_manifest_sources_require_checksums() {
+    fn non_local_manifest_sources_require_checksums() {
         let manifest = load_manifest().expect("embedded external skills manifest should parse");
 
-        let docker_sources: Vec<_> = manifest
+        let non_local_sources: Vec<_> = manifest
             .source
             .iter()
             .filter(|source| {
-                source.id.starts_with("docker-")
-                    && source
-                        .repository
-                        .contains("OpenAEC-Foundation/Docker-Claude-Skill-Package")
+                let repo = source.repository.as_str();
+                !(repo.starts_with("file://")
+                    || repo.starts_with("./")
+                    || repo.starts_with("../")
+                    || repo.starts_with('/'))
             })
             .collect();
 
         assert_eq!(
-            docker_sources.len(),
-            22,
-            "expected all Docker external sources to be present"
+            non_local_sources.len(),
+            manifest.source.len(),
+            "all manifest sources are currently non-local and should be checksum-protected"
         );
 
-        for source in docker_sources {
+        for source in non_local_sources {
             let checksum = source
                 .checksum
                 .as_ref()
-                .expect("docker source must include checksum");
+                .expect("non-local source must include checksum");
             assert_eq!(
                 checksum.len(),
                 64,
