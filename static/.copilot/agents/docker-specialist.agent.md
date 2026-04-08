@@ -21,40 +21,40 @@ Own container design, Dockerfile and Compose authoring, container debugging, sec
 
 ### Agent-oriented Docker skills
 
-- [docker-agents-generator](../skills/docker-agents/docker-agents-generator/SKILL.md)
-- [docker-agents-review](../skills/docker-agents/docker-agents-review/SKILL.md)
+- [docker-agents-generator](../skills/docker-agents-generator/SKILL.md)
+- [docker-agents-review](../skills/docker-agents-review/SKILL.md)
 
 ### Core Docker knowledge
 
-- [docker-core-architecture](../skills/docker-core/docker-core-architecture/SKILL.md)
-- [docker-core-networking](../skills/docker-core/docker-core-networking/SKILL.md)
-- [docker-core-security](../skills/docker-core/docker-core-security/SKILL.md)
+- [docker-core-architecture](../skills/docker-core-architecture/SKILL.md)
+- [docker-core-networking](../skills/docker-core-networking/SKILL.md)
+- [docker-core-security](../skills/docker-core-security/SKILL.md)
 
 ### Troubleshooting
 
-- [docker-errors-build](../skills/docker-errors/docker-errors-build/SKILL.md)
-- [docker-errors-compose](../skills/docker-errors/docker-errors-compose/SKILL.md)
-- [docker-errors-networking](../skills/docker-errors/docker-errors-networking/SKILL.md)
-- [docker-errors-runtime](../skills/docker-errors/docker-errors-runtime/SKILL.md)
+- [docker-errors-build](../skills/docker-errors-build/SKILL.md)
+- [docker-errors-compose](../skills/docker-errors-compose/SKILL.md)
+- [docker-errors-networking](../skills/docker-errors-networking/SKILL.md)
+- [docker-errors-runtime](../skills/docker-errors-runtime/SKILL.md)
 
 ### Implementation and operations
 
-- [docker-impl-build-optimization](../skills/docker-impl/docker-impl-build-optimization/SKILL.md)
-- [docker-impl-cicd](../skills/docker-impl/docker-impl-cicd/SKILL.md)
-- [docker-impl-compose-workflows](../skills/docker-impl/docker-impl-compose-workflows/SKILL.md)
-- [docker-impl-go-templates](../skills/docker-impl/docker-impl-go-templates/SKILL.md)
-- [docker-impl-production](../skills/docker-impl/docker-impl-production/SKILL.md)
-- [docker-impl-storage](../skills/docker-impl/docker-impl-storage/SKILL.md)
+- [docker-impl-build-optimization](../skills/docker-impl-build-optimization/SKILL.md)
+- [docker-impl-cicd](../skills/docker-impl-cicd/SKILL.md)
+- [docker-impl-compose-workflows](../skills/docker-impl-compose-workflows/SKILL.md)
+- [docker-impl-go-templates](../skills/docker-impl-go-templates/SKILL.md)
+- [docker-impl-production](../skills/docker-impl-production/SKILL.md)
+- [docker-impl-storage](../skills/docker-impl-storage/SKILL.md)
 
 ### Docker syntax and command surface
 
-- [docker-syntax-buildkit](../skills/docker-syntax/docker-syntax-buildkit/SKILL.md)
-- [docker-syntax-cli-containers](../skills/docker-syntax/docker-syntax-cli-containers/SKILL.md)
-- [docker-syntax-cli-images](../skills/docker-syntax/docker-syntax-cli-images/SKILL.md)
-- [docker-syntax-compose-resources](../skills/docker-syntax/docker-syntax-compose-resources/SKILL.md)
-- [docker-syntax-compose-services](../skills/docker-syntax/docker-syntax-compose-services/SKILL.md)
-- [docker-syntax-dockerfile](../skills/docker-syntax/docker-syntax-dockerfile/SKILL.md)
-- [docker-syntax-multistage](../skills/docker-syntax/docker-syntax-multistage/SKILL.md)
+- [docker-syntax-buildkit](../skills/docker-syntax-buildkit/SKILL.md)
+- [docker-syntax-cli-containers](../skills/docker-syntax-cli-containers/SKILL.md)
+- [docker-syntax-cli-images](../skills/docker-syntax-cli-images/SKILL.md)
+- [docker-syntax-compose-resources](../skills/docker-syntax-compose-resources/SKILL.md)
+- [docker-syntax-compose-services](../skills/docker-syntax-compose-services/SKILL.md)
+- [docker-syntax-dockerfile](../skills/docker-syntax-dockerfile/SKILL.md)
+- [docker-syntax-multistage](../skills/docker-syntax-multistage/SKILL.md)
 
 ### Companion skills
 
