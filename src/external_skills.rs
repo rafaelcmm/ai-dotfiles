@@ -598,7 +598,10 @@ pub(crate) fn seed_test_external_skill_cache(home: &Path) -> Result<()> {
 
         write_cache(
             &cache_root,
-            &[(PathBuf::from("SKILL.md"), b"offline test external skill\n".to_vec())],
+            &[(
+                PathBuf::from("SKILL.md"),
+                b"offline test external skill\n".to_vec(),
+            )],
         )?;
     }
 
@@ -805,7 +808,11 @@ mod tests {
                 .join(format!("{}-{}", source.id, source.commit));
 
             let cached = read_cached_files(&cache_root).expect("seeded cache should be readable");
-            assert_eq!(cached.len(), 1, "seeded cache should contain one placeholder file");
+            assert_eq!(
+                cached.len(),
+                1,
+                "seeded cache should contain one placeholder file"
+            );
             assert_eq!(cached[0].0, PathBuf::from("SKILL.md"));
         }
     }
