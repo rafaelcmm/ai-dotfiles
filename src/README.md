@@ -157,3 +157,10 @@ When adding new managed configuration content:
 2. Keep content under managed roots such as `agents`, `rules` or `instructions`, and `skills`.
 3. Validate behavior with `cargo test`.
 4. Confirm the new content installs under the intended canonical path and appears in `_meta.md`.
+
+### Cursor global policy template
+
+The repository includes a non-runtime template at `static/.cursor/instructions/user-rules-template.md`.
+
+It is installed to `~/.cursor/instructions/user-rules-template.md` so users can copy it into Cursor Settings -> Rules -> User Rules.
+This preserves a personal/global workflow policy without requiring project-level `.cursor/rules` files.

@@ -71,3 +71,15 @@ Convenience wrapper (equivalent to `update`):
 ```bash
 scripts/update.sh
 ```
+
+## Cursor deterministic workflow note
+
+Cursor global behavior is most reliable when your workflow policy is set in Cursor Settings -> Rules -> User Rules.
+
+After running `install` or `update`, copy the template from:
+
+- `~/.cursor/instructions/user-rules-template.md`
+
+and paste it into Cursor User Rules.
+
+This keeps your workflow personal/global and avoids committing project-level rule files.
