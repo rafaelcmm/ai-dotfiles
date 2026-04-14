@@ -448,3 +448,137 @@ path = "plugins/handbook-glab/skills/glab-skill"
 platforms = ["all"]
 enabled = true
 checksum = "681ed5414a305efeb7c6f56431f383ed95c5ff4e086ad10bd474dca123b59a42"
+
+# -----------------------------------------------------------------------------
+# Repository zone: Murat Can Koylan Agent Skills for Context Engineering
+# Repo: https://github.com/muratcankoylan/Agent-Skills-for-Context-Engineering
+# -----------------------------------------------------------------------------
+# Context engineering skills sourced from the Murat Can Koylan repository.
+# Grouped upstream paths are split into one source per skill so each source
+# has a root SKILL.md and maps directly to skills/<id>/... destinations.
+
+[[source]]
+id = "advanced-evaluation"
+repository = "https://github.com/muratcankoylan/Agent-Skills-for-Context-Engineering"
+commit = "7a95d94c364e25c869a86896a45791dfda6db8bf"
+path = "skills/advanced-evaluation"
+platforms = ["all"]
+enabled = true
+checksum = "a0246adbbd7fce7e15cbcade901be3ad566206d7c61f6706952adce6b5553b5a"
+
+[[source]]
+id = "bdi-mental-states"
+repository = "https://github.com/muratcankoylan/Agent-Skills-for-Context-Engineering"
+commit = "7a95d94c364e25c869a86896a45791dfda6db8bf"
+path = "skills/bdi-mental-states"
+platforms = ["all"]
+enabled = true
+checksum = "5daf3eaadbd2adec11141527fbfb72fec80d5536423cf95a2031dea74fbea0a9"
+
+[[source]]
+id = "context-compression"
+repository = "https://github.com/muratcankoylan/Agent-Skills-for-Context-Engineering"
+commit = "7a95d94c364e25c869a86896a45791dfda6db8bf"
+path = "skills/context-compression"
+platforms = ["all"]
+enabled = true
+checksum = "7a4c668bb9c1a239f6b5072d533ca3b11adad8bdbe3cef4fee97e0940651b4cc"
+
+[[source]]
+id = "context-degradation"
+repository = "https://github.com/muratcankoylan/Agent-Skills-for-Context-Engineering"
+commit = "7a95d94c364e25c869a86896a45791dfda6db8bf"
+path = "skills/context-degradation"
+platforms = ["all"]
+enabled = true
+checksum = "2dc7af875dd93f42364091cf6e3dc16a0e55a48dc9312db295db3279d7754c28"
+
+[[source]]
+id = "context-fundamentals"
+repository = "https://github.com/muratcankoylan/Agent-Skills-for-Context-Engineering"
+commit = "7a95d94c364e25c869a86896a45791dfda6db8bf"
+path = "skills/context-fundamentals"
+platforms = ["all"]
+enabled = true
+checksum = "1494eb2812091809167b7ebdcd14bd16dd77da7efc2396d06eb81598b62f8222"
+
+[[source]]
+id = "context-optimization"
+repository = "https://github.com/muratcankoylan/Agent-Skills-for-Context-Engineering"
+commit = "7a95d94c364e25c869a86896a45791dfda6db8bf"
+path = "skills/context-optimization"
+platforms = ["all"]
+enabled = true
+checksum = "3711ad67f01dda98d681ec0dc103598016625d77412866e7eb932cb8169f418c"
+
+[[source]]
+id = "evaluation"
+repository = "https://github.com/muratcankoylan/Agent-Skills-for-Context-Engineering"
+commit = "7a95d94c364e25c869a86896a45791dfda6db8bf"
+path = "skills/evaluation"
+platforms = ["all"]
+enabled = true
+checksum = "6d5858cb8579474416e076ddc88dbe623c36bd3ce355d3c405ba0efab106f04f"
+
+[[source]]
+id = "filesystem-context"
+repository = "https://github.com/muratcankoylan/Agent-Skills-for-Context-Engineering"
+commit = "7a95d94c364e25c869a86896a45791dfda6db8bf"
+path = "skills/filesystem-context"
+platforms = ["all"]
+enabled = true
+checksum = "4bec1a167478b67d3e064d41c3da3835b13222c88d0070ac9169a262b1ccacaf"
+
+[[source]]
+id = "hosted-agents"
+repository = "https://github.com/muratcankoylan/Agent-Skills-for-Context-Engineering"
+commit = "7a95d94c364e25c869a86896a45791dfda6db8bf"
+path = "skills/hosted-agents"
+platforms = ["all"]
+enabled = true
+checksum = "75a966b17c7ce13a14cbd6dafad39fa8385db3c47619ac3dcf5bf831125be0a9"
+
+[[source]]
+id = "latent-briefing"
+repository = "https://github.com/muratcankoylan/Agent-Skills-for-Context-Engineering"
+commit = "7a95d94c364e25c869a86896a45791dfda6db8bf"
+path = "skills/latent-briefing"
+platforms = ["all"]
+enabled = true
+checksum = "79399ebd992022b49d668877d559ca3af8cb1d13cfc320e92a15120e1d5e3d46"
+
+[[source]]
+id = "memory-systems"
+repository = "https://github.com/muratcankoylan/Agent-Skills-for-Context-Engineering"
+commit = "7a95d94c364e25c869a86896a45791dfda6db8bf"
+path = "skills/memory-systems"
+platforms = ["all"]
+enabled = true
+checksum = "9d7da85c42c1ebdc57ecfef65b239b6d489c88e2863372953093e2d4533b32db"
+
+[[source]]
+id = "multi-agent-patterns"
+repository = "https://github.com/muratcankoylan/Agent-Skills-for-Context-Engineering"
+commit = "7a95d94c364e25c869a86896a45791dfda6db8bf"
+path = "skills/multi-agent-patterns"
+platforms = ["all"]
+enabled = true
+checksum = "90af006b321b4c666b25630afe21a626a80855d4173753b9736c2dc7c2f306c9"
+
+[[source]]
+id = "project-development"
+repository = "https://github.com/muratcankoylan/Agent-Skills-for-Context-Engineering"
+commit = "7a95d94c364e25c869a86896a45791dfda6db8bf"
+path = "skills/project-development"
+platforms = ["all"]
+enabled = true
+checksum = "c061d19258d4a3521b69e462bbe3a4362365248942533b2f112c77555d4ff72e"
+
+[[source]]
+id = "tool-design"
+repository = "https://github.com/muratcankoylan/Agent-Skills-for-Context-Engineering"
+commit = "7a95d94c364e25c869a86896a45791dfda6db8bf"
+path = "skills/tool-design"
+platforms = ["all"]
+enabled = true
+checksum = "9f36dca7649dd2081a7d92d04128146016cf333b1be5f5ffd6c9258fd792d9d8"
