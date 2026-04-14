@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "hooks": {
+    "userPromptSubmitted": [
+      {
+        "type": "command",
+        "bash": "bash \"${HOME}/.copilot/scripts/discover-skills-for-user-prompt.sh\"",
+        "cwd": ".",
+        "timeoutSec": 15
+      }
+    ]
+  }
+}

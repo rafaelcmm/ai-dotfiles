@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${HOME}/.claude/scripts/discover-skills-for-user-prompt.sh\""
+          }
+        ]
+      }
+    ]
+  }
+}

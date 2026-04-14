@@ -149,6 +149,24 @@ Run tests:
 cargo test
 ```
 
+## Prompt hook integration
+
+The package also ships prompt-submit hook configuration for all supported platforms:
+
+- `static/.copilot/hooks.json` uses `userPromptSubmitted`.
+- `static/.cursor/hooks.json` uses `beforeSubmitPrompt`.
+- `static/.claude/settings.json` uses `UserPromptSubmit`.
+
+All three hook definitions call the shared script at
+`static/__shared__/scripts/discover-skills-for-user-prompt.sh`.
+
+Hook behavior:
+
+- Reads optional JSON stdin from the hook runtime.
+- Discovers skills from workspace roots and user-level platform skills directories.
+- Emits `{"continue":true}` so prompt submission remains non-blocking.
+- Logs a discovery summary to stderr.
+
 ## Extending behavior
 
 When adding new managed configuration content:

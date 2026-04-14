@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "hooks": {
+    "beforeSubmitPrompt": [
+      {
+        "command": "bash \"${HOME}/.cursor/scripts/discover-skills-for-user-prompt.sh\"",
+        "timeout": 15
+      }
+    ]
+  }
+}
