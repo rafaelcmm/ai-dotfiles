@@ -48,6 +48,9 @@ fn default_enabled() -> bool {
 }
 
 /// Builds desired platform-relative files for external skills enabled for one platform.
+///
+/// If live resolution fails for a source, this falls back to already installed
+/// files for that source on the same platform.
 pub(crate) fn desired_external_skill_files_for_platform(
     home: &Path,
     platform: Platform,
@@ -70,7 +73,22 @@ pub(crate) fn desired_external_skill_files_for_platform(
                     "warning: failed to resolve external skill '{}' from {} at {}: {}",
                     source.id, source.repository, source.commit, error
                 );
-                continue;
+
+                let installed = read_installed_skill_files(
+                    home,
+                    platform,
+                    &source.id,
+                    source.checksum.as_deref(),
+                )?;
+                if installed.is_empty() {
+                    continue;
+                }
+
+                eprintln!(
+                    "warning: using installed fallback for external skill '{}' on {}",
+                    source.id, platform.root
+                );
+                installed
             }
         };
 
@@ -86,6 +104,121 @@ pub(crate) fn desired_external_skill_files_for_platform(
     }
 
     Ok(output)
+}
+
+/// Reads already-installed files for one external skill source.
+///
+/// This is used as a resilience fallback during update when live resolution
+/// fails, keeping previously installed content stable for idempotent updates.
+fn read_installed_skill_files(
+    home: &Path,
+    platform: Platform,
+    source_id: &str,
+    expected_checksum: Option<&str>,
+) -> Result<Vec<(PathBuf, Vec<u8>)>> {
+    let root = home.join(platform.root).join("skills").join(source_id);
+    if !root.exists() {
+        return Ok(Vec::new());
+    }
+
+    let mut output = Vec::<(PathBuf, Vec<u8>)>::new();
+    collect_installed_skill_files(&root, &root, &mut output, 0)?;
+
+    if let Some(checksum) = expected_checksum {
+        verify_skill_checksum(&output, checksum)?;
+    }
+
+    Ok(output)
+}
+
+/// Recursively collects regular files from an installed external skill directory.
+///
+/// Symlinks and other non-regular entries are ignored so fallback content is
+/// limited to on-disk files the installer can safely read.
+fn collect_installed_skill_files(
+    root: &Path,
+    current: &Path,
+    output: &mut Vec<(PathBuf, Vec<u8>)>,
+    depth: usize,
+) -> Result<()> {
+    const MAX_DEPTH: usize = 10;
+    const MAX_FILES: usize = 100;
+    const MAX_FILE_SIZE_BYTES: u64 = 10 * 1024 * 1024;
+
+    if depth > MAX_DEPTH {
+        anyhow::bail!(
+            "installed skill at {} exceeded maximum directory depth of {}",
+            root.display(),
+            MAX_DEPTH
+        );
+    }
+
+    if output.len() >= MAX_FILES {
+        anyhow::bail!(
+            "installed skill at {} exceeded maximum file count of {}",
+            root.display(),
+            MAX_FILES
+        );
+    }
+
+    for entry in
+        fs::read_dir(current).with_context(|| format!("failed to read {}", current.display()))?
+    {
+        let entry =
+            entry.with_context(|| format!("failed reading entry in {}", current.display()))?;
+        let path = entry.path();
+        let metadata = fs::symlink_metadata(&path)
+            .with_context(|| format!("failed to stat {}", path.display()))?;
+
+        if metadata.is_dir() {
+            collect_installed_skill_files(root, &path, output, depth + 1)?;
+            continue;
+        }
+
+        if !metadata.is_file() {
+            continue;
+        }
+
+        if metadata.len() > MAX_FILE_SIZE_BYTES {
+            anyhow::bail!(
+                "installed skill file {} exceeds maximum size of {} bytes",
+                path.display(),
+                MAX_FILE_SIZE_BYTES
+            );
+        }
+
+        let relative = path
+            .strip_prefix(root)
+            .with_context(|| {
+                format!(
+                    "failed to relativize installed skill file {}",
+                    path.display()
+                )
+            })?
+            .to_path_buf();
+
+        if !is_safe_relative_path(&relative) {
+            anyhow::bail!(
+                "installed external skill '{}' contains unsafe path traversal: {}",
+                root.display(),
+                relative.display()
+            );
+        }
+
+        let bytes = fs::read(&path)
+            .with_context(|| format!("failed to read installed skill file {}", path.display()))?;
+        output.push((relative, bytes));
+
+        if output.len() >= MAX_FILES {
+            anyhow::bail!(
+                "installed skill at {} exceeded maximum file count of {}",
+                root.display(),
+                MAX_FILES
+            );
+        }
+    }
+
+    Ok(())
 }
 
 fn load_manifest() -> Result<ExternalSkillsManifest> {
