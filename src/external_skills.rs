@@ -309,10 +309,7 @@ fn fetch_from_github(source: &ExternalSkillSource) -> Result<Vec<(PathBuf, Vec<u
     }
 
     let client = Client::builder()
-        .user_agent(format!(
-            "ai-dotfiles/{}",
-            env!("CARGO_PKG_VERSION")
-        ))
+        .user_agent(format!("ai-dotfiles/{}", env!("CARGO_PKG_VERSION")))
         .default_headers(headers)
         .timeout(Duration::from_secs(30))
         .connect_timeout(Duration::from_secs(10))
