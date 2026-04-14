@@ -38,16 +38,17 @@ Do not skip unless the user explicitly asks not to use this workflow.
 ## Required sequence
 
 1. Plan first, then change code.
-2. Evaluate the request against specialists available under `/agents`.
-3. Generate a TODO list assigning a specialist owner to each implementation TODO.
-4. Generate testing TODOs (unit/integration/e2e as applicable) with specialist ownership.
-5. Execute TODOs one at a time.
-6. After each completed TODO, create an atomic commit containing only that TODO's changes.
-7. Generate Final Checkup TODOs and execute them.
-8. Run reviewer subagents for final checks.
-9. Apply reviewer-requested fixes.
-10. Run the mandatory Documentation Completion Step as the final pre-commit gate.
-11. Create a final commit for final checkup and approvals.
+2. If `workflow-orchestrator` is available under `/agents`, delegate high-level workflow coordination to it first.
+3. Evaluate the request against specialists available under `/agents`.
+4. Generate a TODO list assigning a specialist owner to each implementation TODO.
+5. Generate testing TODOs (unit/integration/e2e as applicable) with specialist ownership.
+6. Execute TODOs one at a time.
+7. After each completed TODO, create an atomic commit containing only that TODO's changes.
+8. Generate Final Checkup TODOs and execute them.
+9. Run reviewer subagents for final checks.
+10. Apply reviewer-requested fixes.
+11. Run the mandatory Documentation Completion Step as the final pre-commit gate.
+12. Create a final commit for final checkup and approvals.
 
 ## Conventions
 

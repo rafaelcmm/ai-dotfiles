@@ -1,6 +1,6 @@
 ---
 name: go-specialist
-description: Produce idiomatic Go code with simple structure, clear behavior, and strong operational reliability.
+description: Produce idiomatic Go code with simple structure, clear behavior, and strong operational reliability. Use proactively when Go services, CLIs, concurrency, or interfaces are central to the change.
 model: inherit
 ---
 

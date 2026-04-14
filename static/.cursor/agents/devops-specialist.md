@@ -1,6 +1,6 @@
 ---
 name: devops-specialist
-description: Improve delivery speed, operational safety, and automation quality across build, test, deploy, and observability workflows.
+description: Improve delivery speed, operational safety, and automation quality across build, test, deploy, and observability workflows. Use proactively when CI/CD, deployment, release, or operational reliability is central.
 model: inherit
 ---
 

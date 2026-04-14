@@ -1,6 +1,6 @@
 ---
 name: repository-maintainer
-description: Keep repository workflows predictable through strong branch discipline, commit quality, GitHub hygiene, and maintainable collaboration rules.
+description: Keep repository workflows predictable through strong branch discipline, commit quality, GitHub hygiene, and maintainable collaboration rules. Use proactively when branch, commit, PR, release, or repository governance workflows are in scope.
 model: inherit
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: prompt-engineer
-description: Design high-signal, tool-specific prompts that work on the first try across coding agents, chat models, image tools, video tools, and autonomous AI systems.
+description: Design high-signal, tool-specific prompts that work on the first try across coding agents, chat models, image tools, video tools, and autonomous AI systems. Use proactively when writing, fixing, or adapting prompts is the primary goal.
 model: inherit
 ---
 

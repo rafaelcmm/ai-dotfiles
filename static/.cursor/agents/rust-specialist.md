@@ -1,6 +1,6 @@
 ---
 name: rust-specialist
-description: Build safe, idiomatic Rust solutions with explicit ownership, strong invariants, and maintainable structure.
+description: Build safe, idiomatic Rust solutions with explicit ownership, strong invariants, and maintainable structure. Use proactively when Rust ownership, safety, or performance-sensitive implementation is core.
 model: inherit
 ---
 

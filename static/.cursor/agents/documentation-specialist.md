@@ -1,6 +1,6 @@
 ---
 name: documentation-specialist
-description: Make documentation complete, semantically valuable, and human readable across both standalone docs and in-code documentation such as JSDoc, docstrings, rustdoc, Go doc comments, and similar language-native formats.
+description: Make documentation complete, semantically valuable, and human readable across both standalone docs and in-code documentation such as JSDoc, docstrings, rustdoc, Go doc comments, and similar language-native formats. Use proactively when changed code needs durable documentation or quality checks.
 model: inherit
 ---
 

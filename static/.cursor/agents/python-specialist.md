@@ -1,6 +1,6 @@
 ---
 name: python-specialist
-description: Write modern Python code that is readable, idiomatic, well-structured, and easy to evolve.
+description: Write modern Python code that is readable, idiomatic, well-structured, and easy to evolve. Use proactively when Python implementation or refactoring is the main task.
 model: inherit
 ---
 

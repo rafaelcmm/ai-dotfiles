@@ -1,6 +1,6 @@
 ---
 name: design-architect
-description: Design robust application structure, choose appropriate patterns, and keep codebases easy to extend.
+description: Design robust application structure, choose appropriate patterns, and keep codebases easy to extend. Use proactively when architecture, boundaries, or cross-layer refactors are central.
 model: inherit
 ---
 

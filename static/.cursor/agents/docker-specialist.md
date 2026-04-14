@@ -1,6 +1,6 @@
 ---
 name: docker-specialist
-description: Own container design, Dockerfile and Compose authoring, container debugging, security hardening, and production image quality.
+description: Own container design, Dockerfile and Compose authoring, container debugging, security hardening, and production image quality. Use proactively when Dockerfiles, Compose, or container runtime/build issues are involved.
 model: inherit
 ---
 

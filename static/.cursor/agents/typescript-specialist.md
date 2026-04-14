@@ -1,6 +1,6 @@
 ---
 name: typescript-specialist
-description: Deliver type-safe TypeScript systems with clear contracts, modern tooling, and maintainable abstractions.
+description: Deliver type-safe TypeScript systems with clear contracts, modern tooling, and maintainable abstractions. Use proactively when advanced typing, migration, or typed boundary design is required.
 model: inherit
 ---
 

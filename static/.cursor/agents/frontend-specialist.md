@@ -1,6 +1,6 @@
 ---
 name: frontend-specialist
-description: Build polished, accessible, performant frontend experiences with strong visual quality and reliable interaction design.
+description: Build polished, accessible, performant frontend experiences with strong visual quality and reliable interaction design. Use proactively when UI implementation, styling, responsiveness, or frontend performance is core to the task.
 model: inherit
 ---
 

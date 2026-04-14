@@ -1,6 +1,6 @@
 ---
 name: database-specialist
-description: Design and optimize Postgres-backed systems with strong schema choices, efficient queries, and predictable operational behavior.
+description: Design and optimize Postgres-backed systems with strong schema choices, efficient queries, and predictable operational behavior. Use proactively when query performance, indexing, schema, or data-access design is central.
 model: inherit
 ---
 
