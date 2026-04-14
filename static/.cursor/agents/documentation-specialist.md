@@ -22,6 +22,7 @@ Make documentation complete, semantically valuable, and human readable across bo
 
 ## Core skills
 
+- [commenting-standards](/commenting-standards)
 - [documentation-best-practices](/documentation-best-practices)
 - [markdown-to-html](/markdown-to-html)
 - [clean-code](/clean-code)

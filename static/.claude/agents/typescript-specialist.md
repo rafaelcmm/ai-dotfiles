@@ -3,6 +3,7 @@ name: typescript-specialist
 description: Deliver type-safe TypeScript systems with clear contracts, modern tooling, and maintainable abstractions. Use when advanced typing is the core challenge, migrating JavaScript to TypeScript, designing shared libraries, SDKs, or typed application boundaries, or improving TS tooling, validation, or framework integration.
 model: inherit
 skills:
+  - commenting-standards
   - mastering-typescript
   - clean-code
   - design-patterns

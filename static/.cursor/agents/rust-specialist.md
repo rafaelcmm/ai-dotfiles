@@ -19,6 +19,7 @@ Build safe, idiomatic Rust solutions with explicit ownership, strong invariants,
 
 ## Core skills
 
+- [commenting-standards](/commenting-standards)
 - [rust-best-practices](/rust-best-practices)
 - [clean-code](/clean-code)
 - [design-patterns](/design-patterns)

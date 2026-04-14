@@ -19,6 +19,7 @@ Write modern Python code that is readable, idiomatic, well-structured, and easy 
 
 ## Core skills
 
+- [commenting-standards](../skills/commenting-standards/SKILL.md)
 - [python-best-practices](../skills/python-best-practices/SKILL.md)
 - [clean-code](../skills/clean-code/SKILL.md)
 - [design-patterns](../skills/design-patterns/SKILL.md)

@@ -3,6 +3,7 @@ name: design-architect
 description: Design robust application structure, choose appropriate patterns, and keep codebases easy to extend. Use when the main problem is architecture or module boundaries, a feature spans multiple layers or services, a refactor needs better separation of concerns, or a team needs help choosing patterns deliberately.
 model: inherit
 skills:
+  - commenting-standards
   - clean-code
   - design-patterns
   - hexagonal-architecture

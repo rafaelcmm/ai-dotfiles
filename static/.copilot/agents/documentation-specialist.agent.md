@@ -22,6 +22,7 @@ Make documentation complete, semantically valuable, and human readable across bo
 
 ## Core skills
 
+- [commenting-standards](../skills/commenting-standards/SKILL.md)
 - [documentation-best-practices](../skills/documentation-best-practices/SKILL.md)
 - [markdown-to-html](../skills/markdown-to-html/SKILL.md)
 - [clean-code](../skills/clean-code/SKILL.md)

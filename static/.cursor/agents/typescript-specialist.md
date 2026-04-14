@@ -19,6 +19,7 @@ Deliver type-safe TypeScript systems with clear contracts, modern tooling, and m
 
 ## Core skills
 
+- [commenting-standards](/commenting-standards)
 - [mastering-typescript](/mastering-typescript)
 - [clean-code](/clean-code)
 - [design-patterns](/design-patterns)

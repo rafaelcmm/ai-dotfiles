@@ -19,6 +19,7 @@ Build polished, accessible, performant frontend experiences with strong visual q
 
 ## Core skills
 
+- [commenting-standards](../skills/commenting-standards/SKILL.md)
 - [frontend-design](../skills/frontend-design/SKILL.md)
 - [react-best-practices](../skills/react-best-practices/SKILL.md)
 - [mastering-typescript](../skills/mastering-typescript/SKILL.md)

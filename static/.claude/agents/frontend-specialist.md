@@ -3,6 +3,7 @@ name: frontend-specialist
 description: Build polished, accessible, performant frontend experiences with strong visual quality and reliable interaction design. Use when building pages, components, dashboards, or web apps, improving layout/styling/responsiveness/accessibility, fixing React or Next.js rendering and performance issues, or translating product requirements into production-ready UI.
 model: inherit
 skills:
+  - commenting-standards
   - frontend-design
   - react-best-practices
   - mastering-typescript

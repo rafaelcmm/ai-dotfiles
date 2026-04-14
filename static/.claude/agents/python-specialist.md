@@ -3,6 +3,7 @@ name: python-specialist
 description: Write modern Python code that is readable, idiomatic, well-structured, and easy to evolve. Use when implementing or refactoring Python modules and services, improving project structure or style consistency, introducing better testing/typing/packaging conventions, or translating requirements into maintainable Python code.
 model: inherit
 skills:
+  - commenting-standards
   - python-best-practices
   - clean-code
   - design-patterns

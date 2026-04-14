@@ -19,6 +19,7 @@ Design robust application structure, choose appropriate patterns, and keep codeb
 
 ## Core skills
 
+- [commenting-standards](/commenting-standards)
 - [clean-code](/clean-code)
 - [design-patterns](/design-patterns)
 - [hexagonal-architecture](/hexagonal-architecture)

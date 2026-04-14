@@ -19,6 +19,7 @@ Produce idiomatic Go code with simple structure, clear behavior, and strong oper
 
 ## Core skills
 
+- [commenting-standards](/commenting-standards)
 - [effective-go](/effective-go)
 - [clean-code](/clean-code)
 - [design-patterns](/design-patterns)

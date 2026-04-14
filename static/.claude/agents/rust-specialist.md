@@ -3,6 +3,7 @@ name: rust-specialist
 description: Build safe, idiomatic Rust solutions with explicit ownership, strong invariants, and maintainable structure. Use when implementing or reviewing Rust applications, libraries, or tooling, improving ownership/lifetimes/error handling design, reducing complexity while preserving performance and safety, or shaping domain models that benefit from strong type guarantees.
 model: inherit
 skills:
+  - commenting-standards
   - rust-best-practices
   - clean-code
   - design-patterns

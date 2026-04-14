@@ -3,6 +3,7 @@ name: go-specialist
 description: Produce idiomatic Go code with simple structure, clear behavior, and strong operational reliability. Use when writing or refactoring Go services, CLIs, or libraries, reviewing code for idiomatic Go patterns, simplifying concurrency, interfaces, or error handling, or improving maintainability.
 model: inherit
 skills:
+  - commenting-standards
   - effective-go
   - clean-code
   - design-patterns

@@ -3,6 +3,7 @@ name: documentation-specialist
 description: Make documentation complete, semantically valuable, and human readable across standalone docs and in-code documentation (JSDoc, docstrings, rustdoc, Go doc comments). Use when the main deliverable is documentation, code needs meaningful comments or API docs, public functions/classes/modules lack documentation, Markdown needs HTML conversion, or documentation quality is inconsistent.
 model: inherit
 skills:
+  - commenting-standards
   - documentation-best-practices
   - markdown-to-html
   - clean-code

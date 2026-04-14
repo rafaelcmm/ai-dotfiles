@@ -113,6 +113,7 @@ Specialist and skills requirement:
 
 - Documentation verification and remediation must be delegated to `documentation-specialist`.
 - Before closing Final Checkup TODOs or creating the final commit, the workflow must consult and apply all documentation skills below on relevant changed files:
+  - `commenting-standards`
   - `documentation-best-practices`
   - `go-documentation-best-practices`
   - `javascript-documentation-best-practices`
