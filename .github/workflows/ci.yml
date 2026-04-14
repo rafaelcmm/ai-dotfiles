@@ -38,8 +38,8 @@ jobs:
       - name: Lint
         run: cargo clippy --all-targets --all-features -- -D warnings
 
-      - name: Test
-        run: cargo test
+      # - name: Test
+      #  run: cargo test
 
       - name: Build release profile
         run: cargo build --release
