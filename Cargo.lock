@@ -3,6 +3,23 @@
 version = 4
 
 [[package]]
+name = "ai-dotfiles"
+version = "2.0.0"
+dependencies = [
+ "anyhow",
+ "clap",
+ "hex",
+ "include_dir",
+ "reqwest",
+ "semver",
+ "serde",
+ "serde_yaml",
+ "sha2",
+ "tempfile",
+ "toml",
+]
+
+[[package]]
 name = "anstream"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -842,23 +859,6 @@ name = "r-efi"
 version = "6.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f8dcc9c7d52a811697d2151c701e0d08956f92b0e24136cf4cf27b57a6a0d9bf"
-
-[[package]]
-name = "rafaelcmm-ai-dotfiles"
-version = "1.6.8"
-dependencies = [
- "anyhow",
- "clap",
- "hex",
- "include_dir",
- "reqwest",
- "semver",
- "serde",
- "serde_yaml",
- "sha2",
- "tempfile",
- "toml",
-]
 
 [[package]]
 name = "rand"

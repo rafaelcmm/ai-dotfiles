@@ -51,15 +51,15 @@ jobs:
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
             archive_ext: tar.gz
-            binary_name: rafaelcmm-ai-dotfiles
+            binary_name: ai-dotfiles
           - os: macos-14
             target: aarch64-apple-darwin
             archive_ext: tar.gz
-            binary_name: rafaelcmm-ai-dotfiles
+            binary_name: ai-dotfiles
           - os: windows-latest
             target: x86_64-pc-windows-msvc
             archive_ext: zip
-            binary_name: rafaelcmm-ai-dotfiles.exe
+            binary_name: ai-dotfiles.exe
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -85,7 +85,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          ASSET="rafaelcmm-ai-dotfiles-${{ matrix.target }}.${{ matrix.archive_ext }}"
+          ASSET="ai-dotfiles-${{ matrix.target }}.${{ matrix.archive_ext }}"
           cp "target/${{ matrix.target }}/release/${{ matrix.binary_name }}" .
           tar -czf "$ASSET" "${{ matrix.binary_name }}"
           shasum -a 256 "$ASSET" > "$ASSET.sha256"
@@ -94,7 +94,7 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          $asset = "rafaelcmm-ai-dotfiles-${{ matrix.target }}.${{ matrix.archive_ext }}"
+          $asset = "ai-dotfiles-${{ matrix.target }}.${{ matrix.archive_ext }}"
           Copy-Item "target/${{ matrix.target }}/release/${{ matrix.binary_name }}" .
           Compress-Archive -Path "${{ matrix.binary_name }}" -DestinationPath $asset -Force
           (Get-FileHash $asset -Algorithm SHA256).Hash.ToLower() + "  " + $asset | Out-File -FilePath "$asset.sha256" -NoNewline -Encoding ascii
@@ -104,8 +104,8 @@ jobs:
         with:
           name: ${{ matrix.target }}
           path: |
-            rafaelcmm-ai-dotfiles-${{ matrix.target }}.${{ matrix.archive_ext }}
-            rafaelcmm-ai-dotfiles-${{ matrix.target }}.${{ matrix.archive_ext }}.sha256
+            ai-dotfiles-${{ matrix.target }}.${{ matrix.archive_ext }}
+            ai-dotfiles-${{ matrix.target }}.${{ matrix.archive_ext }}.sha256
 
   publish:
     name: Publish GitHub release

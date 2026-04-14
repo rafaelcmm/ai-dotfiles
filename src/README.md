@@ -32,7 +32,7 @@ This document describes how the Rust implementation works, module boundaries, an
 - `constants.rs`
   - Shared constants and enums.
   - Defines managed roots: `agents`, `rules`, `instructions`, `skills`.
-  - Keeps the legacy prefix constant only for migration helpers.
+  - Defines the managed filename prefix and external skill cache location.
 
 - `operations.rs`
   - Core behavior for `install`, `update`, and `debloat`.
@@ -50,7 +50,7 @@ This document describes how the Rust implementation works, module boundaries, an
   - Validates source safety constraints such as non-empty `id` and `path`, slash-free `id`, and full SHA commit pinning.
   - Filters by platform using `all` or normalized platform names (`claude`, `copilot`, `cursor`).
   - Requires `SKILL.md` under the configured source path.
-  - Downloads enabled sources from pinned GitHub commits and caches files under `~/.cache/rafaelcmm-ai-dotfiles/external-skills`.
+  - Downloads enabled sources from pinned GitHub commits and caches files under `~/.cache/ai-dotfiles/external-skills`.
   - On source fetch or parse errors, emits a warning and continues with other sources.
   - Maps external skill files into canonical destinations under `skills/<id>/...`.
 
@@ -88,7 +88,6 @@ This document describes how the Rust implementation works, module boundaries, an
 - Otherwise:
   - Computes the desired canonical managed set for the current package version from embedded and external sources.
   - Removes stale tracked files from the current manifest.
-  - Migrates any legacy `rafaelcmm-<version>-...` installs in place.
   - Writes only changed and new files.
   - Rebuilds `_meta.md` from the final desired state.
   - Preserves unmanaged user files.
@@ -97,7 +96,6 @@ This document describes how the Rust implementation works, module boundaries, an
 ### Debloat
 
 - Removes only files and directories tracked in `_meta.md`.
-- Falls back to legacy prefixed cleanup when only an older installation is present.
 - Removes generated `_meta.md` after tracked content is cleaned up.
 - Leaves custom unmanaged files untouched.
 

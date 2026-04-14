@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
-# Thin convenience wrapper for `rafaelcmm-ai-dotfiles update`.
+# Thin convenience wrapper for `ai-dotfiles update`.
 #
 # Responsibilities:
 # - Forward all user-provided arguments to the CLI update command
 # - Preserve CLI self-update/update behavior while keeping a stable script entrypoint
 #
 # Prerequisites:
-# - `rafaelcmm-ai-dotfiles` available in PATH
+# - `ai-dotfiles` available in PATH
 
 # Prevent sourcing: this script is intended to run as an executable only.
 if [[ ( -n "${BASH_SOURCE[0]-}" && "${BASH_SOURCE[0]}" != "$0" ) || ( -n "${ZSH_EVAL_CONTEXT-}" && "${ZSH_EVAL_CONTEXT}" == *:file ) ]]; then
@@ -28,9 +28,9 @@ Examples:
   scripts/update.sh --no-self-update
 
 This is a thin wrapper around:
-  rafaelcmm-ai-dotfiles update [args]
+  ai-dotfiles update [args]
 EOF
   exit 0
 fi
 
-exec rafaelcmm-ai-dotfiles update "$@"
+exec ai-dotfiles update "$@"

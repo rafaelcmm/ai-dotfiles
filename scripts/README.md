@@ -6,7 +6,7 @@ This document covers repository scripts, when to use them, and how they behave.
 
 - `release.sh`: Release automation for semantic version tags.
 - `smoke-release.sh`: Host-platform smoke validation for one release asset.
-- `update.sh`: Thin wrapper around `rafaelcmm-ai-dotfiles update`.
+- `update.sh`: Thin wrapper around `ai-dotfiles update`.
 
 ## Prerequisites
 
@@ -31,7 +31,7 @@ For `smoke-release.sh`:
 
 For `update.sh`:
 
-- `rafaelcmm-ai-dotfiles` available in `PATH`.
+- `ai-dotfiles` available in `PATH`.
 
 ## Script details
 
@@ -116,7 +116,7 @@ Behavior:
 - Delegates directly to:
 
 ```bash
-rafaelcmm-ai-dotfiles update "$@"
+ai-dotfiles update "$@"
 ```
 
 - Preserves all CLI update and self-update behavior.

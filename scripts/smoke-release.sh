@@ -77,19 +77,19 @@ detect_target() {
   case "$os" in
     Linux)
       case "$arch" in
-        x86_64) TARGET="x86_64-unknown-linux-gnu"; ASSET_EXT="tar.gz"; BIN_NAME="rafaelcmm-ai-dotfiles" ;;
+        x86_64) TARGET="x86_64-unknown-linux-gnu"; ASSET_EXT="tar.gz"; BIN_NAME="ai-dotfiles" ;;
         *) die "unsupported Linux arch: $arch" ;;
       esac
       ;;
     Darwin)
       case "$arch" in
-        arm64|aarch64) TARGET="aarch64-apple-darwin"; ASSET_EXT="tar.gz"; BIN_NAME="rafaelcmm-ai-dotfiles" ;;
+        arm64|aarch64) TARGET="aarch64-apple-darwin"; ASSET_EXT="tar.gz"; BIN_NAME="ai-dotfiles" ;;
         *) die "unsupported macOS arch: $arch" ;;
       esac
       ;;
     MINGW*|MSYS*|CYGWIN*)
       case "$arch" in
-        x86_64) TARGET="x86_64-pc-windows-msvc"; ASSET_EXT="zip"; BIN_NAME="rafaelcmm-ai-dotfiles.exe" ;;
+        x86_64) TARGET="x86_64-pc-windows-msvc"; ASSET_EXT="zip"; BIN_NAME="ai-dotfiles.exe" ;;
         *) die "unsupported Windows arch: $arch" ;;
       esac
       ;;
@@ -118,7 +118,7 @@ resolve_repo_slug() {
 download_artifacts() {
   local base_url
   base_url="https://github.com/${REPO_SLUG}/releases/download/${TAG}"
-  ASSET_NAME="rafaelcmm-ai-dotfiles-${TARGET}.${ASSET_EXT}"
+  ASSET_NAME="ai-dotfiles-${TARGET}.${ASSET_EXT}"
 
   log "repo:   ${REPO_SLUG}"
   log "tag:    ${TAG}"

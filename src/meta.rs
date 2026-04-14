@@ -11,7 +11,7 @@ use crate::constants::Platform;
 use crate::embedded::static_dir;
 
 const MANIFEST_VERSION: u32 = 1;
-const GENERATED_MARKER: &str = "rafaelcmm-ai-dotfiles";
+const GENERATED_MARKER: &str = "ai-dotfiles";
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct PlatformManifest {
@@ -95,8 +95,8 @@ pub(crate) fn render_meta(manifest: &PlatformManifest) -> Result<String> {
     };
 
     let frontmatter = RenderedFrontmatter {
-        title: "Rafaelcmm AI Dotfiles - Metadata".to_string(),
-        description: "Metadata for Rafaelcmm AI Dotfiles platform bootstrap state.".to_string(),
+        title: "AI Dotfiles - Metadata".to_string(),
+        description: "Metadata for AI Dotfiles platform bootstrap state.".to_string(),
         manifest_version: MANIFEST_VERSION,
         version: manifest.version.clone(),
         author: author.clone(),

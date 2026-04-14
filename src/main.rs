@@ -1,4 +1,4 @@
-//! Binary entrypoint for `rafaelcmm-ai-dotfiles`.
+//! Binary entrypoint for `ai-dotfiles`.
 //!
 //! This executable validates target paths, optionally performs self-update,
 //! then delegates dotfile synchronization to the library command runner.
@@ -9,12 +9,12 @@ use std::path::{Path, PathBuf};
 use anyhow::Result;
 use clap::{Parser, Subcommand};
 
-use rafaelcmm_ai_dotfiles::{run, Command};
+use ai_dotfiles::{run, Command};
 
 mod self_update;
 
 #[derive(Debug, Parser)]
-#[command(name = "rafaelcmm-ai-dotfiles")]
+#[command(name = "ai-dotfiles")]
 #[command(version)]
 #[command(about = "Install, update and debloat AI tool configuration files")]
 struct Cli {

@@ -310,7 +310,7 @@ fn fetch_from_github(source: &ExternalSkillSource) -> Result<Vec<(PathBuf, Vec<u
 
     let client = Client::builder()
         .user_agent(format!(
-            "rafaelcmm-ai-dotfiles/{}",
+            "ai-dotfiles/{}",
             env!("CARGO_PKG_VERSION")
         ))
         .default_headers(headers)

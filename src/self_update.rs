@@ -1,7 +1,7 @@
 //! Self-update flow for the `update` command.
 //!
 //! When a newer release is available on GitHub, this module downloads the
-//! prebuilt release binary and re-execs `rafaelcmm-ai-dotfiles update`
+//! prebuilt release binary and re-execs `ai-dotfiles update`
 //! with `--no-self-update` to avoid recursion.
 //!
 //! # Security
@@ -19,7 +19,7 @@ use reqwest::header::{HeaderMap, HeaderValue, AUTHORIZATION};
 use semver::Version;
 use serde::Deserialize;
 
-const BIN_NAME: &str = "rafaelcmm-ai-dotfiles";
+const BIN_NAME: &str = "ai-dotfiles";
 
 #[derive(Debug, Deserialize)]
 struct GitHubRelease {
@@ -277,7 +277,7 @@ fn download_and_install_binary(
         .bytes()
         .context("failed to read archive bytes")?;
 
-    let tmp_dir = std::env::temp_dir().join(format!("rafaelcmm-update-{}", std::process::id()));
+    let tmp_dir = std::env::temp_dir().join(format!("ai-dotfiles-update-{}", std::process::id()));
     std::fs::create_dir_all(&tmp_dir).context("failed to create temp directory")?;
 
     let result = install_from_archive(&archive_bytes, asset_name, archive_ext, &tmp_dir);

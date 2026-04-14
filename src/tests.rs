@@ -36,7 +36,7 @@ fn install_creates_meta_and_canonical_files() {
     assert!(!home
         .path()
         .join(".claude/agents")
-        .join(format!("rafaelcmm-{}-rust-specialist.md", version()))
+        .join(format!("ai-dotfiles-{}-rust-specialist.md", version()))
         .exists());
 
     let copilot_skill = home.path().join(".copilot/skills/clean-code/SKILL.md");
@@ -95,17 +95,17 @@ fn update_bootstraps_when_no_install_exists() {
 }
 
 #[test]
-fn update_migrates_legacy_prefixed_install_in_place() {
+fn update_refreshes_existing_canonical_install() {
     let home = tempdir().expect("tempdir should be created");
     seed_test_external_skill_cache(home.path()).expect("test cache should be seeded");
 
-    let legacy_agent = home
+    let managed_agent = home
         .path()
         .join(".claude/agents")
-        .join(format!("rafaelcmm-{}-rust-specialist.md", version()));
-    fs::create_dir_all(legacy_agent.parent().expect("legacy parent should exist"))
-        .expect("legacy parent should be created");
-    fs::write(&legacy_agent, "legacy").expect("legacy file should be created");
+        .join("rust-specialist.md");
+    fs::create_dir_all(managed_agent.parent().expect("managed parent should exist"))
+        .expect("managed parent should be created");
+    fs::write(&managed_agent, "stale").expect("managed file should be created");
     fs::write(
         home.path().join(".claude/_meta.md"),
         format!(
@@ -113,20 +113,20 @@ fn update_migrates_legacy_prefixed_install_in_place() {
             version()
         ),
     )
-    .expect("legacy metadata should be written");
+    .expect("metadata should be written");
 
     let message = run(Command::Update, home.path()).expect("update should succeed");
 
     assert!(message.contains("Updated configuration to version"));
-    assert!(!legacy_agent.exists());
-    assert!(home
-        .path()
-        .join(".claude/agents/rust-specialist.md")
-        .exists());
+    assert!(managed_agent.exists());
+    assert_ne!(
+        fs::read_to_string(&managed_agent).expect("managed file should be readable"),
+        "stale"
+    );
 
     let manifest = load_manifest(home.path(), claude_platform())
         .expect("manifest load should succeed")
-        .expect("manifest should exist after migration");
+        .expect("manifest should exist after update");
     assert!(manifest.managed_files.contains("agents/rust-specialist.md"));
     assert!(manifest.managed_directories.contains("agents"));
 }
@@ -162,7 +162,7 @@ fn debloat_does_not_follow_symlinked_managed_dir() {
 
     let agents = home.path().join(".claude/agents");
     fs::create_dir_all(&agents).expect("agents dir should be created");
-    let link_path = agents.join("rafaelcmm-symlink");
+    let link_path = agents.join("ai-dotfiles-symlink");
     symlink(outside.path(), &link_path).expect("symlink should be created");
 
     run(Command::Debloat, home.path()).expect("debloat should succeed");
@@ -183,7 +183,7 @@ fn update_does_not_follow_symlinked_managed_dir() {
 
     let rules = home.path().join(".cursor/rules");
     fs::create_dir_all(&rules).expect("rules dir should be created");
-    let link_path = rules.join("rafaelcmm-symlink");
+    let link_path = rules.join("ai-dotfiles-symlink");
     symlink(outside.path(), &link_path).expect("symlink should be created");
 
     run(Command::Update, home.path()).expect("update should succeed");

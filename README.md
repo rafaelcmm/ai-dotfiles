@@ -1,4 +1,4 @@
-# rafaelcmm-ai-dotfiles
+# ai-dotfiles
 
 Rust CLI to install, update, and debloat Rafael Monteiro AI configuration files for Claude, Copilot, and Cursor.
 
@@ -22,7 +22,7 @@ Rust CLI to install, update, and debloat Rafael Monteiro AI configuration files 
 Install from a release tag with Cargo:
 
 ```bash
-cargo install --locked --git https://github.com/rafaelcmm/rafaelcmm-ai-dotfiles.git --tag vX.Y.Z rafaelcmm-ai-dotfiles
+cargo install --locked --git https://github.com/rafaelcmm/ai-dotfiles.git --tag vX.Y.Z ai-dotfiles
 ```
 
 Install from local source:
@@ -36,13 +36,13 @@ cargo install --path .
 Show version:
 
 ```bash
-rafaelcmm-ai-dotfiles --version
+ai-dotfiles --version
 ```
 
 Install managed configuration files:
 
 ```bash
-rafaelcmm-ai-dotfiles install
+ai-dotfiles install
 ```
 
 Each platform root gets an `_meta.md` file whose YAML frontmatter tracks the version plus the files and directories bootstrapped by the CLI. `update` and `debloat` use that manifest as their source of truth.
@@ -50,25 +50,25 @@ Each platform root gets an `_meta.md` file whose YAML frontmatter tracks the ver
 Update managed configuration files (default behavior includes self-update check):
 
 ```bash
-rafaelcmm-ai-dotfiles update
+ai-dotfiles update
 ```
 
 Update without self-update check:
 
 ```bash
-rafaelcmm-ai-dotfiles update --no-self-update
+ai-dotfiles update --no-self-update
 ```
 
 Auto-confirm self-update prompt during update:
 
 ```bash
-rafaelcmm-ai-dotfiles update --yes
+ai-dotfiles update --yes
 ```
 
 Remove only managed files:
 
 ```bash
-rafaelcmm-ai-dotfiles debloat
+ai-dotfiles debloat
 ```
 
 Convenience wrapper (equivalent to `update`):
