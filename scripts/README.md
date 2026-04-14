@@ -55,6 +55,7 @@ What it does:
 cargo fmt --check
 cargo clippy --all-targets --all-features -- -D warnings
 cargo test
+cargo test network_integration_ -- --ignored
 ```
 
 5. Updates `Cargo.toml` version.
@@ -68,6 +69,7 @@ Safety notes:
 - Refuses to run outside `main`.
 - Uses argument-safe command execution (no `eval`).
 - Supports dry-run mode for non-mutating verification.
+- `cargo test` stays CI-safe and offline; ignored `network_integration_*` tests only run from the release flow.
 
 ### smoke-release.sh
 

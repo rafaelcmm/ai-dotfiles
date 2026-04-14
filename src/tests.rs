@@ -11,6 +11,7 @@ use std::os::unix::fs::symlink;
 use tempfile::tempdir;
 
 use crate::constants::Platform;
+use crate::external_skills::seed_test_external_skill_cache;
 use crate::meta::load_manifest;
 use crate::{run, Command};
 
@@ -25,6 +26,7 @@ fn claude_platform() -> Platform {
 #[test]
 fn install_creates_meta_and_canonical_files() {
     let home = tempdir().expect("tempdir should be created");
+    seed_test_external_skill_cache(home.path()).expect("test cache should be seeded");
     let result = run(Command::Install, home.path()).expect("install should succeed");
 
     assert!(result.contains("Installed configuration version"));
@@ -57,6 +59,7 @@ fn install_creates_meta_and_canonical_files() {
 #[test]
 fn second_install_requests_update() {
     let home = tempdir().expect("tempdir should be created");
+    seed_test_external_skill_cache(home.path()).expect("test cache should be seeded");
     run(Command::Install, home.path()).expect("first install should succeed");
 
     let second =
@@ -70,6 +73,7 @@ fn second_install_requests_update() {
 #[test]
 fn update_reports_up_to_date_when_versions_match() {
     let home = tempdir().expect("tempdir should be created");
+    seed_test_external_skill_cache(home.path()).expect("test cache should be seeded");
     run(Command::Install, home.path()).expect("install should succeed");
 
     let message = run(Command::Update, home.path()).expect("update should succeed");
@@ -79,6 +83,7 @@ fn update_reports_up_to_date_when_versions_match() {
 #[test]
 fn update_bootstraps_when_no_install_exists() {
     let home = tempdir().expect("tempdir should be created");
+    seed_test_external_skill_cache(home.path()).expect("test cache should be seeded");
     let message = run(Command::Update, home.path()).expect("update should succeed");
 
     assert!(message.contains("Updated configuration to version"));
@@ -92,6 +97,7 @@ fn update_bootstraps_when_no_install_exists() {
 #[test]
 fn update_migrates_legacy_prefixed_install_in_place() {
     let home = tempdir().expect("tempdir should be created");
+    seed_test_external_skill_cache(home.path()).expect("test cache should be seeded");
 
     let legacy_agent = home
         .path()
@@ -128,6 +134,7 @@ fn update_migrates_legacy_prefixed_install_in_place() {
 #[test]
 fn debloat_removes_only_managed_content() {
     let home = tempdir().expect("tempdir should be created");
+    seed_test_external_skill_cache(home.path()).expect("test cache should be seeded");
     run(Command::Install, home.path()).expect("install should succeed");
 
     let user_file = home.path().join(".claude/agents/my-custom-agent.md");
@@ -148,6 +155,7 @@ fn debloat_removes_only_managed_content() {
 fn debloat_does_not_follow_symlinked_managed_dir() {
     let home = tempdir().expect("tempdir should be created");
     let outside = tempdir().expect("outside tempdir should be created");
+    seed_test_external_skill_cache(home.path()).expect("test cache should be seeded");
 
     let outside_file = outside.path().join("keep.txt");
     fs::write(&outside_file, "do not delete").expect("outside file should be created");
@@ -168,6 +176,7 @@ fn debloat_does_not_follow_symlinked_managed_dir() {
 fn update_does_not_follow_symlinked_managed_dir() {
     let home = tempdir().expect("tempdir should be created");
     let outside = tempdir().expect("outside tempdir should be created");
+    seed_test_external_skill_cache(home.path()).expect("test cache should be seeded");
 
     let outside_file = outside.path().join("keep-update.txt");
     fs::write(&outside_file, "do not delete").expect("outside file should be created");

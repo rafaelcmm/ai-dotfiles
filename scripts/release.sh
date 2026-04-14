@@ -4,13 +4,14 @@
 # - run_cmd executes argv directly (no eval).
 # - Keep arguments passed as separate, quoted words at call sites.
 # - Never build command arguments from unvalidated user-controlled input.
-# - Run Rust quality gates (fmt, clippy, test)
+# - Run Rust quality gates plus ignored network integration tests
 # - Bump Cargo.toml package version
 # - Create and push release commit/tag
 #
 # Prerequisites:
 # - git with push permissions to origin/main
 # - Rust toolchain with cargo, fmt, clippy, and test dependencies
+# - Network access to GitHub for ignored release-time integration tests
 #
 # Safety behavior:
 # - Refuses to run from a dirty worktree
@@ -44,7 +45,7 @@ Examples:
 What this script does:
   1. Verifies clean git tree on main
   2. Computes next version (or uses explicit X.Y.Z)
-  3. Runs cargo validation (fmt, clippy, test)
+  3. Runs cargo validation (fmt, clippy, offline tests, ignored network integration tests)
   4. Bumps Cargo.toml version
   5. Commits version bump and creates tag vX.Y.Z
   6. Pushes main and tag to origin
@@ -176,6 +177,7 @@ run_checks() {
   run_cmd cargo fmt --check
   run_cmd cargo clippy --all-targets --all-features -- -D warnings
   run_cmd cargo test
+  run_cmd cargo test network_integration_ -- --ignored
 }
 
 commit_and_tag() {

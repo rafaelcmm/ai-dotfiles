@@ -587,6 +587,24 @@ fn read_cached_files(cache_root: &Path) -> Result<Vec<(PathBuf, Vec<u8>)>> {
     Ok(output)
 }
 
+#[cfg(test)]
+pub(crate) fn seed_test_external_skill_cache(home: &Path) -> Result<()> {
+    let manifest = load_manifest()?;
+
+    for source in manifest.source {
+        let cache_root = home
+            .join(EXTERNAL_SKILLS_CACHE_DIR)
+            .join(format!("{}-{}", source.id, source.commit));
+
+        write_cache(
+            &cache_root,
+            &[(PathBuf::from("SKILL.md"), b"offline test external skill\n".to_vec())],
+        )?;
+    }
+
+    Ok(())
+}
+
 fn collect_cached_files(
     root: &Path,
     current: &Path,
@@ -629,6 +647,7 @@ fn collect_cached_files(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use tempfile::tempdir;
 
     #[test]
     fn parse_github_repo_supports_http_and_git_suffix() {
@@ -749,6 +768,45 @@ mod tests {
                 "checksum for {} must be hex",
                 source.id
             );
+        }
+    }
+
+    #[test]
+    #[ignore = "network integration test"]
+    fn network_integration_fetch_from_github_downloads_skill_files() {
+        let manifest = load_manifest().expect("embedded external skills manifest should parse");
+        let source = manifest
+            .source
+            .into_iter()
+            .find(|source| source.enabled)
+            .expect("manifest should include at least one enabled external source");
+
+        let files = fetch_from_github(&source).expect("GitHub fetch should succeed");
+
+        assert!(
+            files
+                .iter()
+                .any(|(path, _)| path.as_path() == Path::new("SKILL.md")),
+            "fetched source should contain SKILL.md"
+        );
+    }
+
+    #[test]
+    fn seed_test_external_skill_cache_populates_complete_entries() {
+        let home = tempdir().expect("tempdir should be created");
+
+        seed_test_external_skill_cache(home.path()).expect("test cache seeding should succeed");
+
+        let manifest = load_manifest().expect("embedded external skills manifest should parse");
+        for source in manifest.source {
+            let cache_root = home
+                .path()
+                .join(EXTERNAL_SKILLS_CACHE_DIR)
+                .join(format!("{}-{}", source.id, source.commit));
+
+            let cached = read_cached_files(&cache_root).expect("seeded cache should be readable");
+            assert_eq!(cached.len(), 1, "seeded cache should contain one placeholder file");
+            assert_eq!(cached[0].0, PathBuf::from("SKILL.md"));
         }
     }
 }

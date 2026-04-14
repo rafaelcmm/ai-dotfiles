@@ -12,6 +12,11 @@ Rust CLI to install, update, and debloat Rafael Monteiro AI configuration files 
 - Rust toolchain installed (`cargo` available in `PATH`). Install guide: https://www.rust-lang.org/tools/install
 - Network access to GitHub for update checks and release downloads.
 
+## Test split
+
+- `cargo test` runs CI-safe unit and offline high-level tests only.
+- Networked GitHub integration tests are marked ignored and run explicitly by `scripts/release.sh` via `cargo test network_integration_ -- --ignored`.
+
 ## Installation
 
 Install from a release tag with Cargo:
