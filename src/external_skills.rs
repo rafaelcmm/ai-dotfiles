@@ -48,25 +48,6 @@ fn default_enabled() -> bool {
 }
 
 /// Builds desired platform-relative files for external skills enabled for one platform.
-///
-/// In test builds this always returns an empty map so that integration tests are
-/// hermetic and never depend on network availability.  External skill resolution is
-/// covered by the dedicated unit tests in the `tests` sub-module below.
-#[cfg(test)]
-pub(crate) fn desired_external_skill_files_for_platform(
-    _home: &Path,
-    _platform: Platform,
-) -> Result<HashMap<PathBuf, Vec<u8>>> {
-    Ok(HashMap::new())
-}
-
-/// Builds desired platform-relative files for external skills enabled for one platform.
-///
-/// Fetches each enabled skill from its declared GitHub repository and commit,
-/// writing downloaded files into the platform's `skills/<id>/` subdirectory.
-/// Skills that fail to resolve are skipped with a warning; resolution errors are
-/// non-fatal so a partial network failure does not abort the install/update flow.
-#[cfg(not(test))]
 pub(crate) fn desired_external_skill_files_for_platform(
     home: &Path,
     platform: Platform,

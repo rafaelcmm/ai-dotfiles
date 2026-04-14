@@ -149,29 +149,6 @@ Run tests:
 cargo test
 ```
 
-## Prompt hook integration
-
-The package ships hook configuration for all supported platforms:
-
-- `static/.copilot/hooks.json` uses `userPromptSubmitted`.
-- `static/.cursor/hooks.json` uses `beforeSubmitPrompt` and `sessionStart`.
-- `static/.claude/settings.json` uses `UserPromptSubmit`.
-
-Prompt-submit discovery script:
-
-- Shared script path: `static/__shared__/scripts/discover-skills-for-user-prompt.sh`.
-- Reads optional JSON stdin from the hook runtime.
-- Discovers skills from workspace roots and user-level platform skills directories.
-- Emits `{"continue":true}` so prompt submission remains non-blocking.
-- Logs a discovery summary to stderr.
-
-Cursor session-start context injection script:
-
-- Shared script path: `static/__shared__/scripts/inject-skills-context-session-start.sh`.
-- Discovers skill IDs at session start and emits `{"additional_context":"..."}`.
-- Injects a compact skill catalog into Cursor session context.
-- Keeps prompt-submit hooks non-blocking while improving initial context quality.
-
 ## Extending behavior
 
 When adding new managed configuration content:
