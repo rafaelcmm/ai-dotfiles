@@ -595,6 +595,7 @@ commit = "c2ed24b3e5d412cd0c25197b2bc9af587621fd99"
 path = "skills/caveman"
 platforms = ["all"]
 enabled = true
+checksum = "f9c83a2b20fc3b3503af9d1ae1cf2098c9f8c3d326c203c236b160ebe81ac8f0"
 
 [[source]]
 id = "caveman-commit"
@@ -603,6 +604,7 @@ commit = "c2ed24b3e5d412cd0c25197b2bc9af587621fd99"
 path = "skills/caveman-commit"
 platforms = ["all"]
 enabled = true
+checksum = "9ea361c8617aaabb0dada200c0bbe3f3eb9e4a28d44366b1d3a6e4ef600e96e2"
 
 [[source]]
 id = "caveman-help"
@@ -611,6 +613,7 @@ commit = "c2ed24b3e5d412cd0c25197b2bc9af587621fd99"
 path = "skills/caveman-help"
 platforms = ["all"]
 enabled = true
+checksum = "46f86b3ff5184f4d43f0794c4f54b1b53fee284014613428f0f477e17edad06f"
 
 [[source]]
 id = "caveman-review"
@@ -619,6 +622,7 @@ commit = "c2ed24b3e5d412cd0c25197b2bc9af587621fd99"
 path = "skills/caveman-review"
 platforms = ["all"]
 enabled = true
+checksum = "9ef09065f26b9781275b5a4775e14870e331fab833efb2a2aa33f3205a2b83c3"
 
 [[source]]
 id = "compress"
@@ -627,3 +631,4 @@ commit = "c2ed24b3e5d412cd0c25197b2bc9af587621fd99"
 path = "skills/compress"
 platforms = ["all"]
 enabled = true
+checksum = "63d93d9a9e9f8da9e7864f11772ee4a714dd7253b51f55efc81b0292beb88ffc"
