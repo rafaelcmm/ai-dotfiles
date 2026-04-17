@@ -582,3 +582,48 @@ path = "skills/tool-design"
 platforms = ["all"]
 enabled = true
 checksum = "9f36dca7649dd2081a7d92d04128146016cf333b1be5f5ffd6c9258fd792d9d8"
+
+# -----------------------------------------------------------------------------
+# Repository zone: JuliusBrussee caveman
+# Repo: https://github.com/JuliusBrussee/caveman
+# -----------------------------------------------------------------------------
+
+[[source]]
+id = "caveman"
+repository = "https://github.com/JuliusBrussee/caveman"
+commit = "c2ed24b3e5d412cd0c25197b2bc9af587621fd99"
+path = "skills/caveman"
+platforms = ["all"]
+enabled = true
+
+[[source]]
+id = "caveman-commit"
+repository = "https://github.com/JuliusBrussee/caveman"
+commit = "c2ed24b3e5d412cd0c25197b2bc9af587621fd99"
+path = "skills/caveman-commit"
+platforms = ["all"]
+enabled = true
+
+[[source]]
+id = "caveman-help"
+repository = "https://github.com/JuliusBrussee/caveman"
+commit = "c2ed24b3e5d412cd0c25197b2bc9af587621fd99"
+path = "skills/caveman-help"
+platforms = ["all"]
+enabled = true
+
+[[source]]
+id = "caveman-review"
+repository = "https://github.com/JuliusBrussee/caveman"
+commit = "c2ed24b3e5d412cd0c25197b2bc9af587621fd99"
+path = "skills/caveman-review"
+platforms = ["all"]
+enabled = true
+
+[[source]]
+id = "compress"
+repository = "https://github.com/JuliusBrussee/caveman"
+commit = "c2ed24b3e5d412cd0c25197b2bc9af587621fd99"
+path = "skills/compress"
+platforms = ["all"]
+enabled = true
