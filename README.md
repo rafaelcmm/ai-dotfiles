@@ -45,7 +45,17 @@ Install managed configuration files:
 ai-dotfiles install
 ```
 
+Installation now also bootstraps cross-tool user-level shared files in HOME root:
+
+- `~/AGENTS.md`
+- `~/CLAUDE.md` (references `@AGENTS.md`)
+
+Skills are installed canonically under `~/.claude/skills` to avoid duplication across tool roots.
+Copilot can read Claude skills from this location, matching current interoperability guidance.
+
 Each platform root gets an `_meta.md` file whose YAML frontmatter tracks the version plus the files and directories bootstrapped by the CLI. `update` and `debloat` use that manifest as their source of truth.
+
+The HOME-root scope uses `~/.ai-dotfiles-home-meta.md` for the same tracking behavior.
 
 Update managed configuration files (default behavior includes self-update check):
 
@@ -88,3 +98,13 @@ After running `install` or `update`, copy the template from:
 and paste it into Cursor User Rules.
 
 This keeps your workflow personal/global and avoids committing project-level rule files.
+
+## Hooks and MCP scaffolding
+
+`install` and `update` provide safe starter scaffolds for hooks and MCP:
+
+- `~/.claude/settings.json` (hooks + `mcpServers`)
+- `~/.cursor/hooks.json`
+- `~/.cursor/mcp.json`
+- `~/.copilot/mcp.json`
+- `~/.copilot/hooks/` templates (for copying into repo-scoped `.github/hooks/*.json`)

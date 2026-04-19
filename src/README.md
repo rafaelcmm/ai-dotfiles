@@ -14,9 +14,10 @@ This document describes how the Rust implementation works, module boundaries, an
 
 1. The binary entrypoint parses CLI arguments and enforces runtime safety checks.
 2. The library orchestrates install/update/debloat operations against a target HOME.
-3. Embedded and external sources resolve to canonical platform-relative destinations.
-4. Each platform keeps one `_meta.md` whose YAML frontmatter is the authoritative inventory of managed files and directories.
-5. Filesystem helpers manage only tracked package-owned content, without traversing symlinked directories.
+3. Embedded and external sources resolve to canonical destinations under provider roots and HOME root.
+4. Each provider platform keeps one `_meta.md` whose YAML frontmatter is the authoritative inventory of managed files and directories.
+5. HOME-root shared files use `~/.ai-dotfiles-home-meta.md` for the same lifecycle guarantees.
+6. Filesystem helpers manage only tracked package-owned content, without traversing symlinked directories.
 
 ## Module map
 
@@ -33,15 +34,18 @@ This document describes how the Rust implementation works, module boundaries, an
   - Shared constants and enums.
   - Defines managed roots: `agents`, `rules`, `instructions`, `skills`.
   - Defines the managed filename prefix and external skill cache location.
+  - Defines platform metadata filenames and HOME-root scope.
 
 - `operations.rs`
   - Core behavior for `install`, `update`, and `debloat`.
-  - Builds desired canonical file trees, reconciles tracked paths from `_meta.md`, and rewrites `_meta.md` last.
+  - Builds desired canonical file trees for platform targets plus HOME scope.
+  - Reconciles tracked paths from metadata manifests and rewrites metadata last.
   - Applies non-destructive managed-file rules.
 
 - `embedded.rs`
   - Reads embedded files from `static/` via `include_dir`.
-  - Merges platform-specific and shared trees.
+  - Merges platform-specific trees and HOME-root shared files.
+  - Installs `static/__shared__/skills` only for `.claude` as canonical portable skill location.
   - Emits canonical platform-relative destinations and rejects duplicate embedded outputs.
 
 - `external_skills.rs`
@@ -55,7 +59,7 @@ This document describes how the Rust implementation works, module boundaries, an
   - Maps external skill files into canonical destinations under `skills/<id>/...`.
 
 - `meta.rs`
-  - Renders `_meta.md` from `static/_meta_template.md` plus YAML frontmatter.
+  - Renders metadata files from `static/_meta_template.md` plus YAML frontmatter.
   - Parses structured manifests from existing metadata.
   - Falls back to legacy version-only metadata parsing for migration.
 
@@ -80,7 +84,7 @@ This document describes how the Rust implementation works, module boundaries, an
 - Creates managed files only when no prior metadata is found.
 - If an installation is already present, returns a message instructing the user to run `update`.
 - Writes canonical embedded and external files across supported platform roots.
-- Writes `_meta.md` last so the manifest reflects the final successful state.
+- Writes metadata files last so manifests reflect the final successful state.
 
 ### Update
 
@@ -103,19 +107,28 @@ This document describes how the Rust implementation works, module boundaries, an
 
 Static source layout:
 
+- HOME-root shared files: `static/AGENTS.md`, `static/CLAUDE.md`
 - Platform-specific: `static/.claude`, `static/.copilot`, `static/.cursor`
 - Shared: `static/__shared__`
 
 Destination model:
 
 - Managed content is installed as-is under canonical names.
-- `_meta.md` is written directly under each platform root and stores the authoritative inventory used by `update` and `debloat`.
+- `_meta.md` is written under each platform root.
+- `~/.ai-dotfiles-home-meta.md` tracks managed HOME-root files.
+- Skills are installed canonically under `~/.claude/skills`.
 
 Example mapping:
 
 - `static/.claude/agents/rust-specialist.md` -> `~/.claude/agents/rust-specialist.md`
-- `static/__shared__/skills/clean-code/SKILL.md` -> `~/.copilot/skills/clean-code/SKILL.md`
+- `static/__shared__/skills/clean-code/SKILL.md` -> `~/.claude/skills/clean-code/SKILL.md`
 - External source `react-best-practices/SKILL.md` -> `~/.claude/skills/react-best-practices/SKILL.md`
+- `static/AGENTS.md` -> `~/AGENTS.md`
+- `static/CLAUDE.md` -> `~/CLAUDE.md`
+- `static/.claude/settings.json` -> `~/.claude/settings.json`
+- `static/.cursor/hooks.json` -> `~/.cursor/hooks.json`
+- `static/.cursor/mcp.json` -> `~/.cursor/mcp.json`
+- `static/.copilot/mcp.json` -> `~/.copilot/mcp.json`
 
 ## Safety and security guarantees
 
