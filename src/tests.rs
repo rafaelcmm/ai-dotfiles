@@ -4,6 +4,7 @@
 //! non-destructive updates, and symlink handling during cleanup.
 
 use std::fs;
+use std::path::PathBuf;
 
 #[cfg(unix)]
 use std::os::unix::fs::symlink;
@@ -12,16 +13,16 @@ use tempfile::tempdir;
 
 use crate::constants::{Platform, HOME_SCOPE};
 use crate::external_skills::seed_test_external_skill_cache;
-use crate::meta::load_manifest;
+use crate::meta::{load_manifest, render_meta, PlatformManifest};
 use crate::{run, Command};
 
 fn version() -> &'static str {
     env!("CARGO_PKG_VERSION")
 }
 
-fn claude_platform() -> Platform {
+fn platform(root: &'static str) -> Platform {
     Platform {
-        root: ".claude",
+        root,
         metadata_file: "_meta.md",
         allow_legacy_cleanup: true,
     }
@@ -50,15 +51,18 @@ fn install_creates_meta_and_canonical_files() {
         .join(".copilot/skills/clean-code/SKILL.md")
         .exists());
 
-    assert!(home.path().join("AGENTS.md").exists());
-    assert!(home.path().join("CLAUDE.md").exists());
-    assert!(home.path().join(".ai-dotfiles-home-meta.md").exists());
+    for root in [".claude", ".copilot", ".cursor"] {
+        assert!(home.path().join(root).join("AGENTS.md").exists());
+        assert!(home.path().join(root).join("CLAUDE.md").exists());
+    }
 
-    let manifest = load_manifest(home.path(), claude_platform())
+    let manifest = load_manifest(home.path(), platform(".claude"))
         .expect("manifest load should succeed")
         .expect("manifest should exist");
     assert_eq!(manifest.version, version());
     assert!(manifest.managed_files.contains("_meta.md"));
+    assert!(manifest.managed_files.contains("AGENTS.md"));
+    assert!(manifest.managed_files.contains("CLAUDE.md"));
     assert!(manifest.managed_files.contains("agents/rust-specialist.md"));
     assert!(manifest
         .managed_files
@@ -67,11 +71,17 @@ fn install_creates_meta_and_canonical_files() {
     assert!(manifest.managed_directories.contains("skills"));
     assert!(manifest.managed_directories.contains("skills/clean-code"));
 
-    let home_manifest = load_manifest(home.path(), HOME_SCOPE)
-        .expect("home manifest load should succeed")
-        .expect("home manifest should exist");
-    assert!(home_manifest.managed_files.contains("AGENTS.md"));
-    assert!(home_manifest.managed_files.contains("CLAUDE.md"));
+    let copilot_manifest = load_manifest(home.path(), platform(".copilot"))
+        .expect("copilot manifest load should succeed")
+        .expect("copilot manifest should exist");
+    assert!(copilot_manifest.managed_files.contains("AGENTS.md"));
+    assert!(copilot_manifest.managed_files.contains("CLAUDE.md"));
+
+    let cursor_manifest = load_manifest(home.path(), platform(".cursor"))
+        .expect("cursor manifest load should succeed")
+        .expect("cursor manifest should exist");
+    assert!(cursor_manifest.managed_files.contains("AGENTS.md"));
+    assert!(cursor_manifest.managed_files.contains("CLAUDE.md"));
 }
 
 #[test]
@@ -142,11 +152,52 @@ fn update_refreshes_existing_canonical_install() {
         "stale"
     );
 
-    let manifest = load_manifest(home.path(), claude_platform())
+    let manifest = load_manifest(home.path(), platform(".claude"))
         .expect("manifest load should succeed")
         .expect("manifest should exist after update");
     assert!(manifest.managed_files.contains("agents/rust-specialist.md"));
     assert!(manifest.managed_directories.contains("agents"));
+}
+
+#[test]
+fn update_removes_legacy_home_root_shared_files() {
+    let home = tempdir().expect("tempdir should be created");
+    seed_test_external_skill_cache(home.path()).expect("test cache should be seeded");
+
+    fs::write(home.path().join("AGENTS.md"), "legacy").expect("legacy AGENTS should be created");
+    fs::write(home.path().join("CLAUDE.md"), "legacy").expect("legacy CLAUDE should be created");
+
+    let home_manifest = PlatformManifest::new(
+        version(),
+        vec![
+            PathBuf::from("AGENTS.md"),
+            PathBuf::from("CLAUDE.md"),
+            PathBuf::from(".ai-dotfiles-home-meta.md"),
+        ],
+        Vec::<PathBuf>::new(),
+    )
+    .expect("home manifest should be created");
+    fs::write(
+        home.path().join(".ai-dotfiles-home-meta.md"),
+        render_meta(&home_manifest).expect("home metadata should render"),
+    )
+    .expect("home metadata should be written");
+
+    let message = run(Command::Update, home.path()).expect("update should succeed");
+    assert!(message.contains("Updated configuration to version"));
+
+    assert!(!home.path().join("AGENTS.md").exists());
+    assert!(!home.path().join("CLAUDE.md").exists());
+    assert!(!home.path().join(".ai-dotfiles-home-meta.md").exists());
+
+    for root in [".claude", ".copilot", ".cursor"] {
+        assert!(home.path().join(root).join("AGENTS.md").exists());
+        assert!(home.path().join(root).join("CLAUDE.md").exists());
+    }
+
+    assert!(load_manifest(home.path(), HOME_SCOPE)
+        .expect("legacy home manifest should load")
+        .is_none());
 }
 
 #[test]

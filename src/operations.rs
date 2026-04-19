@@ -7,7 +7,7 @@ use std::path::{Path, PathBuf};
 use anyhow::{Context, Result};
 
 use crate::constants::{Command, Platform, HOME_SCOPE, PLATFORMS};
-use crate::embedded::{desired_files_for_platform, desired_home_files};
+use crate::embedded::desired_files_for_platform;
 use crate::external_skills::desired_external_skill_files_for_platform;
 use crate::fs_ops::{
     cleanup_legacy_managed_entries, cleanup_tracked_directories, collect_legacy_managed_files,
@@ -30,12 +30,9 @@ pub fn run(command: Command, home: &Path) -> Result<String> {
     }
 }
 
-/// Returns all managed targets, including HOME root scope.
+/// Returns all managed platform targets.
 fn all_targets() -> Vec<Platform> {
-    let mut targets = Vec::with_capacity(PLATFORMS.len() + 1);
-    targets.push(HOME_SCOPE);
-    targets.extend(PLATFORMS);
-    targets
+    PLATFORMS.to_vec()
 }
 
 /// Performs first-time installation when no prior metadata is found.
@@ -95,6 +92,9 @@ fn update(home: &Path) -> Result<String> {
         written += write_platform_state(home, platform, &desired, &manifest)?;
     }
 
+    // Migration cleanup: previous versions tracked shared docs in HOME root.
+    removed += cleanup_legacy_home_scope(home)?;
+
     if written == 0 && removed == 0 {
         return Ok("Configuration is already up to date.".to_string());
     }
@@ -113,11 +113,7 @@ fn debloat(home: &Path) -> Result<String> {
             let metadata_relative = metadata_relative_path(platform);
             let metadata_relative_string = metadata_relative.to_string_lossy().to_string();
 
-            let metadata_full_path = if platform.is_home_root() {
-                home.join(&metadata_relative_string)
-            } else {
-                home.join(platform.root).join(&metadata_relative_string)
-            };
+            let metadata_full_path = home.join(platform.root).join(&metadata_relative_string);
 
             let tracked_files: Vec<PathBuf> = collect_tracked_files(home, platform, &manifest)
                 .into_iter()
@@ -142,15 +138,13 @@ fn debloat(home: &Path) -> Result<String> {
         }
     }
 
+    removed += cleanup_legacy_home_scope(home)?;
+
     Ok(format!("Debloat completed ({removed} files removed)."))
 }
 
 fn build_desired_files(home: &Path, platform: Platform) -> Result<HashMap<PathBuf, Vec<u8>>> {
-    let mut desired = if platform.is_home_root() {
-        desired_home_files()?
-    } else {
-        desired_files_for_platform(platform)?
-    };
+    let mut desired = desired_files_for_platform(platform)?;
 
     if platform.normalized_name() == "claude" {
         merge_desired_files(
@@ -347,4 +341,29 @@ fn remove_generated_meta_if_present(home: &Path, platform: Platform) -> Result<u
     fs::remove_file(&meta_path)
         .with_context(|| format!("failed to remove {}", meta_path.display()))?;
     Ok(1)
+}
+
+fn cleanup_legacy_home_scope(home: &Path) -> Result<usize> {
+    let mut removed = 0usize;
+
+    if let Some(home_manifest) = load_manifest(home, HOME_SCOPE)? {
+        let tracked_files = collect_tracked_files(home, HOME_SCOPE, &home_manifest);
+        removed += remove_files(&tracked_files)?;
+        removed += cleanup_tracked_directories(&collect_tracked_directories(
+            home,
+            HOME_SCOPE,
+            &home_manifest,
+        ))?;
+
+        let home_meta = home.join(metadata_path(HOME_SCOPE));
+        if home_meta.exists() {
+            fs::remove_file(&home_meta)
+                .with_context(|| format!("failed to remove {}", home_meta.display()))?;
+            removed += 1;
+        }
+    } else {
+        removed += remove_generated_meta_if_present(home, HOME_SCOPE)?;
+    }
+
+    Ok(removed)
 }

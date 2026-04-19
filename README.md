@@ -45,17 +45,19 @@ Install managed configuration files:
 ai-dotfiles install
 ```
 
-Installation now also bootstraps cross-tool user-level shared files in HOME root:
+Installation now also bootstraps cross-tool shared files under each managed tool root:
 
-- `~/AGENTS.md`
-- `~/CLAUDE.md` (references `@AGENTS.md`)
+- `~/.claude/AGENTS.md`
+- `~/.claude/CLAUDE.md` (references `@AGENTS.md`)
+- `~/.copilot/AGENTS.md`
+- `~/.copilot/CLAUDE.md`
+- `~/.cursor/AGENTS.md`
+- `~/.cursor/CLAUDE.md`
 
 Skills are installed canonically under `~/.claude/skills` to avoid duplication across tool roots.
 Copilot can read Claude skills from this location, matching current interoperability guidance.
 
 Each platform root gets an `_meta.md` file whose YAML frontmatter tracks the version plus the files and directories bootstrapped by the CLI. `update` and `debloat` use that manifest as their source of truth.
-
-The HOME-root scope uses `~/.ai-dotfiles-home-meta.md` for the same tracking behavior.
 
 Update managed configuration files (default behavior includes self-update check):
 

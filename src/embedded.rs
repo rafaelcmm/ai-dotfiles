@@ -31,6 +31,14 @@ pub(crate) fn desired_files_for_platform(platform: Platform) -> Result<HashMap<P
         collect_embedded_files(shared_dir, Path::new(""), &mut files);
     }
 
+    // Shared root-level docs are installed inside each tool root to avoid HOME pollution.
+    for file_name in ["AGENTS.md", "CLAUDE.md"] {
+        let file = static_dir()
+            .get_file(file_name)
+            .with_context(|| format!("missing static shared file {file_name}"))?;
+        files.push((PathBuf::from(file_name), file.contents().to_vec()));
+    }
+
     let mut mapped = HashMap::<PathBuf, Vec<u8>>::new();
     for (relative, contents) in files {
         if mapped.insert(relative.clone(), contents).is_some() {
@@ -39,20 +47,6 @@ pub(crate) fn desired_files_for_platform(platform: Platform) -> Result<HashMap<P
     }
 
     Ok(mapped)
-}
-
-/// Builds desired files installed directly in HOME root.
-pub(crate) fn desired_home_files() -> Result<HashMap<PathBuf, Vec<u8>>> {
-    let mut output = HashMap::<PathBuf, Vec<u8>>::new();
-
-    for file_name in ["AGENTS.md", "CLAUDE.md"] {
-        let file = static_dir()
-            .get_file(file_name)
-            .with_context(|| format!("missing static home file {file_name}"))?;
-        output.insert(PathBuf::from(file_name), file.contents().to_vec());
-    }
-
-    Ok(output)
 }
 
 fn collect_embedded_files(dir: &Dir<'_>, prefix: &Path, output: &mut Vec<(PathBuf, Vec<u8>)>) {
