@@ -415,6 +415,37 @@ fn install_refuses_symlinked_managed_destination_file() {
 
 #[cfg(unix)]
 #[test]
+fn install_skips_files_under_symlinked_parent_directory() {
+    // A user may symlink an entire skill directory to a custom location (e.g.
+    // ~/.claude/skills/frontend-design -> ~/my-skills/frontend-design). The
+    // installer must skip files inside that directory and continue, rather than
+    // aborting the entire install with an error.
+    let home = tempdir().expect("tempdir should be created");
+    let outside = tempdir().expect("outside tempdir should be created");
+    seed_test_external_skill_cache(home.path()).expect("test cache should be seeded");
+
+    let outside_file = outside.path().join("SKILL.md");
+    fs::write(&outside_file, "user managed").expect("outside file should be created");
+
+    // Symlink the skills directory itself so that writes into it would traverse
+    // the symlink — matching the real-world failure scenario.
+    let skills_dir = home.path().join(".claude/skills");
+    fs::create_dir_all(&skills_dir).expect("skills dir parent should be created");
+    let link_path = skills_dir.join("frontend-design");
+    symlink(outside.path(), &link_path).expect("symlink should be created");
+
+    // Install must succeed even though frontend-design is a symlinked directory.
+    run(Command::Install, home.path()).expect("install should succeed with symlinked skill dir");
+
+    // The user-managed file must be untouched.
+    assert_eq!(
+        fs::read_to_string(&outside_file).expect("outside file should be readable"),
+        "user managed"
+    );
+}
+
+#[cfg(unix)]
+#[test]
 fn update_restores_executable_mode_for_managed_hook_scripts() {
     let home = tempdir().expect("tempdir should be created");
     seed_test_external_skill_cache(home.path()).expect("test cache should be seeded");

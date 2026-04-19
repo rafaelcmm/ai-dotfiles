@@ -333,6 +333,19 @@ fn write_changed_files(
 
     for (relative, bytes) in desired {
         let destination = home.join(platform.root).join(relative);
+
+        // A symlinked parent means the user manages that directory themselves
+        // (e.g. a skills dir symlinked to another location). Skip rather than
+        // fail so the rest of the install can proceed unblocked.
+        if let Some(symlinked) = find_symlinked_parent(&destination)? {
+            eprintln!(
+                "warning: skipping {} — parent directory {} is a symlink managed outside ai-dotfiles",
+                destination.display(),
+                symlinked.display()
+            );
+            continue;
+        }
+
         written += write_file_if_changed(&destination, bytes)?;
     }
 
@@ -404,7 +417,12 @@ fn ensure_executable_for_shell_script(destination: &Path) -> Result<usize> {
     Ok(0)
 }
 
-/// Rejects writes that would target symlinks or pass through symlinked directories.
+/// Rejects writes that would resolve through a symlink at the destination itself.
+///
+/// Writing through a destination symlink silently redirects the file to an
+/// unintended location, so this is treated as a hard error. Symlinked *parent*
+/// directories are handled separately by [`find_symlinked_parent`] and result
+/// in a skip-with-warning rather than an abort.
 fn ensure_safe_destination(destination: &Path) -> Result<()> {
     if destination.exists() {
         let metadata = fs::symlink_metadata(destination)
@@ -417,22 +435,29 @@ fn ensure_safe_destination(destination: &Path) -> Result<()> {
         }
     }
 
-    let mut current = destination.parent();
+    Ok(())
+}
+
+/// Returns the first symlinked component found while walking from `path`
+/// toward the filesystem root, or `None` if every ancestor is a real
+/// directory.
+///
+/// This is used to detect user-managed symlinked directories (e.g. a skills
+/// folder linked to another location) so the caller can skip the write
+/// gracefully instead of aborting the entire install.
+fn find_symlinked_parent(path: &Path) -> Result<Option<PathBuf>> {
+    let mut current = path.parent();
     while let Some(parent) = current {
         if parent.exists() {
             let metadata = fs::symlink_metadata(parent)
                 .with_context(|| format!("failed to stat {}", parent.display()))?;
             if metadata.file_type().is_symlink() {
-                anyhow::bail!(
-                    "refusing to traverse symlinked directory {}",
-                    parent.display()
-                );
+                return Ok(Some(parent.to_path_buf()));
             }
         }
         current = parent.parent();
     }
-
-    Ok(())
+    Ok(None)
 }
 
 fn remove_generated_meta_if_present(home: &Path, platform: Platform) -> Result<usize> {
