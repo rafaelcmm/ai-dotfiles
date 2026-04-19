@@ -25,11 +25,20 @@ pub(crate) fn desired_files_for_platform(platform: Platform) -> Result<HashMap<P
     collect_embedded_files(platform_dir, Path::new(""), &mut files);
 
     if platform.normalized_name() == "claude" {
-        let shared_dir = static_dir()
-            .get_dir("__shared__")
-            .context("missing static shared directory")?;
-        collect_embedded_files(shared_dir, Path::new(""), &mut files);
+        let shared_skills_dir = static_dir()
+            .get_dir("__shared__/skills")
+            .context("missing static shared skills directory")?;
+        collect_embedded_files(shared_skills_dir, Path::new("skills"), &mut files);
     }
+
+    let shared_scripts_dir = static_dir()
+        .get_dir("__shared__/scripts")
+        .context("missing static shared scripts directory")?;
+    collect_embedded_files(
+        shared_scripts_dir,
+        Path::new(hooks_directory_for_platform(platform)),
+        &mut files,
+    );
 
     // Shared root-level docs are installed inside each tool root to avoid HOME pollution.
     for file_name in ["AGENTS.md", "CLAUDE.md"] {
@@ -47,6 +56,14 @@ pub(crate) fn desired_files_for_platform(platform: Platform) -> Result<HashMap<P
     }
 
     Ok(mapped)
+}
+
+/// Returns the managed hooks directory relative to each platform root.
+fn hooks_directory_for_platform(platform: Platform) -> &'static str {
+    match platform.normalized_name() {
+        "copilot" => "hooks",
+        _ => ".hooks",
+    }
 }
 
 fn collect_embedded_files(dir: &Dir<'_>, prefix: &Path, output: &mut Vec<(PathBuf, Vec<u8>)>) {

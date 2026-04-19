@@ -51,6 +51,40 @@ fn install_creates_meta_and_canonical_files() {
         .join(".copilot/skills/clean-code/SKILL.md")
         .exists());
 
+    for script in ["format-file.sh", "guard-paths.sh", "scan-secrets.sh"] {
+        assert!(home.path().join(".claude/.hooks").join(script).exists());
+        assert!(home.path().join(".cursor/.hooks").join(script).exists());
+        assert!(home.path().join(".copilot/hooks").join(script).exists());
+    }
+
+    let claude_settings =
+        fs::read_to_string(home.path().join(".claude/settings.json")).expect("claude settings");
+    assert!(claude_settings.contains("Edit|Write|MultiEdit"));
+    assert!(claude_settings.contains("bash ./.hooks/guard-paths.sh"));
+    assert!(claude_settings.contains("bash ./.hooks/scan-secrets.sh"));
+    assert!(claude_settings.contains("\"timeout\": 5"));
+    assert!(claude_settings.contains("bash ./.hooks/format-file.sh"));
+    assert!(claude_settings.contains("\"timeout\": 15"));
+
+    let cursor_hooks =
+        fs::read_to_string(home.path().join(".cursor/hooks.json")).expect("cursor hooks");
+    assert!(cursor_hooks.contains("beforeShellExecution"));
+    assert!(cursor_hooks.contains("afterFileEdit"));
+    assert!(cursor_hooks.contains("bash ./.hooks/guard-paths.sh"));
+    assert!(cursor_hooks.contains("bash ./.hooks/scan-secrets.sh"));
+    assert!(cursor_hooks.contains("bash ./.hooks/format-file.sh"));
+
+    let copilot_hooks =
+        fs::read_to_string(home.path().join(".copilot/hooks/hooks.json")).expect("copilot hooks");
+    assert!(copilot_hooks.contains("preToolUse"));
+    assert!(copilot_hooks.contains("postToolUse"));
+    assert!(copilot_hooks.contains("\"type\": \"command\""));
+    assert!(copilot_hooks.contains("\"bash\": \"./hooks/guard-paths.sh\""));
+    assert!(copilot_hooks.contains("\"bash\": \"./hooks/scan-secrets.sh\""));
+    assert!(copilot_hooks.contains("\"bash\": \"./hooks/format-file.sh\""));
+    assert!(copilot_hooks.contains("\"timeoutSec\": 5"));
+    assert!(copilot_hooks.contains("\"timeoutSec\": 15"));
+
     for root in [".claude", ".copilot", ".cursor"] {
         assert!(home.path().join(root).join("AGENTS.md").exists());
         assert!(home.path().join(root).join("CLAUDE.md").exists());
@@ -67,6 +101,9 @@ fn install_creates_meta_and_canonical_files() {
     assert!(manifest
         .managed_files
         .contains("skills/clean-code/SKILL.md"));
+    assert!(manifest.managed_files.contains(".hooks/guard-paths.sh"));
+    assert!(manifest.managed_files.contains(".hooks/scan-secrets.sh"));
+    assert!(manifest.managed_files.contains(".hooks/format-file.sh"));
     assert!(manifest.managed_directories.contains("agents"));
     assert!(manifest.managed_directories.contains("skills"));
     assert!(manifest.managed_directories.contains("skills/clean-code"));
@@ -76,12 +113,19 @@ fn install_creates_meta_and_canonical_files() {
         .expect("copilot manifest should exist");
     assert!(copilot_manifest.managed_files.contains("AGENTS.md"));
     assert!(copilot_manifest.managed_files.contains("CLAUDE.md"));
+    assert!(copilot_manifest.managed_files.contains("hooks/guard-paths.sh"));
+    assert!(copilot_manifest.managed_files.contains("hooks/scan-secrets.sh"));
+    assert!(copilot_manifest.managed_files.contains("hooks/format-file.sh"));
+    assert!(copilot_manifest.managed_files.contains("hooks/hooks.json"));
 
     let cursor_manifest = load_manifest(home.path(), platform(".cursor"))
         .expect("cursor manifest load should succeed")
         .expect("cursor manifest should exist");
     assert!(cursor_manifest.managed_files.contains("AGENTS.md"));
     assert!(cursor_manifest.managed_files.contains("CLAUDE.md"));
+    assert!(cursor_manifest.managed_files.contains(".hooks/guard-paths.sh"));
+    assert!(cursor_manifest.managed_files.contains(".hooks/scan-secrets.sh"));
+    assert!(cursor_manifest.managed_files.contains(".hooks/format-file.sh"));
 }
 
 #[test]
