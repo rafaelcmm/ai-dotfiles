@@ -10,7 +10,7 @@ use std::os::unix::fs::symlink;
 
 use tempfile::tempdir;
 
-use crate::constants::Platform;
+use crate::constants::{Platform, HOME_SCOPE};
 use crate::external_skills::seed_test_external_skill_cache;
 use crate::meta::load_manifest;
 use crate::{run, Command};
@@ -20,7 +20,11 @@ fn version() -> &'static str {
 }
 
 fn claude_platform() -> Platform {
-    Platform { root: ".claude" }
+    Platform {
+        root: ".claude",
+        metadata_file: "_meta.md",
+        allow_legacy_cleanup: true,
+    }
 }
 
 #[test]
@@ -39,8 +43,16 @@ fn install_creates_meta_and_canonical_files() {
         .join(format!("ai-dotfiles-{}-rust-specialist.md", version()))
         .exists());
 
-    let copilot_skill = home.path().join(".copilot/skills/clean-code/SKILL.md");
-    assert!(copilot_skill.exists());
+    let claude_skill = home.path().join(".claude/skills/clean-code/SKILL.md");
+    assert!(claude_skill.exists());
+    assert!(!home
+        .path()
+        .join(".copilot/skills/clean-code/SKILL.md")
+        .exists());
+
+    assert!(home.path().join("AGENTS.md").exists());
+    assert!(home.path().join("CLAUDE.md").exists());
+    assert!(home.path().join(".ai-dotfiles-home-meta.md").exists());
 
     let manifest = load_manifest(home.path(), claude_platform())
         .expect("manifest load should succeed")
@@ -54,6 +66,12 @@ fn install_creates_meta_and_canonical_files() {
     assert!(manifest.managed_directories.contains("agents"));
     assert!(manifest.managed_directories.contains("skills"));
     assert!(manifest.managed_directories.contains("skills/clean-code"));
+
+    let home_manifest = load_manifest(home.path(), HOME_SCOPE)
+        .expect("home manifest load should succeed")
+        .expect("home manifest should exist");
+    assert!(home_manifest.managed_files.contains("AGENTS.md"));
+    assert!(home_manifest.managed_files.contains("CLAUDE.md"));
 }
 
 #[test]
@@ -190,4 +208,32 @@ fn update_does_not_follow_symlinked_managed_dir() {
 
     assert!(outside_file.exists());
     assert!(!link_path.exists());
+}
+
+#[cfg(unix)]
+#[test]
+fn install_refuses_symlinked_managed_destination_file() {
+    let home = tempdir().expect("tempdir should be created");
+    let outside = tempdir().expect("outside tempdir should be created");
+    seed_test_external_skill_cache(home.path()).expect("test cache should be seeded");
+
+    let destination = home.path().join(".claude/agents/rust-specialist.md");
+    fs::create_dir_all(destination.parent().expect("managed parent should exist"))
+        .expect("managed parent should be created");
+
+    let external_target = outside.path().join("external-target.md");
+    fs::write(&external_target, "outside").expect("outside file should be created");
+    symlink(&external_target, &destination).expect("symlink should be created");
+
+    let error = run(Command::Install, home.path()).expect_err("install should fail");
+    assert!(
+        error
+            .to_string()
+            .contains("refusing to write through symlink"),
+        "unexpected error: {error}"
+    );
+    assert_eq!(
+        fs::read_to_string(&external_target).expect("outside file should be readable"),
+        "outside"
+    );
 }
