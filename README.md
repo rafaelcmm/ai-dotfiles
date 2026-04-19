@@ -109,7 +109,10 @@ This keeps your workflow personal/global and avoids committing project-level rul
 - `~/.cursor/hooks.json`
 - `~/.cursor/mcp.json`
 - `~/.copilot/mcp.json`
+- `~/.config/Code/User/mcp.json` (merged under `servers` for VS Code discovery)
 - `~/.copilot/hooks/hooks.json`
+
+When merging into `~/.config/Code/User/mcp.json`, existing user server entries are preserved on name collisions.
 
 Shared hook scripts are also installed automatically:
 

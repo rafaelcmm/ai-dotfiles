@@ -60,30 +60,36 @@ fn install_creates_meta_and_canonical_files() {
     let claude_settings =
         fs::read_to_string(home.path().join(".claude/settings.json")).expect("claude settings");
     assert!(claude_settings.contains("Edit|Write|MultiEdit"));
-    assert!(claude_settings.contains("bash ./.hooks/guard-paths.sh"));
-    assert!(claude_settings.contains("bash ./.hooks/scan-secrets.sh"));
+    assert!(claude_settings.contains("$HOME/.claude/.hooks/guard-paths.sh"));
+    assert!(claude_settings.contains("$HOME/.claude/.hooks/scan-secrets.sh"));
     assert!(claude_settings.contains("\"timeout\": 5"));
-    assert!(claude_settings.contains("bash ./.hooks/format-file.sh"));
+    assert!(claude_settings.contains("$HOME/.claude/.hooks/format-file.sh"));
     assert!(claude_settings.contains("\"timeout\": 15"));
 
     let cursor_hooks =
         fs::read_to_string(home.path().join(".cursor/hooks.json")).expect("cursor hooks");
     assert!(cursor_hooks.contains("beforeShellExecution"));
     assert!(cursor_hooks.contains("afterFileEdit"));
-    assert!(cursor_hooks.contains("bash ./.hooks/guard-paths.sh"));
-    assert!(cursor_hooks.contains("bash ./.hooks/scan-secrets.sh"));
-    assert!(cursor_hooks.contains("bash ./.hooks/format-file.sh"));
+    assert!(cursor_hooks.contains("$HOME/.cursor/.hooks/guard-paths.sh"));
+    assert!(cursor_hooks.contains("$HOME/.cursor/.hooks/scan-secrets.sh"));
+    assert!(cursor_hooks.contains("$HOME/.cursor/.hooks/format-file.sh"));
 
     let copilot_hooks =
         fs::read_to_string(home.path().join(".copilot/hooks/hooks.json")).expect("copilot hooks");
     assert!(copilot_hooks.contains("preToolUse"));
     assert!(copilot_hooks.contains("postToolUse"));
     assert!(copilot_hooks.contains("\"type\": \"command\""));
-    assert!(copilot_hooks.contains("\"bash\": \"./hooks/guard-paths.sh\""));
-    assert!(copilot_hooks.contains("\"bash\": \"./hooks/scan-secrets.sh\""));
-    assert!(copilot_hooks.contains("\"bash\": \"./hooks/format-file.sh\""));
+    assert!(copilot_hooks.contains("\"bash\": \"$HOME/.copilot/hooks/guard-paths.sh\""));
+    assert!(copilot_hooks.contains("\"bash\": \"$HOME/.copilot/hooks/scan-secrets.sh\""));
+    assert!(copilot_hooks.contains("\"bash\": \"$HOME/.copilot/hooks/format-file.sh\""));
     assert!(copilot_hooks.contains("\"timeoutSec\": 5"));
     assert!(copilot_hooks.contains("\"timeoutSec\": 15"));
+
+    let vscode_mcp = fs::read_to_string(home.path().join(".config/Code/User/mcp.json"))
+        .expect("vscode user mcp should be generated");
+    assert!(vscode_mcp.contains("\"servers\""));
+    assert!(vscode_mcp.contains("\"chrome-devtools\""));
+    assert!(vscode_mcp.contains("\"next-devtools\""));
 
     for root in [".claude", ".copilot", ".cursor"] {
         assert!(home.path().join(root).join("AGENTS.md").exists());
@@ -176,6 +182,65 @@ fn update_bootstraps_when_no_install_exists() {
         .path()
         .join(".claude/agents/rust-specialist.md")
         .exists());
+}
+
+#[test]
+fn install_merges_vscode_mcp_servers_without_removing_existing_entries() {
+    let home = tempdir().expect("tempdir should be created");
+    seed_test_external_skill_cache(home.path()).expect("test cache should be seeded");
+
+    let vscode_user_dir = home.path().join(".config/Code/User");
+    fs::create_dir_all(&vscode_user_dir).expect("vscode user dir should be created");
+    fs::write(
+        vscode_user_dir.join("mcp.json"),
+        r#"{
+    "servers": {
+        "existing-server": {
+            "command": "echo",
+            "args": ["ok"]
+        }
+    }
+}
+"#,
+    )
+    .expect("existing vscode mcp should be created");
+
+    run(Command::Install, home.path()).expect("install should succeed");
+
+    let merged =
+        fs::read_to_string(vscode_user_dir.join("mcp.json")).expect("vscode mcp should exist");
+    assert!(merged.contains("\"existing-server\""));
+    assert!(merged.contains("\"chrome-devtools\""));
+    assert!(merged.contains("\"next-devtools\""));
+}
+
+#[test]
+fn install_preserves_existing_vscode_server_on_name_collision() {
+    let home = tempdir().expect("tempdir should be created");
+    seed_test_external_skill_cache(home.path()).expect("test cache should be seeded");
+
+    let vscode_user_dir = home.path().join(".config/Code/User");
+    fs::create_dir_all(&vscode_user_dir).expect("vscode user dir should be created");
+    fs::write(
+        vscode_user_dir.join("mcp.json"),
+        r#"{
+    "servers": {
+        "chrome-devtools": {
+            "command": "custom-chrome-mcp",
+            "args": ["--custom"]
+        }
+    }
+}
+"#,
+    )
+    .expect("existing vscode mcp should be created");
+
+    run(Command::Install, home.path()).expect("install should succeed");
+
+    let merged =
+        fs::read_to_string(vscode_user_dir.join("mcp.json")).expect("vscode mcp should exist");
+    assert!(merged.contains("\"custom-chrome-mcp\""));
+    assert!(merged.contains("\"next-devtools\""));
 }
 
 #[test]

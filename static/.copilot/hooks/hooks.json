@@ -4,19 +4,19 @@
     "preToolUse": [
       {
         "type": "command",
-        "bash": "./hooks/guard-paths.sh",
+        "bash": "$HOME/.copilot/hooks/guard-paths.sh",
         "timeoutSec": 5
       },
       {
         "type": "command",
-        "bash": "./hooks/scan-secrets.sh",
+        "bash": "$HOME/.copilot/hooks/scan-secrets.sh",
         "timeoutSec": 5
       }
     ],
     "postToolUse": [
       {
         "type": "command",
-        "bash": "./hooks/format-file.sh",
+        "bash": "$HOME/.copilot/hooks/format-file.sh",
         "timeoutSec": 15
       }
     ]

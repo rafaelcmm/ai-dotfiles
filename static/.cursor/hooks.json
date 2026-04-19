@@ -3,21 +3,21 @@
   "hooks": {
     "beforeShellExecution": [
       {
-        "command": "bash ./.hooks/guard-paths.sh"
+        "command": "bash \"$HOME/.cursor/.hooks/guard-paths.sh\""
       },
       {
-        "command": "bash ./.hooks/scan-secrets.sh"
+        "command": "bash \"$HOME/.cursor/.hooks/scan-secrets.sh\""
       }
     ],
     "afterFileEdit": [
       {
-        "command": "bash ./.hooks/guard-paths.sh"
+        "command": "bash \"$HOME/.cursor/.hooks/guard-paths.sh\""
       },
       {
-        "command": "bash ./.hooks/scan-secrets.sh"
+        "command": "bash \"$HOME/.cursor/.hooks/scan-secrets.sh\""
       },
       {
-        "command": "bash ./.hooks/format-file.sh"
+        "command": "bash \"$HOME/.cursor/.hooks/format-file.sh\""
       }
     ]
   }

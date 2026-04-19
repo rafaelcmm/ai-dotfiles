@@ -131,7 +131,10 @@ Example mapping:
 - `static/.cursor/hooks.json` -> `~/.cursor/hooks.json`
 - `static/.cursor/mcp.json` -> `~/.cursor/mcp.json`
 - `static/.copilot/mcp.json` -> `~/.copilot/mcp.json`
+- `static/.copilot/mcp.json` -> merge into `~/.config/Code/User/mcp.json` as `servers`
 - `static/.copilot/hooks/hooks.json` -> `~/.copilot/hooks/hooks.json`
+
+VS Code MCP merge policy keeps existing user `servers` entries when names collide and only fills missing managed server keys.
 - `static/__shared__/scripts/guard-paths.sh` -> `~/.claude/.hooks/guard-paths.sh`
 - `static/__shared__/scripts/scan-secrets.sh` -> `~/.claude/.hooks/scan-secrets.sh`
 - `static/__shared__/scripts/format-file.sh` -> `~/.claude/.hooks/format-file.sh`

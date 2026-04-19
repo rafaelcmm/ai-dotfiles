@@ -5,6 +5,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 use anyhow::{Context, Result};
+use serde_json::{Map, Value};
 
 use crate::constants::{Command, Platform, HOME_SCOPE, PLATFORMS};
 use crate::embedded::desired_files_for_platform;
@@ -247,10 +248,78 @@ fn write_platform_state(
     manifest: &PlatformManifest,
 ) -> Result<usize> {
     let mut written = write_changed_files(home, platform, desired)?;
+
+    if platform.normalized_name() == "copilot" {
+        written += sync_vscode_mcp_servers(home, desired)?;
+    }
+
     let metadata = render_meta(manifest)?.into_bytes();
     let metadata_path = home.join(metadata_path(platform));
     written += write_file_if_changed(&metadata_path, &metadata)?;
     Ok(written)
+}
+
+/// Syncs managed Copilot MCP entries into VS Code's user MCP config.
+///
+/// VS Code reads servers from `~/.config/Code/User/mcp.json` under `servers`.
+/// The embedded Copilot config stores them under `mcpServers`, so this method
+/// merges managed entries into the VS Code file while preserving user-defined ones.
+fn sync_vscode_mcp_servers(home: &Path, desired: &HashMap<PathBuf, Vec<u8>>) -> Result<usize> {
+    let Some(copilot_mcp) = desired.get(&PathBuf::from("mcp.json")) else {
+        return Ok(0);
+    };
+
+    let parsed_copilot: Value = serde_json::from_slice(copilot_mcp)
+        .context("failed to parse embedded .copilot/mcp.json")?;
+
+    let managed_servers = parsed_copilot
+        .get("mcpServers")
+        .and_then(Value::as_object)
+        .cloned()
+        .unwrap_or_default();
+
+    if managed_servers.is_empty() {
+        return Ok(0);
+    }
+
+    let vscode_mcp_path = home.join(".config/Code/User/mcp.json");
+    ensure_safe_destination(&vscode_mcp_path)?;
+
+    let mut vscode_root = read_json_object_or_empty(&vscode_mcp_path)?;
+    let existing_servers = vscode_root
+        .remove("servers")
+        .and_then(|value| value.as_object().cloned())
+        .unwrap_or_default();
+
+    let mut merged_servers = existing_servers;
+    for (name, server_config) in managed_servers {
+        // Preserve user-owned server definitions if names collide.
+        merged_servers.entry(name).or_insert(server_config);
+    }
+
+    vscode_root.insert("servers".to_string(), Value::Object(merged_servers));
+    let mut rendered = serde_json::to_vec_pretty(&Value::Object(vscode_root))?;
+    rendered.push(b'\n');
+
+    write_file_if_changed(&vscode_mcp_path, &rendered)
+}
+
+/// Reads a JSON object from disk or returns an empty object when absent.
+///
+/// This helper is used for resilient MCP merge behavior:
+/// - missing file means no prior user configuration, so merge starts empty
+/// - invalid JSON surfaces as an error to avoid silently corrupting config
+/// - non-object JSON is treated as empty because MCP root must be object-shaped
+fn read_json_object_or_empty(path: &Path) -> Result<Map<String, Value>> {
+    if !path.exists() {
+        return Ok(Map::new());
+    }
+
+    let bytes = fs::read(path).with_context(|| format!("failed to read {}", path.display()))?;
+    let parsed: Value = serde_json::from_slice(&bytes)
+        .with_context(|| format!("failed to parse {} as JSON", path.display()))?;
+
+    Ok(parsed.as_object().cloned().unwrap_or_default())
 }
 
 fn write_changed_files(

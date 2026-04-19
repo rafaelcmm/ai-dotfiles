@@ -6,12 +6,12 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash ./.hooks/guard-paths.sh",
+            "command": "bash \"$HOME/.claude/.hooks/guard-paths.sh\"",
             "timeout": 5
           },
           {
             "type": "command",
-            "command": "bash ./.hooks/scan-secrets.sh",
+            "command": "bash \"$HOME/.claude/.hooks/scan-secrets.sh\"",
             "timeout": 5
           }
         ]
@@ -23,7 +23,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash ./.hooks/format-file.sh",
+            "command": "bash \"$HOME/.claude/.hooks/format-file.sh\"",
             "timeout": 15
           }
         ]
