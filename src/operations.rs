@@ -3,6 +3,8 @@
 use std::collections::{BTreeSet, HashMap, HashSet};
 use std::fs;
 use std::path::{Path, PathBuf};
+#[cfg(unix)]
+use std::os::unix::fs::PermissionsExt;
 
 use anyhow::{Context, Result};
 use serde_json::{Map, Value};
@@ -345,22 +347,61 @@ fn write_file_if_changed(destination: &Path, bytes: &[u8]) -> Result<usize> {
         Err(_) => true,
     };
 
-    if !should_write {
+    let mut changed = 0usize;
+
+    if should_write {
+        if let Some(parent) = destination.parent() {
+            fs::create_dir_all(parent).with_context(|| {
+                format!(
+                    "failed to create destination directory {}",
+                    parent.display()
+                )
+            })?;
+        }
+
+        fs::write(destination, bytes)
+            .with_context(|| format!("failed to write {}", destination.display()))?;
+        changed += 1;
+    }
+
+    // Shell scripts are executed as hooks; enforce executable mode on each run,
+    // even when content is unchanged, to self-heal older installs.
+    changed += ensure_executable_for_shell_script(destination)?;
+
+    Ok(changed)
+}
+
+/// Ensures shell scripts are executable on Unix platforms.
+fn ensure_executable_for_shell_script(destination: &Path) -> Result<usize> {
+    if destination.extension().and_then(|ext| ext.to_str()) != Some("sh") {
         return Ok(0);
     }
 
-    if let Some(parent) = destination.parent() {
-        fs::create_dir_all(parent).with_context(|| {
-            format!(
-                "failed to create destination directory {}",
-                parent.display()
-            )
-        })?;
+    if !destination.exists() {
+        return Ok(0);
     }
 
-    fs::write(destination, bytes)
-        .with_context(|| format!("failed to write {}", destination.display()))?;
-    Ok(1)
+    #[cfg(unix)]
+    {
+        let metadata = fs::metadata(destination)
+            .with_context(|| format!("failed to stat {}", destination.display()))?;
+        let mut permissions = metadata.permissions();
+        let mode = permissions.mode();
+        let executable_mode = mode | 0o111;
+
+        if mode != executable_mode {
+            permissions.set_mode(executable_mode);
+            fs::set_permissions(destination, permissions).with_context(|| {
+                format!(
+                    "failed to set executable permissions on {}",
+                    destination.display()
+                )
+            })?;
+            return Ok(1);
+        }
+    }
+
+    Ok(0)
 }
 
 /// Rejects writes that would target symlinks or pass through symlinked directories.
