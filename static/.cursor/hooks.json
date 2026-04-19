@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "hooks": {
+    "beforeShellExecution": [
+      {
+        "command": "echo '[cursor] beforeShellExecution hook triggered' >&2"
+      }
+    ],
+    "afterFileEdit": [
+      {
+        "command": "echo '[cursor] afterFileEdit hook triggered' >&2"
+      }
+    ]
+  }
+}

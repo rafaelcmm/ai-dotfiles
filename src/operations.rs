@@ -6,8 +6,8 @@ use std::path::{Path, PathBuf};
 
 use anyhow::{Context, Result};
 
-use crate::constants::{Command, Platform, PLATFORMS};
-use crate::embedded::desired_files_for_platform;
+use crate::constants::{Command, Platform, HOME_SCOPE, PLATFORMS};
+use crate::embedded::{desired_files_for_platform, desired_home_files};
 use crate::external_skills::desired_external_skill_files_for_platform;
 use crate::fs_ops::{
     cleanup_legacy_managed_entries, cleanup_tracked_directories, collect_legacy_managed_files,
@@ -30,9 +30,17 @@ pub fn run(command: Command, home: &Path) -> Result<String> {
     }
 }
 
+/// Returns all managed targets, including HOME root scope.
+fn all_targets() -> Vec<Platform> {
+    let mut targets = Vec::with_capacity(PLATFORMS.len() + 1);
+    targets.push(HOME_SCOPE);
+    targets.extend(PLATFORMS);
+    targets
+}
+
 /// Performs first-time installation when no prior metadata is found.
 fn install(home: &Path) -> Result<String> {
-    if PLATFORMS
+    if all_targets()
         .iter()
         .any(|platform| installed_version(home, platform).is_some())
     {
@@ -42,9 +50,9 @@ fn install(home: &Path) -> Result<String> {
     let version = env!("CARGO_PKG_VERSION");
     let mut written_files = 0usize;
 
-    for platform in PLATFORMS {
+    for platform in all_targets() {
         let desired = build_desired_files(home, platform)?;
-        let manifest = build_manifest(version, &desired)?;
+        let manifest = build_manifest(version, platform, &desired)?;
         written_files += write_platform_state(home, platform, &desired, &manifest)?;
     }
 
@@ -59,11 +67,15 @@ fn update(home: &Path) -> Result<String> {
     let mut removed = 0usize;
     let mut written = 0usize;
 
-    for platform in PLATFORMS {
+    for platform in all_targets() {
         let existing_manifest = load_manifest(home, platform)?;
-        let legacy_files = collect_legacy_managed_files(home, platform)?;
+        let legacy_files = if platform.allow_legacy_cleanup {
+            collect_legacy_managed_files(home, platform)?
+        } else {
+            Vec::new()
+        };
         let desired = build_desired_files(home, platform)?;
-        let manifest = build_manifest(current_version, &desired)?;
+        let manifest = build_manifest(current_version, platform, &desired)?;
         let desired_paths: HashSet<String> = manifest.managed_files.iter().cloned().collect();
 
         if let Some(existing_manifest) = existing_manifest.as_ref() {
@@ -77,7 +89,9 @@ fn update(home: &Path) -> Result<String> {
         }
 
         removed += remove_files(&legacy_files)?;
-        removed += cleanup_legacy_managed_entries(home, platform)?;
+        if platform.allow_legacy_cleanup {
+            removed += cleanup_legacy_managed_entries(home, platform)?;
+        }
         written += write_platform_state(home, platform, &desired, &manifest)?;
     }
 
@@ -94,14 +108,20 @@ fn update(home: &Path) -> Result<String> {
 fn debloat(home: &Path) -> Result<String> {
     let mut removed = 0usize;
 
-    for platform in PLATFORMS {
+    for platform in all_targets() {
         if let Some(manifest) = load_manifest(home, platform)? {
-            let metadata_relative = metadata_relative_path();
+            let metadata_relative = metadata_relative_path(platform);
             let metadata_relative_string = metadata_relative.to_string_lossy().to_string();
+
+            let metadata_full_path = if platform.is_home_root() {
+                home.join(&metadata_relative_string)
+            } else {
+                home.join(platform.root).join(&metadata_relative_string)
+            };
 
             let tracked_files: Vec<PathBuf> = collect_tracked_files(home, platform, &manifest)
                 .into_iter()
-                .filter(|path| path != &home.join(platform.root).join(&metadata_relative_string))
+                .filter(|path| path != &metadata_full_path)
                 .collect();
             removed += remove_files(&tracked_files)?;
             removed += cleanup_tracked_directories(&collect_tracked_directories(
@@ -114,7 +134,7 @@ fn debloat(home: &Path) -> Result<String> {
                     .with_context(|| format!("failed to remove {}", meta_path.display()))?;
                 removed += 1;
             }
-        } else {
+        } else if platform.allow_legacy_cleanup {
             let legacy_files = collect_legacy_managed_files(home, platform)?;
             removed += remove_files(&legacy_files)?;
             removed += cleanup_legacy_managed_entries(home, platform)?;
@@ -126,11 +146,19 @@ fn debloat(home: &Path) -> Result<String> {
 }
 
 fn build_desired_files(home: &Path, platform: Platform) -> Result<HashMap<PathBuf, Vec<u8>>> {
-    let mut desired = desired_files_for_platform(platform)?;
-    merge_desired_files(
-        &mut desired,
-        desired_external_skill_files_for_platform(home, platform)?,
-    )?;
+    let mut desired = if platform.is_home_root() {
+        desired_home_files()?
+    } else {
+        desired_files_for_platform(platform)?
+    };
+
+    if platform.normalized_name() == "claude" {
+        merge_desired_files(
+            &mut desired,
+            desired_external_skill_files_for_platform(home, platform)?,
+        )?;
+    }
+
     Ok(desired)
 }
 
@@ -147,9 +175,13 @@ fn merge_desired_files(
     Ok(())
 }
 
-fn build_manifest(version: &str, desired: &HashMap<PathBuf, Vec<u8>>) -> Result<PlatformManifest> {
+fn build_manifest(
+    version: &str,
+    platform: Platform,
+    desired: &HashMap<PathBuf, Vec<u8>>,
+) -> Result<PlatformManifest> {
     let mut managed_files = desired.keys().cloned().collect::<BTreeSet<_>>();
-    managed_files.insert(metadata_relative_path());
+    managed_files.insert(metadata_relative_path(platform));
 
     let managed_directories = collect_parent_directories(&managed_files);
     PlatformManifest::new(version.to_string(), managed_files, managed_directories)
@@ -243,6 +275,8 @@ fn write_changed_files(
 }
 
 fn write_file_if_changed(destination: &Path, bytes: &[u8]) -> Result<usize> {
+    ensure_safe_destination(destination)?;
+
     let should_write = match fs::read(destination) {
         Ok(existing) => existing != bytes,
         Err(_) => true,
@@ -264,6 +298,37 @@ fn write_file_if_changed(destination: &Path, bytes: &[u8]) -> Result<usize> {
     fs::write(destination, bytes)
         .with_context(|| format!("failed to write {}", destination.display()))?;
     Ok(1)
+}
+
+/// Rejects writes that would target symlinks or pass through symlinked directories.
+fn ensure_safe_destination(destination: &Path) -> Result<()> {
+    if destination.exists() {
+        let metadata = fs::symlink_metadata(destination)
+            .with_context(|| format!("failed to stat {}", destination.display()))?;
+        if metadata.file_type().is_symlink() {
+            anyhow::bail!(
+                "refusing to write through symlink at {}",
+                destination.display()
+            );
+        }
+    }
+
+    let mut current = destination.parent();
+    while let Some(parent) = current {
+        if parent.exists() {
+            let metadata = fs::symlink_metadata(parent)
+                .with_context(|| format!("failed to stat {}", parent.display()))?;
+            if metadata.file_type().is_symlink() {
+                anyhow::bail!(
+                    "refusing to traverse symlinked directory {}",
+                    parent.display()
+                );
+            }
+        }
+        current = parent.parent();
+    }
+
+    Ok(())
 }
 
 fn remove_generated_meta_if_present(home: &Path, platform: Platform) -> Result<usize> {

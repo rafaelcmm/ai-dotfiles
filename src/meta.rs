@@ -1,4 +1,4 @@
-//! Metadata rendering helpers for `_meta.md` generation and manifest parsing.
+//! Metadata rendering helpers for per-target manifest generation and parsing.
 
 use std::collections::BTreeSet;
 use std::fs;
@@ -68,16 +68,20 @@ impl PlatformManifest {
 }
 
 /// Returns the platform-relative metadata path.
-pub(crate) fn metadata_relative_path() -> PathBuf {
-    PathBuf::from("_meta.md")
+pub(crate) fn metadata_relative_path(platform: Platform) -> PathBuf {
+    PathBuf::from(platform.metadata_file)
 }
 
 /// Returns the metadata path under the platform root.
 pub(crate) fn metadata_path(platform: Platform) -> PathBuf {
-    PathBuf::from(platform.root).join(metadata_relative_path())
+    if platform.is_home_root() {
+        metadata_relative_path(platform)
+    } else {
+        PathBuf::from(platform.root).join(metadata_relative_path(platform))
+    }
 }
 
-/// Generates `_meta.md` from the manifest and the static Markdown body template.
+/// Generates a metadata Markdown file from the manifest and the static body template.
 pub(crate) fn render_meta(manifest: &PlatformManifest) -> Result<String> {
     let template_file = static_dir()
         .get_file("_meta_template.md")
@@ -119,7 +123,7 @@ pub(crate) fn render_meta(manifest: &PlatformManifest) -> Result<String> {
     Ok(format!("---\n{yaml}---\n\n{}\n", body.trim_end()))
 }
 
-/// Loads the structured manifest from `<platform>/_meta.md`, when present.
+/// Loads the structured manifest from the target metadata file, when present.
 pub(crate) fn load_manifest(home: &Path, platform: Platform) -> Result<Option<PlatformManifest>> {
     let meta_path = home.join(metadata_path(platform));
     if !meta_path.exists() {
@@ -131,9 +135,11 @@ pub(crate) fn load_manifest(home: &Path, platform: Platform) -> Result<Option<Pl
     parse_manifest(&content)
 }
 
-/// Reads installed version from `<platform>/_meta.md`, supporting both legacy and current formats.
+/// Reads installed version from the target metadata file.
+///
+/// Supports both legacy and current metadata formats when present.
 pub(crate) fn installed_version(home: &Path, platform: &Platform) -> Option<String> {
-    let meta = home.join(platform.root).join("_meta.md");
+    let meta = home.join(metadata_path(*platform));
     let content = fs::read_to_string(meta).ok()?;
 
     match parse_manifest(&content) {

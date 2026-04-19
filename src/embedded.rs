@@ -24,10 +24,12 @@ pub(crate) fn desired_files_for_platform(platform: Platform) -> Result<HashMap<P
         .with_context(|| format!("missing static platform directory {}", platform.root))?;
     collect_embedded_files(platform_dir, Path::new(""), &mut files);
 
-    let shared_dir = static_dir()
-        .get_dir("__shared__")
-        .context("missing static shared directory")?;
-    collect_embedded_files(shared_dir, Path::new(""), &mut files);
+    if platform.normalized_name() == "claude" {
+        let shared_dir = static_dir()
+            .get_dir("__shared__")
+            .context("missing static shared directory")?;
+        collect_embedded_files(shared_dir, Path::new(""), &mut files);
+    }
 
     let mut mapped = HashMap::<PathBuf, Vec<u8>>::new();
     for (relative, contents) in files {
@@ -37,6 +39,20 @@ pub(crate) fn desired_files_for_platform(platform: Platform) -> Result<HashMap<P
     }
 
     Ok(mapped)
+}
+
+/// Builds desired files installed directly in HOME root.
+pub(crate) fn desired_home_files() -> Result<HashMap<PathBuf, Vec<u8>>> {
+    let mut output = HashMap::<PathBuf, Vec<u8>>::new();
+
+    for file_name in ["AGENTS.md", "CLAUDE.md"] {
+        let file = static_dir()
+            .get_file(file_name)
+            .with_context(|| format!("missing static home file {file_name}"))?;
+        output.insert(PathBuf::from(file_name), file.contents().to_vec());
+    }
+
+    Ok(output)
 }
 
 fn collect_embedded_files(dir: &Dir<'_>, prefix: &Path, output: &mut Vec<(PathBuf, Vec<u8>)>) {
