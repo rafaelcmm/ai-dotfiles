@@ -2,22 +2,29 @@
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "Bash|Edit|Write",
+        "matcher": "Edit|Write|MultiEdit",
         "hooks": [
           {
             "type": "command",
-            "command": "echo '[claude] pre-tool hook triggered' >&2"
+            "command": "bash ./.hooks/guard-paths.sh",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "bash ./.hooks/scan-secrets.sh",
+            "timeout": 5
           }
         ]
       }
     ],
     "PostToolUse": [
       {
-        "matcher": "Edit|Write",
+        "matcher": "Edit|Write|MultiEdit",
         "hooks": [
           {
             "type": "command",
-            "command": "echo '[claude] post-tool hook triggered' >&2"
+            "command": "bash ./.hooks/format-file.sh",
+            "timeout": 15
           }
         ]
       }

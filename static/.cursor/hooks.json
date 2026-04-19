@@ -3,12 +3,21 @@
   "hooks": {
     "beforeShellExecution": [
       {
-        "command": "echo '[cursor] beforeShellExecution hook triggered' >&2"
+        "command": "bash ./.hooks/guard-paths.sh"
+      },
+      {
+        "command": "bash ./.hooks/scan-secrets.sh"
       }
     ],
     "afterFileEdit": [
       {
-        "command": "echo '[cursor] afterFileEdit hook triggered' >&2"
+        "command": "bash ./.hooks/guard-paths.sh"
+      },
+      {
+        "command": "bash ./.hooks/scan-secrets.sh"
+      },
+      {
+        "command": "bash ./.hooks/format-file.sh"
       }
     ]
   }
