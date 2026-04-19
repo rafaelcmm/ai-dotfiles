@@ -1,5 +1,5 @@
-# Copilot Hooks Templates
+# Copilot Hooks Config
 
-Copilot hooks are repository-scoped in `.github/hooks/*.json`.
+Copilot hooks are configured by `hooks.json` in this folder.
 
-This user-level folder stores reusable templates that can be copied into project repositories.
+Shared hook scripts are installed under `~/.copilot/hooks`, and commands are referenced from the Copilot root as `./hooks/*.sh`.

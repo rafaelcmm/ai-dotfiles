@@ -108,7 +108,7 @@ Static source layout:
 
 - Shared docs copied into every platform root: `static/AGENTS.md`, `static/CLAUDE.md`
 - Platform-specific: `static/.claude`, `static/.copilot`, `static/.cursor`
-- Shared: `static/__shared__`
+- Shared: `static/__shared__` (`skills` for Claude, `scripts` for all platforms)
 
 Destination model:
 
@@ -131,6 +131,16 @@ Example mapping:
 - `static/.cursor/hooks.json` -> `~/.cursor/hooks.json`
 - `static/.cursor/mcp.json` -> `~/.cursor/mcp.json`
 - `static/.copilot/mcp.json` -> `~/.copilot/mcp.json`
+- `static/.copilot/hooks/hooks.json` -> `~/.copilot/hooks/hooks.json`
+- `static/__shared__/scripts/guard-paths.sh` -> `~/.claude/.hooks/guard-paths.sh`
+- `static/__shared__/scripts/scan-secrets.sh` -> `~/.claude/.hooks/scan-secrets.sh`
+- `static/__shared__/scripts/format-file.sh` -> `~/.claude/.hooks/format-file.sh`
+- `static/__shared__/scripts/guard-paths.sh` -> `~/.cursor/.hooks/guard-paths.sh`
+- `static/__shared__/scripts/scan-secrets.sh` -> `~/.cursor/.hooks/scan-secrets.sh`
+- `static/__shared__/scripts/format-file.sh` -> `~/.cursor/.hooks/format-file.sh`
+- `static/__shared__/scripts/guard-paths.sh` -> `~/.copilot/hooks/guard-paths.sh`
+- `static/__shared__/scripts/scan-secrets.sh` -> `~/.copilot/hooks/scan-secrets.sh`
+- `static/__shared__/scripts/format-file.sh` -> `~/.copilot/hooks/format-file.sh`
 
 ## Safety and security guarantees
 

@@ -109,4 +109,10 @@ This keeps your workflow personal/global and avoids committing project-level rul
 - `~/.cursor/hooks.json`
 - `~/.cursor/mcp.json`
 - `~/.copilot/mcp.json`
-- `~/.copilot/hooks/` templates (for copying into repo-scoped `.github/hooks/*.json`)
+- `~/.copilot/hooks/hooks.json`
+
+Shared hook scripts are also installed automatically:
+
+- `~/.claude/.hooks/*.sh`
+- `~/.cursor/.hooks/*.sh`
+- `~/.copilot/hooks/*.sh`
