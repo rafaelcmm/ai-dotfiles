@@ -7,6 +7,9 @@ use std::fs;
 use std::path::PathBuf;
 
 #[cfg(unix)]
+use std::os::unix::fs::PermissionsExt;
+
+#[cfg(unix)]
 use std::os::unix::fs::symlink;
 
 use tempfile::tempdir;
@@ -408,4 +411,28 @@ fn install_refuses_symlinked_managed_destination_file() {
         fs::read_to_string(&external_target).expect("outside file should be readable"),
         "outside"
     );
+}
+
+#[cfg(unix)]
+#[test]
+fn update_restores_executable_mode_for_managed_hook_scripts() {
+    let home = tempdir().expect("tempdir should be created");
+    seed_test_external_skill_cache(home.path()).expect("test cache should be seeded");
+    run(Command::Install, home.path()).expect("install should succeed");
+
+    let hook = home.path().join(".copilot/hooks/guard-paths.sh");
+    let metadata = fs::metadata(&hook).expect("hook metadata should be readable");
+    let mut permissions = metadata.permissions();
+    let mode_without_exec = permissions.mode() & !0o111;
+    permissions.set_mode(mode_without_exec);
+    fs::set_permissions(&hook, permissions).expect("hook mode should be writable");
+
+    let updated = run(Command::Update, home.path()).expect("update should succeed");
+    assert!(updated.contains("Updated configuration to version"));
+
+    let mode_after_update = fs::metadata(&hook)
+        .expect("hook metadata should be readable after update")
+        .permissions()
+        .mode();
+    assert_ne!(mode_after_update & 0o111, 0);
 }
