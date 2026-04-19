@@ -113,9 +113,15 @@ fn install_creates_meta_and_canonical_files() {
         .expect("copilot manifest should exist");
     assert!(copilot_manifest.managed_files.contains("AGENTS.md"));
     assert!(copilot_manifest.managed_files.contains("CLAUDE.md"));
-    assert!(copilot_manifest.managed_files.contains("hooks/guard-paths.sh"));
-    assert!(copilot_manifest.managed_files.contains("hooks/scan-secrets.sh"));
-    assert!(copilot_manifest.managed_files.contains("hooks/format-file.sh"));
+    assert!(copilot_manifest
+        .managed_files
+        .contains("hooks/guard-paths.sh"));
+    assert!(copilot_manifest
+        .managed_files
+        .contains("hooks/scan-secrets.sh"));
+    assert!(copilot_manifest
+        .managed_files
+        .contains("hooks/format-file.sh"));
     assert!(copilot_manifest.managed_files.contains("hooks/hooks.json"));
 
     let cursor_manifest = load_manifest(home.path(), platform(".cursor"))
@@ -123,9 +129,15 @@ fn install_creates_meta_and_canonical_files() {
         .expect("cursor manifest should exist");
     assert!(cursor_manifest.managed_files.contains("AGENTS.md"));
     assert!(cursor_manifest.managed_files.contains("CLAUDE.md"));
-    assert!(cursor_manifest.managed_files.contains(".hooks/guard-paths.sh"));
-    assert!(cursor_manifest.managed_files.contains(".hooks/scan-secrets.sh"));
-    assert!(cursor_manifest.managed_files.contains(".hooks/format-file.sh"));
+    assert!(cursor_manifest
+        .managed_files
+        .contains(".hooks/guard-paths.sh"));
+    assert!(cursor_manifest
+        .managed_files
+        .contains(".hooks/scan-secrets.sh"));
+    assert!(cursor_manifest
+        .managed_files
+        .contains(".hooks/format-file.sh"));
 }
 
 #[test]
