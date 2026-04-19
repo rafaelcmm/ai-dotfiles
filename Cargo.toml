@@ -1,6 +1,6 @@
 [package]
 name = "ai-dotfiles"
-version = "2.0.2"
+version = "2.1.0"
 edition = "2021"
 rust-version = "1.82"
 description = "CLI to install, update and debloat Rafael Monteiro AI tool configuration"
