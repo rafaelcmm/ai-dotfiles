@@ -28,6 +28,8 @@ Cross-tool operating contract for AI coding assistants.
 - Break work into TODOs with owner, scope, acceptance criteria, and verification step.
 - Include implementation, testing, and final checkup TODO classes.
 - Execute one TODO at a time; keep commits atomic.
+- Defer `security-reviewer` and `documentation-specialist` to final checkup after implementation and testing work, not after each TODO.
+- Keep workflow communication at caveman maximum (`ultra`) for token economics unless clarity override is required.
 - Call out blockers fast with safest fallback options.
 
 ## Verification Gate

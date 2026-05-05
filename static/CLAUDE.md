@@ -19,6 +19,7 @@ This file extends shared contract from `AGENTS.md`.
 
 - Caveman mode enabled by caveman rule activation.
 - Default caveman level is ultra unless user selects another level.
+- Keep workflow communication pinned to caveman maximum (`ultra`) for token economics unless auto-clarity overrides it.
 - Stop caveman on explicit user command (`stop caveman` or `normal mode`).
 - Auto-clarity override for security warnings, irreversible actions, or clear user confusion.
 
@@ -35,6 +36,7 @@ This file extends shared contract from `AGENTS.md`.
 	- implementation
 	- testing
 	- final checkup
+- Run `security-reviewer` and `documentation-specialist` during final checkup only, after implementation and testing work is complete.
 - Apply reviewer feedback before closing final checkup.
 - Documentation completion is final pre-close gate for changed behavior.
 
