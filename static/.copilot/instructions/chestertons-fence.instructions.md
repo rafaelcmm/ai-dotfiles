@@ -9,11 +9,38 @@ description: "Use when removing, deleting, simplifying, or refactoring code. Bef
 
 Applied to code: never delete, simplify, or refactor a piece of code — especially one that looks unnecessary — until you can state the reason it was written. If you cannot explain it, learn it first.
 
+## Normative Language
+
+- MUST = mandatory rule.
+- SHOULD = expected default; deviations require explicit justification.
+- MAY = optional.
+- When rules conflict, apply stricter rule.
+
 ## The Core Question
 
 Before touching unfamiliar code, ask: **"Why does this exist?"**
 
 If the answer is "I don't know" or "it looks redundant", stop. Research before acting.
+
+## Mandatory Deletion/Refactor Gates
+
+Before removing, simplifying, or bypassing code, agent MUST capture all of the following:
+
+1. Evidence gate: at least one concrete source explaining original intent (git history, issue, caller behavior, or production constraint).
+2. Behavior gate: concrete statement of what behavior will remain unchanged after change.
+3. Safety gate: test coverage or equivalent verification for affected path.
+
+If any gate fails, agent MUST not remove the fence.
+
+## Red-Line Actions (Never Without Proof)
+
+- Remove defensive guards due to "looks redundant" only.
+- Delete empty `catch` blocks without confirming fault-isolation intent.
+- Remove feature flags without rollout and rollback validation.
+- Remove delay/retry logic without proving root cause is resolved.
+- Drop indexes/hints without query plan and workload evidence.
+
+These actions require explicit evidence and verification.
 
 ## Where This Rule Applies
 
@@ -215,7 +242,34 @@ grep -r "new-dashboard" ./apps ./packages
    - If the reason is still valid → keep it, improve the comment.
    - If the reason is obsolete → remove it with a commit message explaining WHY it is now safe.
    - If the reason is a workaround → fix the root cause or document the tracking issue.
+
+4. Before finalizing removal:
+  - Attach evidence source, expected unchanged behavior, and verification result.
 ```
+
+## Exception Policy
+
+Valid exceptions are rare and MUST be documented:
+
+- Security emergency mitigations.
+- Incident hotfixes with temporary rollback constraints.
+- Upstream lock-step removals from generated/vendor code.
+
+Exception record MUST include reason, owner, expiry trigger, and follow-up task reference.
+
+Without this record, exception is invalid.
+
+## Required Evidence In Final Agent Response
+
+Agent MUST report:
+
+- What fence was changed.
+- Why it existed.
+- Evidence source used.
+- Verification run proving safety.
+- Exception record if used.
+
+Claims without this evidence are non-compliant.
 
 ## Commit Message Pattern
 

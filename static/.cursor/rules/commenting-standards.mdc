@@ -7,6 +7,13 @@ alwaysApply: true
 
 This rule is mandatory whenever writing, reviewing, or modifying code.
 
+## Normative Language
+
+- MUST = mandatory rule.
+- SHOULD = expected default; deviations require explicit justification.
+- MAY = optional.
+- When rules conflict, apply stricter rule.
+
 **Skill path:** `skills/commenting-standards/SKILL.md`
 
 Load `commenting-standards` before producing or reviewing any code output.
@@ -63,3 +70,35 @@ A compliant inline comment:
   `commenting-standards` skill before marking it complete.
 - Missing or low-value comments are a blocking defect, not a style suggestion.
 - "Self-documenting code" is not an acceptable reason to omit documentation.
+
+## Mandatory Review Gates
+
+Before final output, agent MUST verify:
+
+1. Coverage gate: every changed public symbol has a docblock.
+2. Contract gate: docblocks include intent, behavioral guarantees, and failure modes.
+3. Quality gate: inline comments explain non-obvious why/invariants, not syntax narration.
+
+If any gate fails, agent MUST fix documentation before considering task done.
+
+## Exception Policy
+
+Allowed exceptions are narrow:
+
+- Generated files.
+- Vendor or lock-step upstream files.
+- Machine-synced artifacts where edits would be overwritten.
+
+Exception record MUST include reason, owner, expiry trigger, and follow-up task reference.
+
+Without this record, omission is non-compliant.
+
+## Required Evidence In Final Agent Response
+
+Agent MUST report:
+
+- Which files received doc updates.
+- Which symbols were documented.
+- Any approved exception record.
+
+Claims without this evidence are non-compliant.
