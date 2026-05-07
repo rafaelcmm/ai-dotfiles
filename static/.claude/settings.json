@@ -30,6 +30,17 @@
       }
     ]
   },
+  "enabledPlugins": {
+    "n8n-skills": true
+  },
+  "extraKnownMarketplaces": {
+    "n8n-skills": {
+      "source": {
+        "source": "git",
+        "url": "https://github.com/czlonkowski/n8n-skills.git"
+      }
+    }
+  },
   "mcpServers": {
     "chrome-devtools": {
       "command": "npx",

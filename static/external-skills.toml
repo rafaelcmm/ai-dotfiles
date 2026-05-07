@@ -436,6 +436,74 @@ enabled = true
 checksum = "b69ea553ff76fb4172bea8cf3e2ad5e28405185c60d29fc5cf3754e356bbdd3e"
 
 # -----------------------------------------------------------------------------
+# Repository zone: czlonkowski n8n-skills
+# Repo: https://github.com/czlonkowski/n8n-skills
+# -----------------------------------------------------------------------------
+
+[[source]]
+id = "n8n-code-javascript"
+repository = "https://github.com/czlonkowski/n8n-skills"
+commit = "27e9d0ab92cccfc46db4f147497b173f214b69c5"
+path = "skills/n8n-code-javascript"
+platforms = ["all"]
+enabled = true
+checksum = "adcd98a4ba28d6165513373f30990b73568b59ee698ba948d14e9fa055eb9c63"
+
+[[source]]
+id = "n8n-code-python"
+repository = "https://github.com/czlonkowski/n8n-skills"
+commit = "27e9d0ab92cccfc46db4f147497b173f214b69c5"
+path = "skills/n8n-code-python"
+platforms = ["all"]
+enabled = true
+checksum = "db7359f954a68168a3d6dfe986814ebd9debb89a1be968bfa53523adb195924c"
+
+[[source]]
+id = "n8n-expression-syntax"
+repository = "https://github.com/czlonkowski/n8n-skills"
+commit = "27e9d0ab92cccfc46db4f147497b173f214b69c5"
+path = "skills/n8n-expression-syntax"
+platforms = ["all"]
+enabled = true
+checksum = "8f9f534d548596ab7b1622aadebbee78d55a5e5208b22f308aa7b2679c7cba5b"
+
+[[source]]
+id = "n8n-mcp-tools-expert"
+repository = "https://github.com/czlonkowski/n8n-skills"
+commit = "27e9d0ab92cccfc46db4f147497b173f214b69c5"
+path = "skills/n8n-mcp-tools-expert"
+platforms = ["all"]
+enabled = true
+checksum = "7f8faebd60cd9e9274378652bb3f0c30e894281f58e85cd7119c16f62f5c3cb2"
+
+[[source]]
+id = "n8n-node-configuration"
+repository = "https://github.com/czlonkowski/n8n-skills"
+commit = "27e9d0ab92cccfc46db4f147497b173f214b69c5"
+path = "skills/n8n-node-configuration"
+platforms = ["all"]
+enabled = true
+checksum = "ed84a8637e5ca1f0979575c95265e77ac8632157af2077caf20da4af5af77dd5"
+
+[[source]]
+id = "n8n-validation-expert"
+repository = "https://github.com/czlonkowski/n8n-skills"
+commit = "27e9d0ab92cccfc46db4f147497b173f214b69c5"
+path = "skills/n8n-validation-expert"
+platforms = ["all"]
+enabled = true
+checksum = "b530ea60844721aa47d924583257046033b98ffab1b3a7e75dca2cb7c4fa0eb5"
+
+[[source]]
+id = "n8n-workflow-patterns"
+repository = "https://github.com/czlonkowski/n8n-skills"
+commit = "27e9d0ab92cccfc46db4f147497b173f214b69c5"
+path = "skills/n8n-workflow-patterns"
+platforms = ["all"]
+enabled = true
+checksum = "37de9d46291e2d9844daa9fc5eb7311190a1518183627d23f9f2d3286f020cb7"
+
+# -----------------------------------------------------------------------------
 # Repository zone: NikiforovAll claude-code-rules
 # Repo: https://github.com/NikiforovAll/claude-code-rules
 # -----------------------------------------------------------------------------
