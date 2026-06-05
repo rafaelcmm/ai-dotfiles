@@ -14,6 +14,7 @@ This file extends shared contract from `AGENTS.md`.
 - Resolve intent, then load matching rule files from `.claude/rules` before edits.
 - If multiple rules apply, load all relevant rules and follow strictest safe constraint.
 - For non-trivial code changes, invoke `workflow-orchestrator` first when available.
+- For Shopify-related prompts, load `shopify-skills` rule and consult matching `shopify-*` skills first.
 
 ## Caveman Execution
 

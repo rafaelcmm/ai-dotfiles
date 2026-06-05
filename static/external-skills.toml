@@ -700,3 +700,143 @@ path = "skills/compress"
 platforms = ["all"]
 enabled = true
 checksum = "63d93d9a9e9f8da9e7864f11772ee4a714dd7253b51f55efc81b0292beb88ffc"
+
+# -----------------------------------------------------------------------------
+# Repository zone: Shopify agent-skills
+# Repo: https://github.com/Shopify/agent-skills
+# -----------------------------------------------------------------------------
+
+[[source]]
+id = "shopify-admin"
+repository = "https://github.com/Shopify/agent-skills"
+commit = "6b9ed0552d5116ee33d0e211dfa6681f2f5bdffe"
+path = "shopify-admin"
+platforms = ["all"]
+enabled = true
+checksum = "cc0b480b86c851bf2d084ac1e5bc0f0f995d60f43e53578cbd66a9287271a9e8"
+
+[[source]]
+id = "shopify-custom-data"
+repository = "https://github.com/Shopify/agent-skills"
+commit = "6b9ed0552d5116ee33d0e211dfa6681f2f5bdffe"
+path = "shopify-custom-data"
+platforms = ["all"]
+enabled = true
+checksum = "b2e80e0c9361ef967b7b4a3d7c0cf8289c39d4aa071cb4b9813fed2df5000711"
+
+[[source]]
+id = "shopify-customer"
+repository = "https://github.com/Shopify/agent-skills"
+commit = "6b9ed0552d5116ee33d0e211dfa6681f2f5bdffe"
+path = "shopify-customer"
+platforms = ["all"]
+enabled = true
+checksum = "1303ca8e8dfba189e090f1aba65e143cea368e98612865e3c0868749731599ca"
+
+[[source]]
+id = "shopify-dev"
+repository = "https://github.com/Shopify/agent-skills"
+commit = "6b9ed0552d5116ee33d0e211dfa6681f2f5bdffe"
+path = "shopify-dev"
+platforms = ["all"]
+enabled = true
+checksum = "40a8a97e66521ce6a180457c818f019f188ff82cbc1fe0bd9f353edc25e50ffc"
+
+[[source]]
+id = "shopify-functions"
+repository = "https://github.com/Shopify/agent-skills"
+commit = "6b9ed0552d5116ee33d0e211dfa6681f2f5bdffe"
+path = "shopify-functions"
+platforms = ["all"]
+enabled = true
+checksum = "6e9c7ca063cb0ab95115016e37e233636bc4d3c083e20a8073a5e42fbd00d5fe"
+
+[[source]]
+id = "shopify-hydrogen"
+repository = "https://github.com/Shopify/agent-skills"
+commit = "6b9ed0552d5116ee33d0e211dfa6681f2f5bdffe"
+path = "shopify-hydrogen"
+platforms = ["all"]
+enabled = true
+checksum = "c8602c1fabaf8e406cb417a6c5f8b2ba763e10d0145c2e75ae325e9b30770e7a"
+
+[[source]]
+id = "shopify-liquid"
+repository = "https://github.com/Shopify/agent-skills"
+commit = "6b9ed0552d5116ee33d0e211dfa6681f2f5bdffe"
+path = "shopify-liquid"
+platforms = ["all"]
+enabled = true
+checksum = "384d2b20844b96decac3f59df54441774ee602036600bf9593eab9a39b3ec826"
+
+[[source]]
+id = "shopify-partner"
+repository = "https://github.com/Shopify/agent-skills"
+commit = "6b9ed0552d5116ee33d0e211dfa6681f2f5bdffe"
+path = "shopify-partner"
+platforms = ["all"]
+enabled = true
+checksum = "5408bd786b26a0744ff9ed819f799fb4d0f9bd8edb8c70d24d75d879e0f8d12e"
+
+[[source]]
+id = "shopify-payments-apps"
+repository = "https://github.com/Shopify/agent-skills"
+commit = "6b9ed0552d5116ee33d0e211dfa6681f2f5bdffe"
+path = "shopify-payments-apps"
+platforms = ["all"]
+enabled = true
+checksum = "7cbab760e780a927e93e06954232691f6d9423244912a974fdff38f037905566"
+
+[[source]]
+id = "shopify-polaris-admin-extensions"
+repository = "https://github.com/Shopify/agent-skills"
+commit = "6b9ed0552d5116ee33d0e211dfa6681f2f5bdffe"
+path = "shopify-polaris-admin-extensions"
+platforms = ["all"]
+enabled = true
+checksum = "4c23da87a7c1322b5be9c9e7b03e0abcb6b537cc06c5af455ceaf0b0d127019c"
+
+[[source]]
+id = "shopify-polaris-app-home"
+repository = "https://github.com/Shopify/agent-skills"
+commit = "6b9ed0552d5116ee33d0e211dfa6681f2f5bdffe"
+path = "shopify-polaris-app-home"
+platforms = ["all"]
+enabled = true
+checksum = "45c972de94d006200ca48d305e9e7ce7bb312f442b1d53e93c7d8805a07ad943"
+
+[[source]]
+id = "shopify-polaris-checkout-extensions"
+repository = "https://github.com/Shopify/agent-skills"
+commit = "6b9ed0552d5116ee33d0e211dfa6681f2f5bdffe"
+path = "shopify-polaris-checkout-extensions"
+platforms = ["all"]
+enabled = true
+checksum = "44c46274445ce2ff628e05be09e90d73cb56785463bd96567bec4e7a154f8067"
+
+[[source]]
+id = "shopify-polaris-customer-account-extensions"
+repository = "https://github.com/Shopify/agent-skills"
+commit = "6b9ed0552d5116ee33d0e211dfa6681f2f5bdffe"
+path = "shopify-polaris-customer-account-extensions"
+platforms = ["all"]
+enabled = true
+checksum = "1184f3db7f628fb970fd2dd69bd094ceff51271e2d993398703300d289b06520"
+
+[[source]]
+id = "shopify-pos-ui"
+repository = "https://github.com/Shopify/agent-skills"
+commit = "6b9ed0552d5116ee33d0e211dfa6681f2f5bdffe"
+path = "shopify-pos-ui"
+platforms = ["all"]
+enabled = true
+checksum = "50b987e441aab1b5742f103b0a9847285cd212309ac3aace7ae57ef3692a5d7a"
+
+[[source]]
+id = "shopify-storefront-graphql"
+repository = "https://github.com/Shopify/agent-skills"
+commit = "6b9ed0552d5116ee33d0e211dfa6681f2f5bdffe"
+path = "shopify-storefront-graphql"
+platforms = ["all"]
+enabled = true
+checksum = "5d51ef38d5d357ec856c9a55e21996acf0d739acd4f19d2d1c4f83c60c9e5df6"

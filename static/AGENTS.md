@@ -18,9 +18,11 @@ Cross-tool operating contract for AI coding assistants.
 ## Rule Router
 
 - Code change request: load workflow, fence, commenting, objective-file guidance.
+- Code change request: load workflow, fence, commenting, objective-files guidance.
 - Prompt writing or adaptation: load prompt guidance.
 - Brevity or caveman request: enable caveman policy.
 - Removal or simplification request: enforce fence checks before deleting.
+- Shopify context: load `shopify-skills` rule and consult matching `shopify-*` skills before generic skills.
 
 ## Workflow Contract
 
