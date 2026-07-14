@@ -840,3 +840,119 @@ path = "shopify-storefront-graphql"
 platforms = ["all"]
 enabled = true
 checksum = "5d51ef38d5d357ec856c9a55e21996acf0d739acd4f19d2d1c4f83c60c9e5df6"
+
+# -----------------------------------------------------------------------------
+# Repository zone: itallstartedwithaidea Google Ads agent-skills
+# Repo: https://github.com/itallstartedwithaidea/agent-skills
+# -----------------------------------------------------------------------------
+# Google Ads skills sourced from the itallstartedwithaidea package.
+# Grouped upstream paths are split into one source per skill so each source
+# has a root SKILL.md and maps directly to skills/<id>/... destinations.
+
+[[source]]
+id = "google-ads-ad-copy-generation"
+repository = "https://github.com/itallstartedwithaidea/agent-skills"
+commit = "7a04ccbde5f96d4bfe99a15a7e6fd96a7a0d4cd6"
+path = "skills/google-ads/ad-copy-generation"
+platforms = ["all"]
+enabled = true
+checksum = "9ed478949fa269f86963c1a13ad5a792666a6bcbf146199fd91f203ec874a707"
+
+[[source]]
+id = "google-ads-audience-targeting"
+repository = "https://github.com/itallstartedwithaidea/agent-skills"
+commit = "7a04ccbde5f96d4bfe99a15a7e6fd96a7a0d4cd6"
+path = "skills/google-ads/audience-targeting"
+platforms = ["all"]
+enabled = true
+checksum = "f6e95673466d81ea49dd908695ad5b9165a20aae2f601d7a89f55e5b1bb52c9d"
+
+[[source]]
+id = "google-ads-budget-optimization"
+repository = "https://github.com/itallstartedwithaidea/agent-skills"
+commit = "7a04ccbde5f96d4bfe99a15a7e6fd96a7a0d4cd6"
+path = "skills/google-ads/budget-optimization"
+platforms = ["all"]
+enabled = true
+checksum = "934d406429d32b31eb865cb32266bb159e1df93f2626c55065d5312b70a7b8ca"
+
+[[source]]
+id = "google-ads-competitor-analysis"
+repository = "https://github.com/itallstartedwithaidea/agent-skills"
+commit = "7a04ccbde5f96d4bfe99a15a7e6fd96a7a0d4cd6"
+path = "skills/google-ads/competitor-analysis"
+platforms = ["all"]
+enabled = true
+checksum = "9a47e57ce827ad78b78d3a58e2a1c3b5cad4059db3342b36b8bc0cf3198134eb"
+
+[[source]]
+id = "google-ads-conversion-tracking"
+repository = "https://github.com/itallstartedwithaidea/agent-skills"
+commit = "7a04ccbde5f96d4bfe99a15a7e6fd96a7a0d4cd6"
+path = "skills/google-ads/conversion-tracking"
+platforms = ["all"]
+enabled = true
+checksum = "6d000a946168ab4f0ce65b9706144428cc95a5733b8a76798e52ed6ba20dffc3"
+
+[[source]]
+id = "google-ads-audit"
+repository = "https://github.com/itallstartedwithaidea/agent-skills"
+commit = "7a04ccbde5f96d4bfe99a15a7e6fd96a7a0d4cd6"
+path = "skills/google-ads/google-ads-audit"
+platforms = ["all"]
+enabled = true
+checksum = "36d0254aac5a68e9fb5fed1575783c8e5815df3eb0081c435300f5be196a3264"
+
+[[source]]
+id = "google-ads-keyword-research"
+repository = "https://github.com/itallstartedwithaidea/agent-skills"
+commit = "7a04ccbde5f96d4bfe99a15a7e6fd96a7a0d4cd6"
+path = "skills/google-ads/keyword-research"
+platforms = ["all"]
+enabled = true
+checksum = "20d7ab29288cdb0dddf4f7ea1793a9e820a7ad6f35a1302158e17e968e3df4fd"
+
+[[source]]
+id = "google-ads-landing-page-audit"
+repository = "https://github.com/itallstartedwithaidea/agent-skills"
+commit = "7a04ccbde5f96d4bfe99a15a7e6fd96a7a0d4cd6"
+path = "skills/google-ads/landing-page-audit"
+platforms = ["all"]
+enabled = true
+checksum = "62e79c2ab140df46b48f3efe4aed10684114b2d5af7f15f9de0a3f5a9ae44cba"
+
+[[source]]
+id = "google-ads-pmax-optimization"
+repository = "https://github.com/itallstartedwithaidea/agent-skills"
+commit = "7a04ccbde5f96d4bfe99a15a7e6fd96a7a0d4cd6"
+path = "skills/google-ads/pmax-optimization"
+platforms = ["all"]
+enabled = true
+checksum = "6fd623e11ab6908bf10932bac521210f55fc8603f52c04e669fbeed5babf593f"
+
+[[source]]
+id = "google-ads-quality-score-optimization"
+repository = "https://github.com/itallstartedwithaidea/agent-skills"
+commit = "7a04ccbde5f96d4bfe99a15a7e6fd96a7a0d4cd6"
+path = "skills/google-ads/quality-score-optimization"
+platforms = ["all"]
+enabled = true
+checksum = "4718608cf3b037cda56a14d903c9e04593091c851d0d67f919ce552f96a88c9c"
+
+[[source]]
+id = "google-ads-remarketing-strategy"
+repository = "https://github.com/itallstartedwithaidea/agent-skills"
+commit = "7a04ccbde5f96d4bfe99a15a7e6fd96a7a0d4cd6"
+path = "skills/google-ads/remarketing-strategy"
+platforms = ["all"]
+enabled = true
+checksum = "050a0c88713057813bb059d265ecc8eed6c607a6f83f1111ba600242e004924c"
+
+[[source]]
+id = "google-ads-shopping-ads"
+repository = "https://github.com/itallstartedwithaidea/agent-skills"
+commit = "7a04ccbde5f96d4bfe99a15a7e6fd96a7a0d4cd6"
+path = "skills/google-ads/shopping-ads"
+platforms = ["all"]
+enabled = true
+checksum = "5e495d5efda1c72481958e9b65cd8b8b2d4ec73f1f423a0e14346865d2ef8b27"
