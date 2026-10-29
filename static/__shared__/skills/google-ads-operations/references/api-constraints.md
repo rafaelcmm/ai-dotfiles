@@ -3,6 +3,20 @@
 Each entry is a behaviour the API does not document where you will look for it,
 or reports in a way that sends the investigation somewhere else.
 
+## Contents
+
+- [Version sunsets return HTML, not an API error](#version-sunsets-return-html-not-an-api-error)
+- [Preflight one cheap read before any mutation sequence](#preflight-one-cheap-read-before-any-mutation-sequence)
+- [`login-customer-id` is omitted, not blanked](#login-customer-id-is-omitted-not-blanked)
+- [Money is micros; round, never truncate](#money-is-micros-round-never-truncate)
+- [`search` paginates; `searchStream` does not](#search-paginates-searchstream-does-not)
+- [Do not set a flag to its own default](#do-not-set-a-flag-to-its-own-default)
+- [Shopping campaigns reject language criteria](#shopping-campaigns-reject-language-criteria)
+- [Shopping listing groups have no in-place UNIT → SUBDIVISION conversion](#shopping-listing-groups-have-no-in-place-unit-subdivision-conversion)
+- [Conversion goals can be configured to count nothing](#conversion-goals-can-be-configured-to-count-nothing)
+- [Criterion creation is not idempotent](#criterion-creation-is-not-idempotent)
+- [Developer token access levels](#developer-token-access-levels)
+
 ## Version sunsets return HTML, not an API error
 
 Google sunsets API versions on a rolling cadence of roughly one year. A sunset

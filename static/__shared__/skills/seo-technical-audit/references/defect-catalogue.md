@@ -5,6 +5,26 @@ site. They are listed because each is **invisible in code review**, cheap to fix
 and expensive to leave. For each: the symptom, the cause, why it matters, and the
 instrument that proves it fixed.
 
+## Contents
+
+- [1. Canonical inheritance — every page claims to be the home page](#1-canonical-inheritance-every-page-claims-to-be-the-home-page)
+- [2. Soft 404 — unknown handles return HTTP 200](#2-soft-404-unknown-handles-return-http-200)
+- [3. A robots.txt prefix collision blocking a real page](#3-a-robotstxt-prefix-collision-blocking-a-real-page)
+- [4. robots.txt and sitemap contradicting each other](#4-robotstxt-and-sitemap-contradicting-each-other)
+- [5. A sitemap asserting URLs that do not render](#5-a-sitemap-asserting-urls-that-do-not-render)
+- [6. Missing `h1`, and a home page optimised for the wrong catalogue](#6-missing-h1-and-a-home-page-optimised-for-the-wrong-catalogue)
+- [7. Images on a robots-disallowed path, and absent from server HTML](#7-images-on-a-robots-disallowed-path-and-absent-from-server-html)
+- [8. The LCP element is decorative](#8-the-lcp-element-is-decorative)
+- [9. A route that is accidentally uncacheable](#9-a-route-that-is-accidentally-uncacheable)
+- [10. Duplicate body copy, templated descriptions, code-first titles](#10-duplicate-body-copy-templated-descriptions-code-first-titles)
+- [11. Paginated lists that are JavaScript-only](#11-paginated-lists-that-are-javascript-only)
+- [12. Facet and filter URLs indexable without rules](#12-facet-and-filter-urls-indexable-without-rules)
+- [13. Retired URLs with no answer](#13-retired-urls-with-no-answer)
+- [14. Indexable zero-item pages linked site-wide](#14-indexable-zero-item-pages-linked-site-wide)
+- [15. Mobile tap targets and contrast](#15-mobile-tap-targets-and-contrast)
+- [16. Redirect chains and stray routes](#16-redirect-chains-and-stray-routes)
+- [17. Faster indexing — what to use and what to avoid](#17-faster-indexing-what-to-use-and-what-to-avoid)
+
 ---
 
 ## 1. Canonical inheritance — every page claims to be the home page

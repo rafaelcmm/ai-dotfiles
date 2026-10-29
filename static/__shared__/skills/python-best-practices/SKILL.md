@@ -30,7 +30,6 @@ Reference when:
 
 | Document                                   | Content                     |
 | ------------------------------------------ | --------------------------- |
-| [python-core.md](standards/python-core.md) | Complete patterns reference |
 
 ## Quick Reference
 

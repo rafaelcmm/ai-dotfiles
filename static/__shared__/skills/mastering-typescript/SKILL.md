@@ -319,7 +319,7 @@ const CreateUserSchema = z.object({
 type CreateUserDto = z.infer<typeof CreateUserSchema>;
 ```
 
-See [react-integration.md](references/react-integration.md) and [nestjs-integration.md](references/nestjs-integration.md) for detailed patterns.
+Framework-specific patterns beyond this section are not bundled with this skill.
 
 ## Validation with Zod
 
@@ -404,7 +404,7 @@ function createUser(name, age) {
 }
 ```
 
-See [enterprise-patterns.md](references/enterprise-patterns.md) for comprehensive migration guides.
+Step-by-step migration guides are not bundled with this skill.
 
 ## Common Mistakes
 
@@ -426,20 +426,3 @@ See [enterprise-patterns.md](references/enterprise-patterns.md) for comprehensiv
 | Interfaces  | Structural matching    | Must implement          | Protocol (3.8+)       |
 | Enums       | Avoid (use unions)     | First-class             | Enum class            |
 
-## Reference Files
-
-- [type-system.md](references/type-system.md) — Complete type system guide
-- [generics.md](references/generics.md) — Advanced generics patterns
-- [enterprise-patterns.md](references/enterprise-patterns.md) — Error handling, validation, architecture
-- [react-integration.md](references/react-integration.md) — React + TypeScript patterns
-- [nestjs-integration.md](references/nestjs-integration.md) — NestJS API development
-- [toolchain.md](references/toolchain.md) — Modern build tools configuration
-
-## Assets
-
-- [tsconfig-template.json](assets/tsconfig-template.json) — Strict enterprise config
-- [eslint-template.js](assets/eslint-template.js) — ESLint 9 flat config
-
-## Scripts
-
-- [validate-setup.sh](scripts/validate-setup.sh) — Verify TypeScript environment

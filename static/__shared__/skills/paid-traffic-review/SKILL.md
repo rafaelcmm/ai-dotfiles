@@ -2,8 +2,7 @@
 name: paid-traffic-review
 description: >-
   Recurring decision-grade review of a paid search / shopping account against
-  its analytics property — pull one snapshot, clear the blockers that invalidate
-  the data, apply calibrated thresholds, write a plan, get approval, then apply.
+  its analytics property, producing an approved, actionable change plan.
   Use this skill when asked to "review the ads", "do the weekly ads review",
   "analyse my ads and analytics", "check the campaigns", "how are my campaigns
   doing", "what should I change in Google Ads", "which products should I exclude",

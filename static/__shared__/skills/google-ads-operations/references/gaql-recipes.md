@@ -12,6 +12,20 @@ Conventions used below:
   `search` paginates and silently returns a prefix.
 - Monetary metrics come back in micros. Divide by 1,000,000.
 
+## Contents
+
+- [Account currency and timezone](#account-currency-and-timezone)
+- [Campaign performance with impression-share diagnostics](#campaign-performance-with-impression-share-diagnostics)
+- [Conversion-action health over a 60-day window](#conversion-action-health-over-a-60-day-window)
+- [Campaign-level goal configuration](#campaign-level-goal-configuration)
+- [Search terms](#search-terms)
+- [Negative keyword counts per campaign](#negative-keyword-counts-per-campaign)
+- [Shopping product performance](#shopping-product-performance)
+- [Listing group structure](#listing-group-structure)
+- [Ad group and keyword bids](#ad-group-and-keyword-bids)
+- [Asset / RSA inventory](#asset-rsa-inventory)
+- [Change history](#change-history)
+
 ## Account currency and timezone
 
 Informs: how to format and interpret every other number here. Run this first.

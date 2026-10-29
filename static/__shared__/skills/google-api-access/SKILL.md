@@ -42,8 +42,8 @@ permissions-shaped error that does not name the cause.
 
 export GOOGLE_OAUTH_CLIENT_FILE=~/path/to/oauth-desktop-client.json
 
-scripts/google-adc-login.sh --profile ads,analytics,search-console
-scripts/google-adc-doctor.sh
+bash scripts/google-adc-login.sh --profile ads,analytics,search-console
+bash scripts/google-adc-doctor.sh
 ```
 
 `google-adc-login.sh` requests the base scopes plus one set per profile
