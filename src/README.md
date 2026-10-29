@@ -120,6 +120,8 @@ Example mapping:
 
 - `static/.claude/agents/rust-specialist.md` -> `~/.claude/agents/rust-specialist.md`
 - `static/__shared__/skills/clean-code/SKILL.md` -> `~/.claude/skills/clean-code/SKILL.md`
+- `static/__shared__/skills/<id>/scripts/run.sh` -> `~/.claude/skills/<id>/scripts/run.sh` (whole skill subtree is copied; `.sh` files are made executable)
+- `static/__shared__/skills/<id>/assets/template.json` -> `~/.claude/skills/<id>/assets/template.json`
 - External source `react-best-practices/SKILL.md` -> `~/.claude/skills/react-best-practices/SKILL.md`
 - `static/AGENTS.md` -> `~/.claude/AGENTS.md`
 - `static/CLAUDE.md` -> `~/.claude/CLAUDE.md`

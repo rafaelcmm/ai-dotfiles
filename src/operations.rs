@@ -377,8 +377,11 @@ fn write_file_if_changed(destination: &Path, bytes: &[u8]) -> Result<usize> {
         changed += 1;
     }
 
-    // Shell scripts are executed as hooks; enforce executable mode on each run,
-    // even when content is unchanged, to self-heal older installs.
+    // Shell scripts are invoked directly, both as hooks and as scripts bundled
+    // inside a skill (e.g. `skills/<id>/scripts/*.sh`). Enforce executable mode
+    // on each run, even when content is unchanged, to self-heal older installs.
+    // Keyed on the `.sh` extension rather than on the destination directory
+    // precisely so both consumers are covered; do not narrow this to hooks.
     changed += ensure_executable_for_shell_script(destination)?;
 
     Ok(changed)
