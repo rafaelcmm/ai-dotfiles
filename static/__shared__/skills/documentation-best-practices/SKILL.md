@@ -60,6 +60,18 @@ Related links
 - Mark version compatibility explicitly
 - Remove stale sections instead of preserving outdated paths
 - Use decision records (ADRs) for significant architecture changes
+- Rewrite a stale statement rather than appending a correction next to it
+
+## Scope: this skill covers standalone documents
+
+The rules here apply to READMEs, runbooks, guides, reference pages, and ADRs —
+documents with a reader, a date, and a revision history of their own.
+
+**In-code documentation follows `commenting-standards` instead.** The two have
+opposite needs on one point in particular: a standalone doc benefits from
+version and last-updated context, while a docblock carrying a date or a change
+note is an unmaintained claim that rots silently. A changelog belongs in a
+CHANGELOG, an ADR, or the commit — never in a comment.
 
 ## Quick Checklist
 
@@ -68,5 +80,5 @@ Related links
 - [ ] Steps are sequential and verifiable
 - [ ] Commands/examples are accurate
 - [ ] Edge cases and failures are covered
-- [ ] Last-updated context is clear
+- [ ] Last-updated context is clear (standalone docs only — never in code comments)
 ```
