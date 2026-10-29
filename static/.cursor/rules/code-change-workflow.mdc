@@ -125,6 +125,8 @@ Documentation quality caveats (required):
 - Documentation is mandatory, but low-value comments are not acceptable.
 - Comments must explain intent, invariants, constraints, side effects, failure modes, and non-obvious decisions.
 - Comments must not restate obvious syntax, variable names, or trivial control flow.
+- Comments must describe the current state of the code. In-code documentation is not a change log: no provenance, removed behavior, dated claims, supersession notices, or plan archaeology. Version control owns history.
+- Coverage is absolute but depth is proportional. A self-evident signature is fully documented by one assertive sentence; padding a docblock to look thorough is a defect because it buries the line that mattered.
 
 Commit restriction:
 
@@ -152,6 +154,8 @@ Final Checkup TODOs must include these documentation checks:
 - Verify complex logic comments capture intent, constraints, edge cases, and side effects.
 - Verify API docs match current behavior (parameters, returns, errors, and examples where relevant).
 - Verify stale or contradictory comments were corrected or removed.
+- Verify no comment narrates change history, and that any found in touched code was deleted.
+- Verify docblock depth is proportional and free of hedging, self-reference, and type restatement.
 
 ## Atomic commit requirements
 
@@ -228,6 +232,9 @@ Use this copy-paste closure template directly:
   - [ ] Docblocks include intent, guarantees, failure modes.
   - [ ] Non-obvious logic has why/invariant comments.
   - [ ] No low-value narration comments.
+  - [ ] Comments describe the code as it now stands — no provenance, removed behavior, dated claims, or supersession notices.
+  - [ ] No padding: depth matches visibility; required tags present with substantive descriptions.
+  - [ ] History narration found in touched comments was deleted, not extended.
 - Code Change Workflow
   - [ ] Implementation TODOs complete.
   - [ ] Testing TODOs complete.
