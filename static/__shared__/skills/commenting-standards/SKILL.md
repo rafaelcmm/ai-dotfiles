@@ -1,254 +1,290 @@
 ---
 name: commenting-standards
-description: Language-agnostic commenting and documentation standards. Mandates docblocks for all public constructs and inline comments for non-obvious logic. Comments explain WHY, not WHAT. Applies to any language or paradigm.
+description: >-
+  Language-agnostic commenting and documentation standards. Every public construct
+  carries a docblock; every docblock is assertive, objective, and describes the code
+  as it is now. Comments explain WHY, never narrate change history. Applies to any
+  language or paradigm. Load before writing or reviewing code comments, docblocks,
+  JSDoc/TSDoc, docstrings, rustdoc, or Go doc comments.
 allowed-tools: [Read]
 ---
 
 # Commenting Standards
 
-Write code that is readable — then document it anyway.
+A comment is a claim about the code it sits on. Its job is to make that claim
+true, useful, and short — in that order.
 
-Self-documenting code is a goal, not a guarantee. Comments remain indispensable for
-communicating intent, constraints, assumptions, architectural obligations, and domain
-context. These obligations are not optional and apply regardless of language.
+Two obligations, both mandatory and independent:
 
-## The Core Rule
+1. **Coverage.** Every public construct has a docblock. Non-negotiable.
+2. **Economy.** Every docblock earns each line it occupies.
 
-**Comments must explain WHY the code does what it does**, not narrate WHAT it is doing.
-
-Code explains mechanics. Comments explain meaning. Only the latter prevents
-misinterpretation. The question is not whether code _can_ be understood without
-comments; it is whether future readers — including your future self — should be forced
-to reverse-engineer your thought process.
+Most documentation fails the second while satisfying the first. A docblock that
+is thorough and padded is a worse artifact than a short one, because length
+hides the part that mattered.
 
 ---
 
-## Two Kinds of Comments
+## Rule 1 — Document the present
 
-### Docblocks
+**A comment describes what the code does now. It is not a record of how the code
+got here.**
 
-Docblocks document the **contract** of a construct. They are **semantic** and
-**interface-level** — describing what must remain true even if the implementation
-changes.
+Version control owns history. `git log`, `git blame`, the PR, and the issue
+tracker already hold it, with authorship and dates attached, and they stay
+accurate for free. A comment that narrates change is worse than redundant: it
+goes wrong the moment the next change lands, and it is the one kind of staleness
+a reader cannot detect — nothing in the file contradicts it.
 
-**Required on:** all classes, modules, functions, methods, getters, setters, and
-public properties.
+Never write:
 
-Docblocks must answer:
+| Banned | Why |
+|---|---|
+| `Extracted from UserService when billing needed it too` | Provenance. `git log --follow` answers this. |
+| `This used to batch requests, but that resolver was removed` | Describes code that is not here. |
+| `Until 2026-09-17 the opposite applied here` | A dated claim nobody will revisit. |
+| `SUPERSEDED by rebalance.mjs on 2026-09-17` | Belongs in the superseding commit, or in a guard that throws. |
+| `Renamed from parseInput; see plan 054 phase 3` | Plan archaeology. The plan is not the code. |
+| `Previously we used a Map here, now it's a Set` | The diff already said this, once. |
+| `Added for the checkout refactor` | Says nothing about current behaviour. |
 
-- What guarantees does this construct provide to its callers?
-- What assumptions does it rely upon?
-- What do parameters and return values semantically mean (beyond their type)?
-- What invariants or conditions must be preserved?
-- How and when should this construct be used within the broader system?
+Write the fact, not the journey:
 
-### Inline Comments
+```diff
+-/**
+- * Shipping quote cache.
+- *
+- * Originally this fanned out one request per item with Promise.all, which
+- * opened 147 concurrent connections on a cold cache and got us throttled.
+- * Plan 054 removed that resolver, so the fan-out is gone.
+- *
+- * Previously the TTL was 1 hour. Raised to 6 after we measured carrier table
+- * churn in August; see the discussion on PR #812. Note that an earlier
+- * revision keyed on the full postal code, which was changed to the district
+- * prefix during the privacy review (plan 061 phase 2).
+- *
+- * TODO(2024): this used to live in lib/checkout before the shipping module
+- * was extracted. Some callers may still import it from the old path.
+- */
++/**
++ * Caches shipping quotes for 6 hours, keyed by postal district.
++ *
++ * Carrier price tables move on the order of months, so a 6-hour entry cannot
++ * serve a price a shopper would notice as wrong. The key is the district
++ * prefix, not the full postal code: that is the granularity carriers price
++ * at, and it keeps a full personal postal code out of the cache.
++ *
++ * Callers must not add a per-item upstream lookup here — this runs on a
++ * public endpoint, and one request per item will trip the carrier's rate limit.
++ */
+```
 
-Inline comments explain **implementation decisions** — the non-obvious reasoning
-inside the body of a construct.
+Fifteen lines become eleven, and every surviving line is actionable. Three
+facts a maintainer needs — the TTL and why it is safe, why the key is truncated,
+and the per-item lookup that must never be added — were absent from the original
+or buried in it. Everything deleted was a story about code that is no longer
+there, including a stale `TODO` about an import path that moved two refactors
+ago.
 
-**Required when:** logic is non-trivial, interactions with external systems exist,
-domain constraints motivate specific behavior, or side effects are not obvious from
-syntax alone.
+### What may legitimately carry time or context
 
-Inline comments must explain:
+These are present, actionable facts, not history:
 
-- Non-trivial control flow — why this branch or exit condition exists
-- Domain rules and invariants the surrounding code enforces
-- Compensating behaviors for system limitations, with a tracking reference if applicable
-- Why a specific approach was chosen over obvious alternatives
+- `TODO`/`FIXME` with a tracking reference — an open obligation.
+- A workaround, with the upstream issue link and the condition that retires it.
+- A deprecation marker naming the replacement.
+- An invariant with its expiry trigger — "re-fit these buckets if the price
+  distribution shifts materially".
+- A measured number whose derivation a reader needs in order to re-derive it —
+  state the method, not the expedition.
 
-> **Private members:** docblocks on private members may combine contract and
-> implementation detail, since private members are themselves implementation details.
+The test: **would a reader take a different action because this is here?** If
+yes, keep it. If it only explains how the file came to look this way, delete it.
 
 ---
 
-## Quality Checklist: Docblocks
+## Rule 2 — Scale effort to consequence
 
-Before finalizing a docblock, verify it:
+Coverage is uniform. Depth is not. Documentation effort scales with how far a
+mistake travels.
 
-- [ ] States the construct's **role in the broader system**, not just what it does
-- [ ] Documents every non-trivial **parameter** — meaning, constraints, edge cases
-- [ ] Documents the **return value** semantically, not just as a type echo
-- [ ] States **behavioral guarantees** callers can rely on
-- [ ] States **failure modes** — how errors, nulls, or empty states are communicated
-- [ ] Notes any **concurrency, ordering, or lifecycle constraints**
-- [ ] Does not restate the symbol name as the only content
+| Construct | What the docblock owes |
+|---|---|
+| Self-evident private helper | One line. Often the signature plus a name is already the contract. |
+| Internal function, obvious behaviour | One sentence stating what it returns and any constraint a caller could get wrong. |
+| Internal function, subtle behaviour | That, plus the invariant or edge case that makes it subtle. |
+| Public API | Full contract: semantics of inputs, what is guaranteed on success, how failure is signalled. |
+| Public API that is dangerous, lossy, or irreversible | The contract, plus the specific way callers get it wrong and the consequence. |
 
-## Quality Checklist: Inline Comments
+The checklists below are a **menu of applicable items, not a required set**.
+Concurrency notes on a pure function, a `@returns` whose description only
+restates the return type, or a "role in the broader system" paragraph on a
+two-line formatter are padding. Padding is a defect. Note the distinction: the
+padding is the empty *description*, not the tag — see "Economy applies to tag
+content" below.
 
-Before finalizing inline comments, verify they:
+### The stop rule
 
-- [ ] Explain **why** this approach was chosen, not what the code does
-- [ ] State **domain invariants** the surrounding code must preserve
-- [ ] Justify **non-obvious branching** or early-return decisions
-- [ ] Reference an issue or ticket for known **workarounds**
-- [ ] Are absent on trivially obvious statements
+A docblock is finished when **a competent caller can use the construct correctly
+without reading its body**.
+
+Everything past that point belongs somewhere else: implementation reasoning goes
+in an inline comment next to the line it explains, design rationale goes in a
+design doc or an ADR, and history goes nowhere.
 
 ---
 
-## Anti-Patterns
+## Rule 3 — Be assertive
+
+State things. Do not discuss them.
+
+- **Lead with one declarative sentence** naming what the construct does or
+  guarantees. If a reader stops after the first line, they should still be
+  correct.
+- **Indicative mood, present tense, active voice.** "Returns the normalized
+  host." Not "This function will return what should be the normalized host."
+- **Cut hedges and filler**: *basically, essentially, simply, just, note that,
+  it is important to, please be aware, in order to, there is a X which*.
+- **Cut self-reference**: "This function/method/class…". The reader can see what
+  it is attached to.
+- **Do not restate the type.** `@param count number — the count` is noise. Say
+  what makes a value valid, what the bounds are, or what happens at zero.
+- **One idea per sentence.** Two short sentences beat one with a subordinate
+  clause chain.
+- **Name the consequence, not the adjective.** Not "handles this carefully" —
+  say what breaks if it doesn't.
+
+Before — 14 lines, four facts:
+
+```
+/**
+ * This is a utility function which is used in order to basically convert a
+ * currency amount into the micros format.
+ *
+ * It is important to note that the Google Ads API will essentially always
+ * expect monetary values to be passed in as micros, which are millionths of
+ * a currency unit. This function should be used whenever you need to send
+ * a monetary value.
+ *
+ * @param amount {number} The amount, as a number.
+ * @returns {number} Returns the amount in micros as a number.
+ */
+```
+
+After — 4 lines, the same four facts plus the one that actually matters:
+
+```
+/**
+ * Converts a currency amount to the micros the API expects.
+ *
+ * Rounded, not truncated: the API rejects a non-integer, and truncation
+ * under-bids by up to one micro on every call.
+ */
+```
+
+The second is shorter because the padding left, not because information did.
+**Brevity is the symptom of precision, never the goal.** Never delete a fact to
+hit a line count.
+
+### Economy applies to tag content, never to tag presence
+
+Where a language's documentation convention expects structured tags or sections,
+**keep them**. TSDoc and JSDoc `@param` / `@returns` / `@throws`, Python's
+`Args:` / `Returns:` / `Raises:`, and rustdoc's `# Errors` / `# Panics` sections
+are part of the contract and are consumed by tooling, editors, and generated API
+references. Dropping a tag to shorten a docblock removes a machine-readable fact,
+which is the opposite of this skill's intent.
+
+TypeScript in particular reinforces full TSDoc: see
+`typescript-documentation-best-practices` for the required tag set.
+
+What changes is what goes *inside* the tag. Make the description carry
+information the signature does not:
+
+```diff
+-@param amount {number} The amount, as a number.
+-@returns {number} Returns the amount in micros as a number.
++@param amount - Major currency units. Fractional values are rounded, not truncated.
++@returns Integer micros, as the API requires.
+```
+
+Omit a tag only when the language's convention treats it as optional *and* it
+would say nothing beyond the type — never merely to save a line.
+
+---
+
+## The two kinds of comment
+
+### Docblocks — the contract
+
+Document what stays true even when the implementation changes. Required on every
+class, module, function, method, getter, setter, and public property.
+
+Applicable items, as depth warrants:
+
+- [ ] First line states what it does or guarantees, declaratively
+- [ ] Parameter meaning where the type does not already convey it — constraints, valid ranges, edge values
+- [ ] Return semantics where non-obvious — what an empty, zero, or null result means
+- [ ] Behavioural guarantees a caller may rely on
+- [ ] Failure modes — what it throws, returns, or silently drops
+- [ ] Concurrency, ordering, idempotency, or lifecycle constraints **when they exist**
+- [ ] Role in the wider system **only for constructs whose purpose is not local**
+
+### Inline comments — the reasoning
+
+Explain the non-obvious decision at the line it affects. Required when logic is
+subtle, a domain rule drives the behaviour, an external system imposes a
+constraint, or a side effect is invisible from the syntax.
+
+- [ ] Explains why this approach, not what the line does
+- [ ] States the invariant the surrounding code preserves
+- [ ] Justifies a non-obvious branch or early return
+- [ ] Carries a tracking reference for a workaround
+- [ ] Absent on self-evident statements
+
+> **Private members** may mix contract and implementation detail freely — a
+> private member *is* an implementation detail.
+
+---
+
+## Anti-patterns
 
 | Anti-pattern | Example | Why it fails |
 |---|---|---|
-| Name restatement | `// Saves the term` before `saveTermToHistory()` | Adds no information beyond the code |
-| Vacuous parameter doc | `@param term — The term.` | Provides no semantic context |
-| Empty class header | `/** SearchBox view model */` | Omits role, responsibilities, and lifecycle |
-| Missing field semantics | Field with no comment | Reader cannot know what it represents or when it changes |
-| No behavioral guarantees | Method docblock with only param/return info | Callers cannot reason about error handling or ordering |
-| Undocumented control flow | Filter + reinsert with no explanation | The invariant being enforced is invisible |
-| Comment narrating syntax | `// Increment i by 1` before `i++` | Restates the obvious; zero value added |
+| Change narration | `// Extracted from X when Y needed it` | History. Git owns it; the comment rots undetectably. |
+| Dated claim | `// As of 2026-09-17 this is the opposite` | Nobody revisits it; it silently becomes a lie. |
+| Changelog block | A docblock listing what each refactor altered | A file-local changelog that competes with the real one. |
+| Name restatement | `// Saves the term` above `saveTerm()` | Zero information added. |
+| Empty tag description | `@param id string — the id` | Keep the tag; the description must add what the type cannot. |
+| Hedged contract | `// Should normally return the user` | A contract that commits to nothing is not a contract. |
+| Padded trivial docblock | 12 lines on a two-line pure function | Buries the one line that mattered. |
+| Vacuous header | `/** SearchBox view model */` | Omits role, responsibility, lifecycle. |
+| Syntax narration | `// Increment i` above `i++` | Restates the obvious. |
+| Undocumented invariant | Filter-then-reinsert with no comment | The rule being enforced is invisible. |
 
 ---
 
-## Patterns to Follow
+## Reviewing existing comments
 
-### Class / Module level
+When touching documented code, the comments are part of the change.
 
-State:
+- A comment contradicted by the code is a **bug**. Fix it in the same change.
+- History narration found in a comment you are already editing: **delete it**.
+  Do not preserve it, do not append to it, do not convert it to a bullet list.
+- Never append a new paragraph describing what this change did. Rewrite the
+  claim so it describes the code as it now stands.
+- A stale comment removed is a real improvement. It needs no replacement.
 
-- The construct's role in the broader system or architecture
-- Its primary responsibilities (use a short bulleted list for multiple)
-- Lifecycle, ownership, or initialization constraints when relevant
-
-### Method / Function level
-
-State:
-
-- The behavioral contract — what it guarantees on success
-- Its error handling strategy — when and how it signals failure
-- Concurrency safety, idempotency, or ordering requirements when relevant
-- Constraints on parameters beyond their type annotations
-
-### Property / Field level
-
-State:
-
-- What the value semantically represents
-- When and why it changes
-- How external consumers (views, services, callers) should interpret it
-- Whether it is persisted, reactive, or ephemeral
-
-### Inline (inside implementation bodies)
-
-State:
-
-- Why a specific branch, filter, or sort order exists
-- What invariant is being enforced
-- Why a particular strategy was chosen over obvious alternatives
+The failure mode to watch for: each change appends a sentence, nobody deletes
+one, and after a year the docblock is a sedimentary record of every refactor
+with the current contract somewhere in the middle.
 
 ---
 
-## Examples
+## Closing principles
 
-### Bad: vacuous class docblock
-
-```
-/** SearchBox view model */
-class SearchBoxVM { ... }
-```
-
-This tells the reader nothing beyond the name. It omits architectural role,
-responsibilities, and lifecycle expectations. A reader still cannot understand
-what this class owns, what it coordinates, or when it is valid to use.
-
-### Good: meaningful class docblock
-
-```
-/**
- * SearchBoxVM is the view-model behind the global search box in the header.
- *
- * Responsible for:
- *  - Managing the current search term and loading state.
- *  - Fetching product suggestions with debouncing to avoid excessive API calls.
- *  - Maintaining a bounded, de-duplicated search history persisted in
- *    local storage so that the view can present recent terms reactively.
- */
-class SearchBoxVM { ... }
-```
-
----
-
-### Bad: parameter docblock that restates the name
-
-```
-/**
- * Saves a search term to the history.
- * @param term — The term.
- */
-```
-
-"The term" conveys no context. What constitutes a valid term? What happens when it is
-empty? Is it trimmed? Does it overwrite or deduplicate existing entries?
-
-### Good: parameter docblock with real context
-
-```
-/**
- * Saves the current or provided search term into history, enforcing
- * uniqueness and a configurable maximum length. Most recent terms appear first.
- *
- * @param term — Optional explicit search string to save. When omitted, the
- *               currently active search term is used. The value is trimmed
- *               before saving; empty or whitespace-only values are ignored.
- */
-```
-
----
-
-### Bad: inline comment narrating mechanics
-
-```
-// Remove duplicates and add to front
-history.filter(t => t !== term).unshift(term)
-```
-
-This describes what the code does, which is already readable. It does not explain
-_why_ duplicates are removed or what ordering invariant is being maintained.
-
-### Good: inline comment explaining intent and invariant
-
-```
-// Remove the existing occurrence before re-inserting at the front.
-// This preserves recency ordering without creating duplicate entries.
-history = history.filter(t => t !== term)
-history.unshift(term)
-
-// Enforce the configured maximum size so the list stays bounded.
-history = history.slice(0, maxEntries)
-```
-
----
-
-### Bad: field with no documentation
-
-```
-private isLoading = false
-```
-
-The reader must trace all mutation sites to understand what triggers this, what
-resets it, and how the view is supposed to consume it.
-
-### Good: field with semantic documentation
-
-```
-/**
- * Indicates whether a search request is currently in flight.
- * The view binds to this value to render loading indicators and
- * disable input while a response is pending.
- */
-private isLoading = false
-```
-
----
-
-## Closing Principles
-
-- **Comments exist to preserve intent.** Code expresses behavior; comments express
-  rationale.
-- **Comments are not optional.** They are part of the deliverable software asset.
-- **"Self-documenting code" is a myth** when used as a justification for omitting
-  comments. At scale, it collapses under its own complexity.
-- **Future maintainers should never need to reverse-engineer your thinking.**
-  Comments are a structural component of maintainable software; adherence is
-  expected on every construct written or modified.
+- **Comments preserve intent.** Code expresses behaviour; comments express why.
+- **Coverage is mandatory; length is earned.** Both, always.
+- **Describe the present.** Anything else is archaeology, and it rots silently.
+- **Say it once, assertively.** If a sentence can go without losing a fact, it
+  should already be gone.
