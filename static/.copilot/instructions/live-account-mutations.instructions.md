@@ -4,7 +4,7 @@ description: "Mandatory before changing any live external account: advertising, 
 
 # Live Account Mutations
 
-This rule is mandatory for every request that changes state in a live external account — anything that spends money, alters what customers see, or reconfigures a third-party platform.
+This instruction is mandatory for every request that changes state in a live external account — anything that spends money, alters what customers see, or reconfigures a third-party platform.
 
 Sync note: this rule must stay semantically identical across Claude rules, Copilot instructions, and Cursor rules; update all three files in the same change.
 
@@ -29,6 +29,7 @@ Activate when the request would create, edit, pause, or delete any of:
 - merchant, marketplace, or storefront settings that affect what shoppers see
 - DNS, email sending domains, payment configuration, or webhook registrations
 - any third-party platform record reached through an API or admin panel
+- git forge state — pushing branches or tags, opening, merging or closing pull or merge requests, submitting reviews, posting comments, publishing releases, changing repository settings. These additionally carry the user's identity, so `acting-in-the-users-name` applies and is the stricter rule; satisfy both.
 
 Also activate when the request is ambiguous about whether it writes. Treat "update the campaign" as a write until proven otherwise.
 

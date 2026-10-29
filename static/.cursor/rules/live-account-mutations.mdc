@@ -30,6 +30,7 @@ Activate when the request would create, edit, pause, or delete any of:
 - merchant, marketplace, or storefront settings that affect what shoppers see
 - DNS, email sending domains, payment configuration, or webhook registrations
 - any third-party platform record reached through an API or admin panel
+- git forge state — pushing branches or tags, opening, merging or closing pull or merge requests, submitting reviews, posting comments, publishing releases, changing repository settings. These additionally carry the user's identity, so `acting-in-the-users-name` applies and is the stricter rule; satisfy both.
 
 Also activate when the request is ambiguous about whether it writes. Treat "update the campaign" as a write until proven otherwise.
 

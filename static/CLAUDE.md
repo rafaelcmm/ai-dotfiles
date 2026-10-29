@@ -17,6 +17,7 @@ This file extends shared contract from `AGENTS.md`.
 - For Shopify-related prompts, load `shopify-skills` rule and consult matching `shopify-*` skills first.
 - For paid traffic, analytics, feed, or SEO prompts, load `growth-platform-skills` rule and consult matching growth skills first.
 - Before any change to a live external account, load `live-account-mutations` rule and satisfy its idempotency, blast-radius, reversibility, and attribution gates.
+- Before any action that publishes, sends, or submits under the user's identity, load `acting-in-the-users-name` rule and satisfy its identity, authorization, irreversibility, and audience gates.
 
 ## Caveman Execution
 

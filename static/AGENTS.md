@@ -24,6 +24,7 @@ Cross-tool operating contract for AI coding assistants.
 - Shopify context: load `shopify-skills` rule and consult matching `shopify-*` skills before generic skills.
 - Paid traffic, analytics, product feed, or search visibility context: load `growth-platform-skills` rule and consult matching growth skills before generic skills.
 - Live external account change (ads, analytics config, feeds, merchant or platform settings): load `live-account-mutations` rule and complete its gates before applying anything.
+- Action carrying the user's identity (PR/MR comment or review, push, publish, email, chat message): load `acting-in-the-users-name` rule; draft and hand over unless explicitly authorized for that action.
 
 ## Workflow Contract
 
