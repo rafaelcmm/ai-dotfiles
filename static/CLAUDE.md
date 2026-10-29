@@ -15,6 +15,8 @@ This file extends shared contract from `AGENTS.md`.
 - If multiple rules apply, load all relevant rules and follow strictest safe constraint.
 - For non-trivial code changes, invoke `workflow-orchestrator` first when available.
 - For Shopify-related prompts, load `shopify-skills` rule and consult matching `shopify-*` skills first.
+- For paid traffic, analytics, feed, or SEO prompts, load `growth-platform-skills` rule and consult matching growth skills first.
+- Before any change to a live external account, load `live-account-mutations` rule and satisfy its idempotency, blast-radius, reversibility, and attribution gates.
 
 ## Caveman Execution
 
