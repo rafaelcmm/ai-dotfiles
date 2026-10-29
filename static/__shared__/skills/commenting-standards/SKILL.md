@@ -101,12 +101,22 @@ These are present, actionable facts, not history:
 The test: **would a reader take a different action because this is here?** If
 yes, keep it. If it only explains how the file came to look this way, delete it.
 
+**This rule governs code comments, not dated documents.** A design document,
+spec, plan, or ADR with a date on it is a point-in-time snapshot, and rewriting
+it rewrites history. Code describes now; a dated document is allowed to be a
+record.
+
 ---
 
-## Rule 2 — Scale effort to consequence
+## Rule 2 — What a docblock contains
 
-Coverage is uniform. Depth is not. Documentation effort scales with how far a
-mistake travels.
+**A docblock is one declarative sentence naming what the construct does or
+guarantees, followed only by the facts a caller needs in order to use it
+correctly: the constraints a type cannot express, what is guaranteed on
+success, and how failure is signalled.**
+
+That is the contents. Coverage is uniform; depth is not, and depth is set by
+how far a mistake travels:
 
 | Construct | What the docblock owes |
 |---|---|
@@ -116,43 +126,50 @@ mistake travels.
 | Public API | Full contract: semantics of inputs, what is guaranteed on success, how failure is signalled. |
 | Public API that is dangerous, lossy, or irreversible | The contract, plus the specific way callers get it wrong and the consequence. |
 
-The checklists below are a **menu of applicable items, not a required set**.
-Concurrency notes on a pure function, a `@returns` whose description only
-restates the return type, or a "role in the broader system" paragraph on a
-two-line formatter are padding. Padding is a defect. Note the distinction: the
-padding is the empty *description*, not the tag — see "Economy applies to tag
-content" below.
+Three lines look like contract and are usually padding. Each earns its place
+under one condition:
+
+| Line | Earns its place when |
+|---|---|
+| A concurrency, ordering, idempotency, or lifecycle note | The construct behaves differently under concurrent use, out-of-order calls, repeated calls, or a lifecycle stage. On a pure function it is padding. |
+| A `@returns` description | It carries what the return type does not state. One that restates the type is padding — and the padding is the empty *description*, never the tag itself; see "Economy applies to tag content" below. |
+| A "role in the wider system" paragraph | The construct is reached from outside the module that owns it. On a two-line formatter it is padding. |
+
+Padding is a defect, because length hides the line that mattered.
 
 ### The stop rule
 
 A docblock is finished when **a competent caller can use the construct correctly
 without reading its body**.
 
-Everything past that point belongs somewhere else: implementation reasoning goes
+Everything past that point has a home elsewhere: implementation reasoning goes
 in an inline comment next to the line it explains, design rationale goes in a
 design doc or an ADR, and history goes nowhere.
 
 ---
 
-## Rule 3 — Be assertive
+## Rule 3 — How a docblock reads
 
-State things. Do not discuss them.
+**A docblock reads as a sequence of statements about the construct: indicative
+mood, present tense, active voice, one idea per sentence.** "Returns the
+normalized host." The first line is the one a hurried reader takes away, so it
+names what the construct does or guarantees and is correct on its own.
 
-- **Lead with one declarative sentence** naming what the construct does or
-  guarantees. If a reader stops after the first line, they should still be
-  correct.
-- **Indicative mood, present tense, active voice.** "Returns the normalized
-  host." Not "This function will return what should be the normalized host."
-- **Cut hedges and filler**: *basically, essentially, simply, just, note that,
-  it is important to, please be aware, in order to, there is a X which*.
-- **Cut self-reference**: "This function/method/class…". The reader can see what
-  it is attached to.
-- **Do not restate the type.** `@param count number — the count` is noise. Say
-  what makes a value valid, what the bounds are, or what happens at zero.
-- **One idea per sentence.** Two short sentences beat one with a subordinate
-  clause chain.
-- **Name the consequence, not the adjective.** Not "handles this carefully" —
-  say what breaks if it doesn't.
+The sentence shapes that produce this:
+
+- **The construct is the subject, and the sentence opens on the verb.**
+  "Converts a currency amount to micros." The reader can already see what the
+  docblock is attached to, so "This function/method/class…" spends words
+  without adding one.
+- **A value's description carries what its type cannot**: what makes a value
+  valid, what its bounds are, what happens at zero. `@param count number — the
+  count` states nothing the signature did not.
+- **Every adjective resolves to a consequence.** In place of "handles this
+  carefully", name what breaks when a caller does not.
+- **Two short sentences in place of one with a chain of subordinate clauses.**
+- **Each word carries a constraint, a guarantee, or a failure.** The words that
+  reliably carry none: *basically, essentially, simply, just, note that, it is
+  important to, please be aware, in order to, there is a X which*.
 
 Before — 14 lines, four facts:
 
@@ -220,15 +237,20 @@ would say nothing beyond the type — never merely to save a line.
 Document what stays true even when the implementation changes. Required on every
 class, module, function, method, getter, setter, and public property.
 
-Applicable items, as depth warrants:
+Every docblock on a public construct carries these three, in this order:
 
 - [ ] First line states what it does or guarantees, declaratively
-- [ ] Parameter meaning where the type does not already convey it — constraints, valid ranges, edge values
-- [ ] Return semantics where non-obvious — what an empty, zero, or null result means
-- [ ] Behavioural guarantees a caller may rely on
-- [ ] Failure modes — what it throws, returns, or silently drops
-- [ ] Concurrency, ordering, idempotency, or lifecycle constraints **when they exist**
-- [ ] Role in the wider system **only for constructs whose purpose is not local**
+- [ ] The behavioural guarantees a caller may rely on
+- [ ] How failure reaches the caller — what it throws, returns, or silently drops
+
+An internal construct carries what its row in Rule 2's proportionality table owes.
+
+Then one line for each of these that holds:
+
+- [ ] A parameter whose valid values the type does not pin → the constraint, the valid range, or the edge value
+- [ ] A return whose empty, zero, or null case carries meaning → what that case means
+- [ ] Behaviour that differs under concurrent use, out-of-order calls, repeated calls, or a lifecycle stage → the constraint
+- [ ] A construct reached from outside the module that owns it → its role in the wider system
 
 ### Inline comments — the reasoning
 
