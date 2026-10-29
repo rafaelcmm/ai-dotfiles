@@ -467,3 +467,168 @@ fn update_restores_executable_mode_for_managed_hook_scripts() {
         .mode();
     assert_ne!(mode_after_update & 0o111, 0);
 }
+
+/// Byte ceiling for a `SKILL.md`, matching Claude Code's post-compaction cut.
+///
+/// After a compaction the harness re-attaches each invoked skill truncated to
+/// 20,000 characters. Anything past the cut is absent from the agent's context
+/// for the rest of the session, so a skill whose rules live in its tail silently
+/// stops being enforced mid-task. Bytes are compared rather than characters
+/// because bytes are the stricter bound once prose contains non-ASCII
+/// punctuation.
+const SKILL_BYTE_CAP: usize = 20_000;
+
+/// Collects every shared skill as `(directory name, SKILL.md contents)`.
+///
+/// Reads the embedded `static/` tree instead of the working directory so the
+/// assertions cover exactly the bytes shipped inside the binary. Panics when a
+/// skill directory has no `SKILL.md` or its contents are not UTF-8 — both are
+/// defects in the library rather than conditions worth tolerating, and a skipped
+/// skill would make these invariants vacuously true.
+fn shared_skills() -> Vec<(String, &'static str)> {
+    let skills_dir = crate::embedded::static_dir()
+        .get_dir("__shared__/skills")
+        .expect("embedded shared skills directory should exist");
+
+    let mut skills = Vec::new();
+    for skill_dir in skills_dir.dirs() {
+        let name = skill_dir
+            .path()
+            .file_name()
+            .expect("embedded skill directory should have a name")
+            .to_string_lossy()
+            .into_owned();
+
+        let skill_file = skill_dir
+            .files()
+            .find(|file| {
+                file.path()
+                    .file_name()
+                    .is_some_and(|base| base == "SKILL.md")
+            })
+            .unwrap_or_else(|| panic!("skill directory {name} has no SKILL.md"));
+
+        let contents = skill_file
+            .contents_utf8()
+            .unwrap_or_else(|| panic!("{name}/SKILL.md should be valid UTF-8"));
+
+        skills.push((name, contents));
+    }
+
+    skills
+}
+
+/// Reads one top-level YAML frontmatter field out of a `SKILL.md`.
+///
+/// Returns `None` when the file opens without a `---` fence or the block ends
+/// before the key appears. Only column-zero keys match, so a nested mapping key
+/// cannot be mistaken for a top-level field. A `>-`/`|` block scalar is folded
+/// into a single space-joined string so callers see the value text rather than
+/// the introducer.
+///
+/// Intentionally not a YAML parse: these tests assert mechanical invariants over
+/// hand-written frontmatter, and a line-oriented reader keeps the failure message
+/// pointing at the line a human has to edit.
+fn frontmatter_field(contents: &str, field: &str) -> Option<String> {
+    let mut lines = contents.lines();
+    if lines.next()?.trim_end() != "---" {
+        return None;
+    }
+
+    let prefix = format!("{field}:");
+    let mut lines = lines.peekable();
+    while let Some(line) = lines.next() {
+        if line.trim_end() == "---" {
+            return None;
+        }
+
+        let Some(value) = line.strip_prefix(&prefix) else {
+            continue;
+        };
+
+        let value = value.trim();
+        if !matches!(value, ">" | ">-" | ">+" | "|" | "|-" | "|+") {
+            return Some(value.to_string());
+        }
+
+        let mut folded = String::new();
+        while let Some(continuation) = lines.peek() {
+            if continuation.trim().is_empty() || !continuation.starts_with([' ', '\t']) {
+                break;
+            }
+            if !folded.is_empty() {
+                folded.push(' ');
+            }
+            folded.push_str(continuation.trim());
+            lines.next();
+        }
+        return Some(folded);
+    }
+
+    None
+}
+
+#[test]
+fn every_shared_skill_fits_the_compaction_byte_cap() {
+    let oversized: Vec<String> = shared_skills()
+        .into_iter()
+        .filter(|(_, contents)| contents.len() >= SKILL_BYTE_CAP)
+        .map(|(name, contents)| format!("{name} ({} bytes)", contents.len()))
+        .collect();
+
+    assert!(
+        oversized.is_empty(),
+        "SKILL.md files at or over the {SKILL_BYTE_CAP}-byte compaction cap: {}. \
+         Move the content a skill needs only sometimes into its references/ directory.",
+        oversized.join(", ")
+    );
+}
+
+#[test]
+fn every_shared_skill_declares_its_directory_name() {
+    for (name, contents) in shared_skills() {
+        let declared = frontmatter_field(contents, "name").unwrap_or_else(|| {
+            panic!("{name}/SKILL.md has no top-level name field in its frontmatter")
+        });
+
+        assert_eq!(
+            declared, name,
+            "{name}/SKILL.md declares name: {declared}. Invocation resolves through the \
+             directory name, so a mismatch leaves the skill unreachable while the file still \
+             reads correctly"
+        );
+    }
+}
+
+#[test]
+fn every_shared_skill_declares_a_description() {
+    for (name, contents) in shared_skills() {
+        let description = frontmatter_field(contents, "description")
+            .unwrap_or_else(|| panic!("{name}/SKILL.md has no top-level description field"));
+
+        assert!(
+            !description.is_empty(),
+            "{name}/SKILL.md has an empty description. Name and description are the whole \
+             surface an agent selects a skill from"
+        );
+    }
+}
+
+#[test]
+fn every_shared_skill_directory_is_kebab_case() {
+    for (name, _) in shared_skills() {
+        let kebab_case = !name.is_empty()
+            && !name.starts_with('-')
+            && !name.ends_with('-')
+            && !name.contains("--")
+            && name.chars().all(|character| {
+                character.is_ascii_lowercase() || character.is_ascii_digit() || character == '-'
+            });
+
+        assert!(
+            kebab_case,
+            "skill directory {name} is not kebab-case. Agents guess lowercase hyphenated \
+             names, so mixed case and underscores make a skill unfindable"
+        );
+    }
+}
