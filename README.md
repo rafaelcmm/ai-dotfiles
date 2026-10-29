@@ -7,6 +7,14 @@ Rust CLI to install, update, and debloat Rafael Monteiro AI configuration files 
 - Technical implementation details: [src/README.md](src/README.md)
 - Script usage and release automation: [scripts/README.md](scripts/README.md)
 
+## Third-party content
+
+Some installed skills are adapted from third-party work, principally
+[obra/superpowers](https://github.com/obra/superpowers) (MIT). Provenance, pinned upstream
+commits, and the MIT notice are recorded in
+[static/__shared__/skills/NOTICE.md](static/__shared__/skills/NOTICE.md), which installs
+alongside the skills.
+
 ## Prerequisites
 
 - Rust toolchain installed (`cargo` available in `PATH`). Install guide: https://www.rust-lang.org/tools/install
