@@ -17,6 +17,7 @@ every lens applies to every change; use judgment about which are load-bearing fo
 10. Observability
 11. Tests
 12. Documentation
+13. Spec silence is not permission (how to grade a finding the spec never mentions)
 
 ---
 
@@ -156,3 +157,24 @@ need but can't infer from the code belong in comments, docstrings, or external d
 same PR that introduces them.** A particularly valuable form is the **decision record**: a brief
 note on *why* the code was written this way rather than the more obvious alternative. That's the
 document that prevents future Chesterton's Fence violations.
+
+## 13. Spec silence is not permission
+
+A finding whose trigger the spec never names still gets graded by its effect:
+
+> "The spec is a vision document: it says what the software must do, not everything it will meet,
+> and its silence on an input is not permission for that input to break the program."
+> — adapted from [obra/superpowers](https://github.com/obra/superpowers), MIT, © 2025 Jesse Vincent
+
+So grade by consequence, not by coverage: **a finding's grade is what a reasonable person using
+the software gets if it ships, not whether the spec names the triggering input.** A reviewer who
+set a finding at Minor because the spec was silent has graded the spec, not the effect.
+
+Worked case: the spec says "accept a CSV upload" and says nothing about an empty file. An empty
+upload that throws an unhandled exception and returns a 500 is Blocking — a reasonable person
+uploading an empty file expects a validation message. The spec's silence changes nothing about
+what they get.
+
+A behavior you considered and set aside as genuinely out of scope goes in the report as a
+**⚠️ Cannot verify from diff** item or a **Rulings I made** line, with the reason. It does not
+vanish because the spec was quiet.

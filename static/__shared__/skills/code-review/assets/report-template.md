@@ -38,8 +38,11 @@ having read the description AND the diff, not just restating the title.>
 
 ## Findings
 
-> Each finding: `path:line` — the concern — *why it matters* — suggested action.
+> Each finding: `path:line` — the concern — *why it matters* — suggested action. The `path:line`
+> is not optional: a finding with no citation is not a finding.
 > Phrase as questions where intent is unknowable. Feedback is on the code, not the author.
+> A rationale quoted from the author or the plan is recorded next to the finding, never used to
+> lower its severity; a defect the plan mandates is Blocking, labelled *plan-mandated*.
 > Omit a severity section entirely if it has no findings.
 
 ### ✗ Blocking — must be resolved before merge
@@ -69,6 +72,21 @@ having read the description AND the diff, not just restating the title.>
 
 ---
 
+## ⚠️ Cannot verify from diff
+
+> Requirements and behaviors that live in unchanged code, span tasks, or depend on context you
+> were not given. These are routed to the coordinator, which holds the plan and the cross-task
+> context, and each one is resolved before the work is called complete. An item here is neither a
+> pass nor a failure — it is an open question with an owner.
+
+| # | What could not be verified | Why the diff can't settle it | Who resolves it / what to check |
+|---|---|---|---|
+| 1 | <e.g. "rate limiting still applies to the new endpoint"> | <the limiter config is not in this diff> | <coordinator: confirm `limiter.yaml` covers `/v2/export`> |
+
+<"None — every requirement was verifiable from the diff." if that is true.>
+
+---
+
 ## Manual verification required
 
 > Things static review could NOT confirm. A human must do these before approving. Be specific
@@ -84,9 +102,27 @@ having read the description AND the diff, not just restating the title.>
 
 ---
 
+## Rulings I made
+
+> Every judgment call taken on the user's behalf during this review: a severity you set where the
+> rubric was ambiguous, a finding you decided not to raise, a scope line you drew, an assumption
+> you reviewed against. One line each, in the order you made them, each with **what it costs if
+> this ruling is wrong**. A ruling that stays in your head is a decision made in secret.
+
+| # | Ruling | Cost if wrong |
+|---|---|---|
+| 1 | <e.g. "Graded the missing `null` check Suggestion, not Blocking, because the only caller is internal."> | <If an external caller exists, this ships a crash path.> |
+
+<"None — no judgment calls were required." if that is true.>
+
+---
+
 ## Pre-approval checklist
 
-| # | Check | Status | Note |
+> Every row carries `file:line` evidence or the reason it could not be verified. A ✓ with an
+> empty evidence cell is not a pass — downgrade it to ⚠️ and say what blocked verification.
+
+| # | Check | Status | Evidence (`file:line`) or why not verified |
 |---|---|---|---|
 | 1 | I understand what problem this change is solving | <✓/⚠️/✗> | |
 | 2 | I've traced through at least one non-happy-path scenario | <✓/⚠️/✗> | |
@@ -100,4 +136,5 @@ having read the description AND the diff, not just restating the title.>
 | 10 | Test coverage is appropriate for the risk of this change | <✓/⚠️/✗> | |
 | 11 | I've identified and labeled any blocking issues clearly | <✓/⚠️/✗> | |
 
-**Legend:** ✓ pass · ⚠️ needs manual check (see section above) · ✗ fail (see Blocking) · n.a. not applicable
+**Legend:** ✓ pass, with evidence · ⚠️ could not verify (routed above) · ✗ fail (see Blocking) ·
+n.a. not applicable, with the reason
