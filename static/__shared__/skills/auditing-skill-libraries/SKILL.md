@@ -28,7 +28,22 @@ cannot fix a finding here without it.
 bash scripts/audit-skills.sh                      # infers the library it lives in
 bash scripts/audit-skills.sh ~/.claude/skills     # audit an explicit library
 bash scripts/audit-skills.sh --help
+
+# An installed library also holds third-party skills pinned to upstream commits.
+# Findings against those are noise — an update overwrites any fix. Exclude them:
+bash scripts/audit-skills.sh ~/.claude/skills --exclude 'docker-*' --exclude 'n8n-*'
 ```
+
+## Audit the library you maintain
+
+Every check here assumes you can fix what it reports. That holds for skills you
+author and not for skills vendored from an upstream commit, where the next update
+replaces your fix. Run the audit over your own library, and exclude the vendored
+ones by glob.
+
+A run that reports hundreds of findings you cannot act on trains you to ignore the
+tool, which costs more than the findings were worth. The excluded count is printed
+so exclusion stays visible rather than silently shrinking the audit.
 
 With no argument the script walks up from its own location to the library that contains it,
 and falls back to `~/.claude/skills`. Pass a path when auditing a library it is not part of.

@@ -6,8 +6,15 @@
 # agent can only read partially, and references nested more than one level deep.
 #
 # Usage:
-#   bash scripts/audit-skills.sh [LIBRARY_DIR]
+#   bash scripts/audit-skills.sh [LIBRARY_DIR] [--exclude GLOB]...
 #   bash scripts/audit-skills.sh --help
+#
+# Audit the library you MAINTAIN. An installed library usually also holds
+# third-party skills pinned to upstream commits, which get overwritten on every
+# update — findings against those are noise, because fixing them is not possible
+# from here. Exclude them:
+#
+#   bash scripts/audit-skills.sh ~/.claude/skills --exclude 'docker-*' --exclude 'n8n-*'
 #
 # LIBRARY_DIR is the directory whose immediate children are skill directories.
 # With no argument the script infers it from its own location (the library that
@@ -293,7 +300,20 @@ main() {
         ;;
     esac
 
-    if ! LIBRARY_DIR="$(resolve_library_dir "${1:-}")"; then
+    local positional="" ; EXCLUDES=()
+    while [ "$#" -gt 0 ]; do
+        case "$1" in
+            --exclude)
+                [ "$#" -ge 2 ] || { printf -- '--exclude needs a glob\n' >&2; return 2; }
+                EXCLUDES+=("$2"); shift 2 ;;
+            --exclude=*) EXCLUDES+=("${1#--exclude=}"); shift ;;
+            -*) printf 'Unknown option: %s\n' "$1" >&2; return 2 ;;
+            *)  [ -z "$positional" ] || { printf 'Only one LIBRARY_DIR\n' >&2; return 2; }
+                positional="$1"; shift ;;
+        esac
+    done
+
+    if ! LIBRARY_DIR="$(resolve_library_dir "$positional")"; then
         printf 'No skill library found. Pass one explicitly: bash %s LIBRARY_DIR\n' \
             "${BASH_SOURCE[0]}" >&2
         return 2
@@ -307,12 +327,24 @@ main() {
 
     printf 'Auditing skill library: %s\n\n' "$LIBRARY_DIR"
 
-    local skill_dir
+    local skill_dir name pattern skipped=0
     for skill_dir in "$LIBRARY_DIR"/*/; do
         skill_dir="${skill_dir%/}"
         [ -d "$skill_dir" ] || continue
+        name="$(basename "$skill_dir")"
+        for pattern in ${EXCLUDES[@]+"${EXCLUDES[@]}"}; do
+            # shellcheck disable=SC2053 -- glob match is the point
+            if [[ "$name" == $pattern ]]; then
+                skipped=$((skipped + 1))
+                continue 2
+            fi
+        done
         check_skill "$skill_dir"
     done
+
+    if [ "$skipped" -gt 0 ]; then
+        printf '\n%s skills excluded by --exclude and not audited.\n' "$skipped"
+    fi
 
     printf '\n%s skills checked, %s errors, %s warnings\n' \
         "$skills_checked" "$errors" "$warnings"
