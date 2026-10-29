@@ -4,7 +4,7 @@ description: "Enforce a complete workflow for every code change request: mandato
 
 # Code Change Workflow
 
-This rule is mandatory for every request that changes code unless the user explicitly says to skip this workflow.
+This instruction is mandatory for every request that changes code unless the user explicitly says to skip this workflow.
 
 Sync note: this rule must stay semantically identical across Claude rules, Copilot instructions, and Cursor rules; update all three files in the same change.
 
@@ -159,55 +159,13 @@ Fix both inline and continue; the self-review does not need a second pass.
 
 ## Mandatory code documentation gate
 
-Code changes are not complete until documentation is complete.
+Code changes are not complete until documentation is complete. For every code-change request, run a mandatory Documentation Completion Step as the final pre-commit gate, and block the final commit until it passes.
 
-For every code-change request, run a mandatory Documentation Completion Step as the final pre-commit gate.
+Documentation verification and remediation MUST be delegated to `documentation-specialist`; security verification to `security-reviewer`. Both run once, during Final Checkup, not after each implementation TODO.
 
-Documentation Completion Step (required):
+Documentation is mandatory and low-value documentation is not acceptable: comments explain intent, invariants, constraints, side effects and failure modes; they describe the current state and are never a change log; coverage is absolute while depth is proportional.
 
-- Every new or modified function must be documented.
-- Every new or modified structure, type, class, interface, and enum must be documented.
-- Every new or modified non-trivial or complex code path must include intent-focused comments.
-- Public APIs must include contract-level documentation (parameters, returns, errors, side effects).
-- Internal logic must include maintenance-facing documentation where behavior is non-obvious.
-- Documentation must be updated in the same change set as the code.
-
-Documentation quality caveats (required):
-
-- Documentation is mandatory, but low-value comments are not acceptable.
-- Comments must explain intent, invariants, constraints, side effects, failure modes, and non-obvious decisions.
-- Comments must not restate obvious syntax, variable names, or trivial control flow.
-- Comments must describe the current state of the code. In-code documentation is not a change log: no provenance, removed behavior, dated claims, supersession notices, or plan archaeology. Version control owns history.
-- Coverage is absolute but depth is proportional. A self-evident signature is fully documented by one assertive sentence; padding a docblock to look thorough is a defect because it buries the line that mattered.
-
-Commit restriction:
-
-- The final commit is blocked until the Documentation Completion Step passes.
-
-Specialist and skills requirement:
-
-- Documentation verification and remediation must be delegated to `documentation-specialist`.
-- Security verification and remediation must be delegated to `security-reviewer` during Final Checkup TODO execution.
-- Do not invoke `documentation-specialist` or `security-reviewer` during each implementation TODO unless the user explicitly overrides this workflow.
-- Before closing Final Checkup TODOs or creating the final commit, the workflow must consult and apply all documentation skills below on relevant changed files:
-  - `commenting-standards`
-  - `documentation-best-practices`
-  - `go-documentation-best-practices`
-  - `javascript-documentation-best-practices`
-  - `python-documentation-best-practices`
-  - `rust-documentation-best-practices`
-  - `typescript-documentation-best-practices`
-
-Final Checkup TODOs must include these documentation checks:
-
-- Run `documentation-specialist` review on all changed code.
-- Verify every changed function has documentation appropriate to visibility and complexity.
-- Verify every changed structure, type, class, interface, and enum has documentation.
-- Verify complex logic comments capture intent, constraints, edge cases, and side effects.
-- Verify API docs match current behavior (parameters, returns, errors, and examples where relevant).
-- Verify stale or contradictory comments were corrected or removed.
-- Verify no comment narrates change history, and that any found in touched code was deleted.
-- Verify docblock depth is proportional and free of hedging, self-reference, and type restatement.
+Full requirements — what must be documented, the quality caveats, the documentation skills to apply, and the final-checkup checks: [code-change-workflow/documentation-gate.md](code-change-workflow/documentation-gate.md).
 
 ## Completion contract
 
@@ -263,10 +221,7 @@ At escalation every open finding carries a `Ruling:` — whether the code stands
 
 ## Skill link topology
 
-- Shared local skills are embedded from `static/__shared__/skills` and installed under `~/.copilot/skills/<skill-id>/`.
-- External skills are declared in `static/external-skills.toml` and installed under `~/.copilot/skills/<source-id>/`.
-- Docker skills are sourced externally as individual ids (for example `docker-core-architecture`) rather than grouped static folders.
-- Validate source mapping with: `grep '^id = "' static/external-skills.toml`.
+Where installed skills come from, and how to verify the mapping: [code-change-workflow/skill-link-topology.md](code-change-workflow/skill-link-topology.md).
 
 ## Stop condition
 
@@ -317,41 +272,5 @@ Claims without this evidence are non-compliant.
 
 ## Quick Compliance Checklist
 
-Use this copy-paste closure template directly:
+The copy-paste closure template is in [code-change-workflow/closure-checklist.md](code-change-workflow/closure-checklist.md). Use it verbatim when reporting a completed code change.
 
-- Objective Files
-  - [ ] File scope remains single-purpose.
-  - [ ] No logic file grew past 300 lines without active split.
-  - [ ] If any file exceeded limits, split plan or split implementation completed.
-  - [ ] Any exception includes reason, owner, expiry trigger, follow-up task.
-- Chesterton's Fence
-  - [ ] Removed/simplified code has explicit reason it existed.
-  - [ ] Evidence source captured (git history, issue, caller behavior, production constraint).
-  - [ ] Verification proves behavior preserved.
-- Commenting Standards
-  - [ ] Every changed public symbol has docblock.
-  - [ ] Docblocks include intent, guarantees, failure modes.
-  - [ ] Non-obvious logic has why/invariant comments.
-  - [ ] No low-value narration comments.
-  - [ ] Comments describe the code as it now stands — no provenance, removed behavior, dated claims, or supersession notices.
-  - [ ] No padding: depth matches visibility; required tags present with substantive descriptions.
-  - [ ] History narration found in touched comments was deleted, not extended.
-- Ceremony Classification
-  - [ ] Classification stated out loud: spike, bounded, or architectural.
-  - [ ] Every gate ran, whichever path was taken.
-  - [ ] Any mid-task reclassification went up, and was stated.
-- Code Change Workflow
-  - [ ] Implementation TODOs complete.
-  - [ ] Testing TODOs complete.
-  - [ ] Final Checkup TODOs complete.
-  - [ ] Security and documentation reviews executed in final checkup.
-  - [ ] Documentation Completion Step passed.
-  - [ ] Completion contract satisfied per TODO, with in-session evidence.
-  - [ ] Reviewer loop closed within five rounds, or escalated with rulings.
-- Evidence Summary
-  - Files changed:
-  - Checks run and outcomes:
-  - Skipped checks and reason:
-  - Ceremony classification and any escalation:
-  - Rulings taken on the user's behalf, each with cost if wrong:
-  - Remaining risk (if any):
