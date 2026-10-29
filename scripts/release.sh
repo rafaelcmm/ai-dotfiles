@@ -5,7 +5,7 @@
 # - Keep arguments passed as separate, quoted words at call sites.
 # - Never build command arguments from unvalidated user-controlled input.
 # - Run Rust quality gates plus ignored network integration tests
-# - Bump Cargo.toml package version
+# - Bump Cargo.toml package version and re-lock Cargo.lock to match
 # - Create and push release commit/tag
 #
 # Prerequisites:
@@ -46,8 +46,8 @@ What this script does:
   1. Verifies clean git tree on main
   2. Computes next version (or uses explicit X.Y.Z)
   3. Runs cargo validation (fmt, clippy, offline tests, ignored network integration tests)
-  4. Bumps Cargo.toml version
-  5. Commits version bump and creates tag vX.Y.Z
+  4. Bumps Cargo.toml version and re-locks Cargo.lock to match
+  5. Commits both files and creates tag vX.Y.Z
   6. Pushes main and tag to origin
 EOF
 }
@@ -146,6 +146,25 @@ is_valid_semver() {
   [[ "$1" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
 }
 
+refresh_lock_file() {
+  local new_version="$1"
+
+  if [[ "$DRY_RUN" == "true" ]]; then
+    log "would refresh Cargo.lock to $new_version"
+    return
+  fi
+
+  # `cargo update --workspace` re-locks only the workspace member, leaving every
+  # external dependency at its already-resolved version. `--offline` makes that
+  # guarantee enforceable rather than merely intended: without it a release
+  # could quietly pull a newer transitive dependency into the tagged lock.
+  #
+  # Deliberately not `cargo generate-lockfile` (re-resolves everything) and not
+  # `cargo metadata` (fails under --offline when a platform-specific dependency
+  # is absent from the local cache, despite being satisfied by the lock).
+  run_cmd cargo update --workspace --offline
+}
+
 update_cargo_version() {
   local new_version="$1"
   if [[ "$DRY_RUN" == "true" ]]; then
@@ -184,7 +203,10 @@ commit_and_tag() {
   local next="$1"
   local tag="v$next"
 
-  run_cmd git add Cargo.toml
+  # Both files, always. Staging only Cargo.toml leaves the lock recording the
+  # previous version at the tagged commit, so `--locked` builds of the tag fail
+  # and the drift gets cleaned up later by a stray lock commit.
+  run_cmd git add Cargo.toml Cargo.lock
   run_cmd git commit -m "chore(release): bump version to $tag"
   run_cmd git tag "$tag"
 }
@@ -243,6 +265,7 @@ main() {
 
   run_checks
   update_cargo_version "$next"
+  refresh_lock_file "$next"
   commit_and_tag "$next"
   push_release "$next"
 
