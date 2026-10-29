@@ -7,6 +7,8 @@ description: Enforce a complete workflow for every code change request: mandator
 
 This rule is mandatory for every request that changes code unless the user explicitly says to skip this workflow.
 
+Sync note: this rule must stay semantically identical across Claude rules, Copilot instructions, and Cursor rules; update all three files in the same change.
+
 ## Normative Language
 
 - MUST = mandatory rule.
@@ -21,6 +23,8 @@ Compatibility note: this file supersedes and merges the old `project-guidelines`
 Use this workflow whenever the request includes implementing, modifying, refactoring, fixing, removing, or generating code and configuration.
 
 Do not skip unless the user explicitly asks not to use this workflow.
+
+A subagent dispatched to execute a specific task is outside the orchestration preamble: it follows its brief, does not re-delegate to `workflow-orchestrator`, and does not re-classify the ceremony path. The dispatching session already made both decisions, and redoing them spends a fresh context on work that is already recorded.
 
 ## Architecture standards
 
@@ -48,21 +52,46 @@ Do not skip unless the user explicitly asks not to use this workflow.
 - Only drop below caveman maximum when auto-clarity is required for security warnings, irreversible actions, or obvious user confusion.
 - Resume caveman maximum after the clarity-critical message.
 
+## Ceremony classification
+
+Classify the request before planning. Say the classification out loud, so the user can override it before any artifact gets written. The predicate is what the change touches:
+
+- **Spike** — the request is a feasibility question and its output is explicitly throwaway. State the question and the intended probe in two or three sentences, get a nod, run it. Findings come back as a recommendation. Anything built stays labeled throwaway; keeping it is a new request that re-enters this classification.
+- **Bounded** — the request is a well-scoped change to an existing flow that is already understood. Present a short design in chat, get approval, implement. No spec file, no separate plan document.
+- **Architectural** — the request restructures components, introduces a subsystem, or changes a public interface. Full artifact set: written design, written plan, per-TODO written acceptance criteria, specialist fan-out.
+
+**The classification scales artifacts. It does not scale gates.** These run identically on all three paths:
+
+- Approval before any outward-facing action (see `acting-in-the-users-name`).
+- The testing TODO class.
+- The completion contract and its verification evidence.
+- The Documentation Completion Step.
+- The security review and the documentation review in Final Checkup.
+
+What scales is the artifact ceremony: how much of the TODO decomposition is written to a file rather than stated in chat, how wide the specialist fan-out goes, and whether acceptance criteria are written per TODO or stated once for the whole change. A spike or a bounded change carries the lighter artifact set and every gate above.
+
+This is a router, not an exemption. Absolute ceremony wording measured worse than no wording at all: the unconditional-ceremony text pushed a bounded task to the full artifact flow in 5 of 5 runs, while a three-path router differentiated correctly in 5 of 5. The measured waste was the unconditional artifact ritual, never the approval gate.
+
+**One-way ratchet.** Complexity discovered mid-task escalates the classification, and the escalation is said out loud. A classification never moves down mid-task.
+
+**When two paths both fit, take the heavier one.**
+
 ## Required sequence
 
-1. Plan first, then change code.
-2. If `workflow-orchestrator` is available under `/agents`, delegate high-level workflow coordination to it first.
-3. Evaluate the request against specialists available under `/agents`.
-4. Generate a TODO list assigning a specialist owner to each implementation TODO.
-5. Generate testing TODOs (unit/integration/e2e as applicable) with specialist ownership.
-6. Execute implementation and testing TODOs one at a time.
-7. Do not run `security-reviewer` or `documentation-specialist` after each implementation or testing TODO.
-8. Generate Final Checkup TODOs only after the implementation phase is complete, and treat security review and documentation review as last mandatory TODOs in that phase.
-9. Run reviewer subagents for the final checks.
-10. Apply reviewer-requested fixes.
-11. If final-checkup fixes change code or docs again, rerun one final-pass security review and documentation review before closing the workflow.
-12. Run the mandatory Documentation Completion Step as the final pre-commit gate.
-13. Create a final commit for final checkup and approvals.
+1. Plan first, then build. Building includes writing product code, scaffolding, installing dependencies, creating projects, and invoking an implementation skill. Reading and exploring are not building.
+2. Classify the request as spike, bounded, or architectural, and state the classification out loud.
+3. If `workflow-orchestrator` is available under `/agents`, delegate high-level workflow coordination to it first.
+4. Evaluate the request against specialists available under `/agents`.
+5. Generate a TODO list assigning a specialist owner to each implementation TODO.
+6. Generate testing TODOs (unit/integration/e2e as applicable) with specialist ownership.
+7. Execute implementation and testing TODOs one at a time.
+8. Do not run `security-reviewer` or `documentation-specialist` after each implementation or testing TODO.
+9. Generate Final Checkup TODOs only after the implementation phase is complete, and treat security review and documentation review as last mandatory TODOs in that phase.
+10. Run reviewer subagents for the final checks.
+11. Evaluate the reviewer findings, then apply the ones that hold.
+12. If final-checkup fixes change code or docs again, rerun one final-pass security review and documentation review before closing the workflow.
+13. Run the mandatory Documentation Completion Step as the final pre-commit gate.
+14. Create a final commit for final checkup and approvals.
 
 ## Conventions
 
@@ -104,6 +133,30 @@ Security review and documentation review are single-pass final-checkup TODOs:
 - Run `security-reviewer` once after the implementation phase is complete.
 - Run `documentation-specialist` once after the implementation phase is complete.
 - If final-checkup remediation introduces new changes, rerun both once more before closing.
+
+## Plan artifact requirements
+
+Every plan carries the four artifacts below — written to the plan file on the architectural path, stated in chat on the lighter paths.
+
+**A plan-level `## Global Constraints` block, under that exact heading.** The project-wide requirements, one line each, with exact values copied verbatim: version floors, dependency limits, naming and copy rules, platform requirements. The fixed heading is the point — it makes the block mechanically extractable, so every TODO brief can carry it without the coordinator remembering to paste it. A `go 1.26.1` version-floor violation shipped in a measured run because nobody pasted the constraint into a brief. Every TODO's requirements implicitly include this block.
+
+**A per-TODO `Interfaces:` line.** What the TODO consumes from earlier TODOs and what it produces that later ones rely on, with exact names, parameter types, and return types. An implementer sees only its own TODO, so this line is how it learns the names its neighbours use. Without it, measured implementers spent roughly 13 tool calls each re-discovering context the planner already held.
+
+**A `## Review Focus` section.** The input classes and failure modes the spec implies but no TODO's tests exercise — one line each, naming the input and the behavior a reasonable person expects, most likely to bite first. A spec is a vision document: it states what the software must do, not everything it will meet, and its silence about an input is not permission for that input to break the program. For each line, add the test that pins it to the TODO that owns that code. An empty section means the check ran and found nothing.
+
+**A plan self-review before execution starts.** Run it yourself against the spec; it is a checklist, not a subagent dispatch.
+
+1. Coverage: name a TODO for every requirement in the spec, and list the gaps.
+2. Interface consistency: names, signatures, and types that later TODOs consume match what earlier TODOs produce. `clearLayers()` in TODO 3 and `clearFullLayers()` in TODO 7 is a bug.
+3. Review Focus: every line there has its test assigned to an owning TODO.
+4. Proportion: a plan is the set of decisions the implementer cannot make alone. A plan longer than the code it describes has written the code instead.
+
+The proportion check has two failure directions, and both are defects:
+
+- **Lines that decide nothing**: "TBD", "handle edge cases", "add appropriate validation", "write tests for the above", a type or function no TODO defines.
+- **Lines that decide what the code already determines**: a function body the signature plus its tests already pin, transcribed into the plan.
+
+Fix both inline and continue; the self-review does not need a second pass.
 
 ## Mandatory code documentation gate
 
@@ -157,6 +210,26 @@ Final Checkup TODOs must include these documentation checks:
 - Verify no comment narrates change history, and that any found in touched code was deleted.
 - Verify docblock depth is proportional and free of hedging, self-reference, and type restatement.
 
+## Completion contract
+
+Before a TODO is marked complete, all of the following are true, with evidence produced in this session — not inferred from the diff looking right:
+
+- Every test the TODO names exists and ran in this session, and its output was read.
+- The final test run for the TODO passed, and its exact command and result are recorded.
+- Every expected-output line in the TODO was compared against real output.
+- Every deviation from the TODO carries a `Ruling:` line — what was decided, why, and what it costs if wrong.
+
+What counts as evidence:
+
+| Claim | Evidence required | Not evidence |
+|---|---|---|
+| Tests pass | The test command's own output, zero failures | An earlier run, "should pass" |
+| Build succeeds | The build command, exit 0 | Linter clean, logs look fine |
+| Bug fixed | The original symptom retested | Code changed, failure assumed gone |
+| Delegated work landed | A VCS diff showing the changes | An agent reporting success |
+
+**Verify the project's suite, not only the files touched.** A scope statement in a TODO bounds the deliverable, not the verification. Run the repo's own test command even when the TODO named a single file. Any failure that run shows — including one this change did not cause — goes in the report by name. A red test watched scrolling past and left unmentioned is a report falsified by omission.
+
 ## Atomic commit requirements
 
 After each completed TODO:
@@ -169,11 +242,25 @@ Do not batch multiple TODOs into one commit.
 
 ## Reviewer execution requirements
 
+Reviewers are advisory. Their findings are evaluated against this codebase, not merely obeyed: a finding that breaks existing behavior, misreads the surrounding context, or asks for an unused feature gets reasoned pushback instead of a fix. Load `receiving-code-review` before acting on review output.
+
 When running reviewer subagents for Final Checkup TODOs:
 
-- Reviewer subagents must provide actionable remediation.
-- Reviewer subagents are responsible for performing or returning exact changes needed to resolve their findings in the same pass.
-- Do not close the TODO until requested fixes are applied and verified.
+- Reviewer subagents must provide actionable remediation: the exact changes needed to resolve each finding, in the same pass.
+- A fix round is one fix dispatch plus one re-review scoped to the open findings. **Five rounds maximum.**
+- **One omnibus fixer per findings batch**, carrying the complete findings list. Never one fixer per finding: per-finding fixers each rebuild context and re-run the suite, and one measured final-review fix wave cost more than every task in its plan combined.
+- Re-reviews are scoped. The re-reviewer rules each open finding addressed or not addressed and flags new breakage inside the fix diff only. Out-of-scope observations are recorded as deferred minors and never extend the loop.
+- Per-TODO review, where it runs at all, is scoped to that TODO's diff.
+- Minor findings never enter the loop. Record them as deferred and hand them to the user.
+- Do not close the TODO while an open Critical or Important finding is neither fixed nor parked with a recorded ruling.
+
+Escalate to the user instead of running another round when any of these is observable:
+
+- The five-round cap is reached with findings still open.
+- The same issue has been disputed three times.
+- Two reviewer outputs came back malformed — missing the status or findings fields their template requires.
+
+At escalation every open finding carries a `Ruling:` — whether the code stands, why, and what it costs if wrong — and the user decides.
 
 ## Skill link topology
 
@@ -211,8 +298,23 @@ Agent MUST include:
 - What checks ran and outcomes.
 - Any skipped checks with reason.
 - Files changed for final-checkup remediation.
+- The ceremony classification taken, and any mid-task escalation of it.
+- Every judgment call taken on the user's behalf, as a `Ruling:` line: what was decided, why, and what it costs if wrong. That list is the only place the decisions taken on their behalf reach them.
 
 Claims without this evidence are non-compliant.
+
+## Red Flags
+
+| Thought | Reality |
+|---|---|
+| "I'll call it bounded to skip the documentation step" | The classification sets artifact weight, never gate applicability. Every gate runs on every path. |
+| "It's a spike, so the testing TODO is optional" | A spike scales the artifact set, not the testing TODO class. Label the output throwaway and still test it. |
+| "I'm only scaffolding and installing dependencies first" | That is building. The plan-first gate closed before the first install. |
+| "It turned out bigger than I thought, but I'll finish on the bounded path" | The ratchet only turns up. Escalate the classification and say so. |
+| "The agent reported success" | A report is not evidence. Read the VCS diff. |
+| "The reviewer is wrong, so I'll drop the finding" | Push back with technical reasoning and record the ruling. A silent discard is not pushback. |
+| "I'll give each finding its own fixer" | One omnibus fixer per batch. Per-finding fixers re-pay context and suite cost every time. |
+| "The suite failure is pre-existing, so it isn't mine to report" | A scope statement bounds the deliverable, not the verification. Name the failure. |
 
 ## Quick Compliance Checklist
 
@@ -235,14 +337,22 @@ Use this copy-paste closure template directly:
   - [ ] Comments describe the code as it now stands — no provenance, removed behavior, dated claims, or supersession notices.
   - [ ] No padding: depth matches visibility; required tags present with substantive descriptions.
   - [ ] History narration found in touched comments was deleted, not extended.
+- Ceremony Classification
+  - [ ] Classification stated out loud: spike, bounded, or architectural.
+  - [ ] Every gate ran, whichever path was taken.
+  - [ ] Any mid-task reclassification went up, and was stated.
 - Code Change Workflow
   - [ ] Implementation TODOs complete.
   - [ ] Testing TODOs complete.
   - [ ] Final Checkup TODOs complete.
   - [ ] Security and documentation reviews executed in final checkup.
   - [ ] Documentation Completion Step passed.
+  - [ ] Completion contract satisfied per TODO, with in-session evidence.
+  - [ ] Reviewer loop closed within five rounds, or escalated with rulings.
 - Evidence Summary
   - Files changed:
   - Checks run and outcomes:
   - Skipped checks and reason:
+  - Ceremony classification and any escalation:
+  - Rulings taken on the user's behalf, each with cost if wrong:
   - Remaining risk (if any):

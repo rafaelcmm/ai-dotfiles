@@ -15,6 +15,8 @@ Cross-tool operating contract for AI coding assistants.
 3. Small reversible edits over wide refactors.
 4. Clear outcome evidence before completion.
 
+Where skills sit: user instructions — this file, `CLAUDE.md`, and direct requests in the conversation — take precedence over skills. Skills take precedence over default behavior. A skill that conflicts with a user instruction loses, and the conflict is named out loud rather than resolved silently.
+
 ## Rule Router
 
 - Code change request: load workflow, fence, commenting, objective-files guidance.
