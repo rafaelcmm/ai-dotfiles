@@ -27,6 +27,124 @@ IDEs, and doc generators. Use `#` comments to explain implementation decisions.
 
 ---
 
+## Scope and restraint
+
+Canonical policy: `commenting-standards`. This section applies it to docstrings.
+
+### Coverage is absolute, length is proportional
+
+Every public module, class, function and method keeps its docstring — PEP 257
+and the Core rules above are not relaxed. What scales is depth, never presence.
+Depth is owed in proportion to visibility, subtlety, and how far a mistake
+travels.
+
+**A one-line docstring is a complete docstring** when the signature and type
+hints already carry the contract. PEP 257 endorses this explicitly, and the type
+hints do real work here: annotated parameters need no `Args:` entry restating
+their type.
+
+```python
+def is_expired(token: Token) -> bool:
+    """Return True if the token's expiry has passed."""
+```
+
+That is finished documentation, not a stub. Expanding it to a four-section
+Google-style block with `Args:`, `Returns:` and `Examples:` would add lines and
+no facts. Padding is a defect, not thoroughness.
+
+### Structured sections stay
+
+The chosen style's sections are the contract: `Args:` / `Returns:` / `Raises:`
+in Google style, `Parameters` / `Returns` / `Raises` in NumPy, and `:param:` /
+`:returns:` / `:raises:` in Sphinx. Sphinx, Napoleon, `help()` and every IDE
+consume them.
+
+Brevity applies to a section's **content**, never to its **presence**. Once a
+docstring needs sections at all, omitting `Raises:` from a function that raises
+removes a fact a caller needs. Make each entry carry what the annotation cannot —
+units, valid ranges, edge values, what an empty return means.
+
+```diff
+-Args:
+-    timeout: The timeout.
+-Returns:
+-    A dict.
++Args:
++    timeout: Seconds to wait per attempt. Must be positive; 0 raises.
++Returns:
++    Decoded JSON body. An empty body yields ``{}``, not ``None``.
+```
+
+### Document the present
+
+A docstring states what the object does now; it is not a change log. `git log`,
+`git blame` and the pull request own history and keep it accurate for free. Never
+write provenance (`Extracted from utils.py when...`), removed behaviour (`This
+used to use a list`), dated claims, supersession notices, or ticket archaeology.
+Such a comment goes wrong at the next edit, and it is the one kind of staleness a
+reader cannot detect, because nothing in the file contradicts it.
+
+The `TODO`/`FIXME` conventions documented later in this skill are the sanctioned
+exceptions, and they work precisely because each is a present, actionable fact
+rather than a record of the past: a `TODO` with a ticket reference, a `HACK` or
+`FIXME` naming the upstream cause and the condition that retires it, a
+`DEPRECATED` marker naming the replacement, and an invariant with its expiry
+trigger. Keep those in `#` comments; keep narrative history out of both.
+
+### Assertive voice and the stop rule
+
+PEP 257 asks for the imperative mood — `"""Return the slug."""`, not
+`"""Returns the slug."""` or `"""This function will return the slug."""`. Cut
+hedges (`basically`, `it is important to note`) and self-reference. A docstring
+is finished when a competent caller can use the object correctly without reading
+its body; implementation reasoning goes in a `#` comment at the line it
+explains, and history goes nowhere.
+
+### Before and after
+
+```python
+def connect(dsn: str, timeout: float = 5.0) -> Connection:
+    """This function is basically a helper which is used in order to open a
+    database connection.
+
+    It is important to note that it returns a Connection. Originally this was
+    in db/legacy.py; it was moved here during the 2026 Q3 refactor, and
+    previously the timeout defaulted to 30 seconds.
+
+    Args:
+        dsn: The dsn, which is a string.
+        timeout: The timeout, which is a float.
+
+    Returns:
+        A Connection object.
+    """
+```
+
+```python
+def connect(dsn: str, timeout: float = 5.0) -> Connection:
+    """Open a pooled database connection.
+
+    Args:
+        dsn: Standard connection URI. Credentials in it are never logged.
+        timeout: Seconds to wait per attempt, not for the whole call. Retries
+            are not performed here; the caller owns the retry policy.
+
+    Returns:
+        A connection checked out from the shared pool. The caller must close
+        it, or use it as a context manager, or the pool leaks a slot.
+
+    Raises:
+        TimeoutError: If no connection becomes available within ``timeout``.
+        ValueError: If ``dsn`` is malformed.
+    """
+```
+
+Shorter because the padding left, not because information did. Every section
+survived, `Raises:` appeared because the function raises, and the caller now
+knows about the pool-slot obligation.
+
+---
+
 ## Docstring Styles
 
 Python has four mainstream docstring styles. **Pick one and use it consistently project-wide.**

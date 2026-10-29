@@ -24,6 +24,106 @@ restating what the compiler already enforces — document *why* and *how to use 
 
 ---
 
+## Scope and restraint
+
+Canonical policy: `commenting-standards`. This section applies it to TSDoc.
+
+### Coverage is absolute, length is proportional
+
+Every exported symbol keeps its TSDoc comment — the Core rule above is not
+relaxed. What scales is depth, never presence. A self-evident signature is fully
+documented by one assertive sentence; depth is owed in proportion to visibility,
+subtlety, and how far a mistake travels. A public API whose misuse corrupts data
+owes the full contract plus the specific way callers get it wrong.
+
+Padding is a defect, not thoroughness. A `@remarks` block restating the summary,
+or a twelve-line docblock on a two-line type guard, buries the line that mattered.
+
+### TSDoc tags are required, and economy never removes one
+
+`@param`, `@returns`, `@throws`, `@remarks`, `@example`, `@defaultValue`,
+`@deprecated` and `@typeParam` are part of the contract. VS Code hovers, `tsc`,
+TypeDoc, API Extractor and every generated reference consume them. They are
+**required on exported symbols**.
+
+Brevity applies to a tag's **description**, never to its **presence**. Dropping a
+tag to shorten a docblock removes a machine-readable fact and is a defect.
+
+This reconciles with the Philosophy's "leverage types to avoid restating them":
+TSDoc omits types by design, so a `@param` description must not repeat the
+TypeScript annotation. It carries what the type cannot express — units, valid
+ranges, edge values, ownership, what an empty value means. The tag appears; the
+type does not.
+
+```diff
+-@param amount - The amount, as a number.
+-@returns A number.
++@param amount - Major currency units. Fractional values are rounded, not truncated.
++@returns Integer micros, as the API requires.
+```
+
+### Document the present
+
+A TSDoc comment states what the symbol does now; it is not a change log. `git
+log`, `git blame` and the pull request own history, keep it accurate for free,
+and attribute it. Never write provenance (`Extracted from UserService when...`),
+removed behaviour (`This used to batch requests`), dated claims (`Until
+2026-09-17 the opposite applied`), supersession notices, or plan archaeology.
+Such a comment goes wrong at the next edit, and it is the one kind of staleness a
+reader cannot detect, because nothing in the file contradicts it.
+
+Four things legitimately carry time or context, each being present and actionable:
+a `TODO`/`FIXME` with a tracking reference; a workaround with its upstream issue
+and the condition that retires it; `@deprecated` naming the replacement, which is
+TSDoc's own mechanism for exactly this; and an invariant with its expiry trigger.
+
+### Assertive voice and the stop rule
+
+Lead with one declarative sentence; present tense, active voice, indicative mood.
+Cut hedges (`basically`, `it is important to note`) and self-reference (`This
+function...` says nothing a reader cannot see).
+
+A docblock is finished when a competent caller can use the symbol correctly
+without reading its body. Implementation reasoning belongs in an inline comment
+at the line it explains, design rationale in a design doc or ADR, history nowhere.
+
+### Before and after
+
+```ts
+/**
+ * This function is basically a utility which is used in order to parse a
+ * duration string into milliseconds.
+ *
+ * @remarks
+ * It is important to note that it returns a number. Originally this lived in
+ * `http-client.ts`, but it was extracted during the Q3 refactor when the retry
+ * logic needed it too. Previously it did not accept the `h` unit.
+ *
+ * @param input - The input, which is a string.
+ * @returns A number, which is the milliseconds.
+ */
+export function parseDurationMs(input: string): number;
+```
+
+```ts
+/**
+ * Parses a duration string such as `"30s"` or `"5m"` into milliseconds.
+ *
+ * @param input - A positive integer followed by `ms`, `s`, `m` or `h`.
+ *   Whitespace is not tolerated.
+ * @returns Whole milliseconds, rounded up — a sub-millisecond duration becomes
+ *   `1` rather than `0`, so a caller cannot build a zero-delay retry loop.
+ * @throws {RangeError} If the unit is unrecognized or the value is not a
+ *   positive integer.
+ */
+export function parseDurationMs(input: string): number;
+```
+
+Shorter because the padding left, not because information did. Every tag
+survived; `@returns` gained the fact a caller actually needs.
+
+---
+
 ## TSDoc vs JSDoc in TypeScript
 
 TypeScript natively understands **TSDoc** — a standardized superset of JSDoc designed

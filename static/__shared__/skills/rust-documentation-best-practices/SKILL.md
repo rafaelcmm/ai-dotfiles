@@ -29,6 +29,103 @@ this makes documentation executable and always up-to-date.
 
 ---
 
+## Scope and restraint
+
+Canonical policy: `commenting-standards`. This section applies it to rustdoc.
+
+### Coverage is absolute, length is proportional
+
+Every `pub` item keeps its doc comment, and `#![warn(missing_docs)]` stays on —
+the Core rules above are not relaxed. What scales is depth, never presence.
+Depth is owed in proportion to visibility, subtlety, and how far a mistake
+travels.
+
+A self-evident signature is fully documented by one assertive sentence:
+
+```rust
+/// Returns the number of queued jobs.
+pub fn len(&self) -> usize
+```
+
+That is finished documentation. Rust's types carry a great deal — `Result`,
+`Option`, ownership and lifetimes are all visible in the signature — so prose
+that restates them is pure padding, and padding is a defect.
+
+### Contract sections stay; `# Examples` is proportional
+
+`# Safety` is **mandatory for every `unsafe` fn** — never omit or shorten it away.
+`# Panics` and `# Errors` are mandatory wherever the item can panic or return
+`Err`. These are contract, not illustration, and a caller cannot recover the
+information from anywhere else. Brevity applies to their content, never to their
+presence.
+
+`# Examples` is different in kind. It is required for primary entry points and
+for any item whose correct use is not obvious from the signature alone. A doctest
+that only restates an obvious call adds a compiled, maintained artifact and no
+information — the summary line already carried that fact. Prefer one example that
+shows a real decision (an error path, a non-obvious combination, a lifetime that
+needs explaining) over three that show the signature again.
+
+### Document the present
+
+A doc comment states what the item does now; it is not a change log. `git log`,
+`git blame` and the pull request own history and keep it accurate for free. Never
+write provenance (`Extracted from the client module when...`), removed behaviour
+(`This used to take a &str`), dated claims, supersession notices, or ticket
+archaeology. Such a comment goes wrong at the next edit, and it is the one kind
+of staleness a reader cannot detect, because nothing in the crate contradicts it.
+
+Legitimately time-bearing, because each is present and actionable: a
+`TODO`/`FIXME` with a tracking reference; a workaround with its upstream issue
+and the condition that retires it; `#[deprecated(note = "use X instead")]`, which
+is the language's own mechanism; and an invariant with its expiry trigger.
+
+### Assertive voice and the stop rule
+
+Lead with one declarative sentence in the third person indicative — `Parses a
+duration`, not `This function will parse`. Cut hedges and self-reference. A doc
+comment is finished when a competent caller can use the item correctly without
+reading its body; implementation reasoning goes in a `//` comment at the line it
+explains, and history goes nowhere.
+
+### Before and after
+
+```rust
+/// This function is basically a helper which is used in order to parse a port.
+///
+/// It is important to note that it returns a Result. Originally it lived in
+/// `config::legacy`, but it moved here during the Q3 refactor, and previously
+/// it accepted port 0.
+///
+/// # Examples
+///
+/// ```
+/// let p = mylib::parse_port("8080").unwrap();
+/// assert_eq!(p, 8080);
+/// ```
+pub fn parse_port(s: &str) -> Result<u16, ParseError>
+```
+
+```rust
+/// Parses a TCP port, rejecting `0`.
+///
+/// Port 0 asks the OS to assign an arbitrary free port. That is valid in a
+/// `bind` call but never valid in configuration, where it silently produces a
+/// service reachable on an address nobody can predict.
+///
+/// # Errors
+///
+/// Returns [`ParseError::NotANumber`] for non-numeric input,
+/// [`ParseError::OutOfRange`] above `65535`, and [`ParseError::Reserved`] for `0`.
+pub fn parse_port(s: &str) -> Result<u16, ParseError>
+```
+
+Shorter because the padding left, not because information did. The obvious
+doctest went; `# Errors` arrived, because a `Result` in the signature tells a
+caller that it can fail but not how.
+
+---
+
 ## Comment Types
 
 ### `///` — Outer Doc Comments (document the item that follows)
@@ -106,7 +203,14 @@ pub mod error;
 rustdoc recognizes these heading names and renders them prominently.
 Always use them in this order when applicable:
 
-### `# Examples` — Mandatory for all public items
+### `# Examples` — Required where usage is not obvious
+
+Required for primary entry points, and for any item whose correct use is not
+obvious from the signature alone. A doctest that only restates an obvious call is
+a compiled, maintained artifact carrying no information the summary line did not
+already give — prefer one example that shows a real decision over three that show
+the signature again. `# Safety`, `# Panics` and `# Errors` are contract rather
+than illustration and are never optional on the items that need them.
 
 Code examples are compiled and executed as tests. Write them as real, runnable code:
 

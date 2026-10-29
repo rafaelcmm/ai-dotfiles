@@ -22,6 +22,98 @@ Internal helpers need at minimum a one-line description. Inline comments explain
 
 ---
 
+## Scope and restraint
+
+Canonical policy: `commenting-standards`. This section applies it to JSDoc.
+
+### Coverage is absolute, length is proportional
+
+Every exported function, class, method, constant and typedef keeps its JSDoc
+block — the Core rule above is not relaxed. What scales is depth, never presence.
+A self-evident signature is fully documented by one assertive sentence; depth is
+owed in proportion to visibility, subtlety, and how far a mistake travels.
+
+Padding is a defect, not thoroughness. A twelve-line block on a two-line pure
+function buries the line that mattered.
+
+### JSDoc tags are required, and economy never removes one
+
+JavaScript has no type system behind the comment, so `@param {Type}` and
+`@returns {Type}` are the only machine-readable type information that exists.
+They — along with `@throws`, `@example`, `@typedef`, `@deprecated` and
+`@default` — are **required on exported symbols**, and editors, `tsc --checkJs`
+and JSDoc-based generators all consume them.
+
+Brevity applies to a tag's **description**, never to its **presence**. Dropping a
+tag to shorten a block removes a fact tooling depends on and is a defect. Keep
+the braces type; make the description carry what the type cannot — units, valid
+ranges, edge values, what an empty result means.
+
+```diff
+-@param {number} rate - The rate.
+-@returns {number} A number.
++@param {number} rate - Annual rate as a decimal in [0, 1]; 0.05 is 5%.
++@returns {number} Total after compounding, rounded to the cent.
+```
+
+Do not duplicate a tag's content in the summary prose. If `@param rate` already
+states the unit, a `Note: rate should be a decimal` line above it is redundant.
+
+### Document the present
+
+A JSDoc block states what the symbol does now; it is not a change log. `git log`,
+`git blame` and the pull request own history and keep it accurate for free. Never
+write provenance (`Extracted from utils.js when...`), removed behaviour (`This
+used to use indexOf`), dated claims, supersession notices, or ticket archaeology.
+Such a comment goes wrong at the next edit, and it is the one kind of staleness a
+reader cannot detect, because nothing in the file contradicts it.
+
+Legitimately time-bearing, because each is present and actionable: a
+`TODO`/`FIXME` with a tracking reference; a workaround with its upstream issue
+and the condition that retires it; `@deprecated` naming the replacement; and an
+invariant with its expiry trigger.
+
+### Assertive voice and the stop rule
+
+Lead with one declarative sentence; present tense, active voice, indicative mood.
+Cut hedges (`basically`, `it is important to note`) and self-reference (`This
+function...`). A block is finished when a competent caller can use the symbol
+correctly without reading its body — implementation reasoning goes in an inline
+comment at the line it explains, and history goes nowhere.
+
+### Before and after
+
+```js
+/**
+ * This function is basically used in order to slugify a string.
+ *
+ * Note: it returns a string. It was extracted from helpers.js during the
+ * 2026 cleanup, and previously it did not strip accents.
+ *
+ * @param {string} input - The input string.
+ * @returns {string} A string.
+ */
+export function slugify(input) { ... }
+```
+
+```js
+/**
+ * Converts a title into a URL-safe slug.
+ *
+ * @param {string} input - Any text. Accents are folded to ASCII and runs of
+ *   non-alphanumerics collapse to a single hyphen.
+ * @returns {string} Lowercase slug with no leading or trailing hyphen. An
+ *   input with no alphanumeric characters yields an empty string, which
+ *   callers must handle rather than route to.
+ */
+export function slugify(input) { ... }
+```
+
+Shorter because the padding left, not because information did. Both tags
+survived; `@returns` gained the edge case a caller must handle.
+
+---
+
 ## Comment Types and When to Use Each
 
 ### 1. JSDoc Blocks (`/** ... */`) — For All Exported & Public Symbols
@@ -34,7 +126,6 @@ Must be placed **immediately before** the declaration — no blank line between 
  * Calculates the compound interest for a principal amount.
  *
  * Uses the standard formula: A = P(1 + r/n)^(nt)
- * Note: rate should be expressed as a decimal (e.g., 0.05 for 5%).
  *
  * @param {number} principal - The initial investment amount in USD.
  * @param {number} rate - Annual interest rate as a decimal (0–1).

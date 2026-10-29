@@ -27,6 +27,84 @@ comments read naturally as prose *even without* godoc rendering them.
 
 ---
 
+## Scope and restraint
+
+Canonical policy: `commenting-standards`. This section applies it to godoc.
+
+### Coverage is absolute, length is proportional
+
+Every exported identifier keeps its doc comment — the Core rules above are not
+relaxed, and the comment still begins with the identifier's name and reads as a
+complete sentence. What scales is depth, never presence. Depth is owed in
+proportion to visibility, subtlety, and how far a mistake travels.
+
+The rule stated below for packages — *for simple packages, one line is fine* — is
+the right instinct and **generalizes to every exported identifier**. One
+assertive sentence is a complete doc comment whenever the name and signature
+already carry the contract:
+
+```go
+// Len returns the number of queued jobs.
+func (q *Queue) Len() int
+```
+
+That is finished documentation, not a stub. Go's doc culture is deliberately
+plain; a paragraph where a sentence suffices is padding, and padding is a defect.
+Depth is for the identifier whose misuse is costly — concurrency obligations,
+ownership of a returned value, what a nil or zero result means, which errors a
+caller must distinguish.
+
+### Document the present
+
+A doc comment states what the identifier does now; it is not a change log. `git
+log`, `git blame` and the pull request own history and keep it accurate for free.
+Never write provenance (`Extracted from client.go when...`), removed behaviour
+(`This used to take a string`), dated claims, supersession notices, or ticket
+archaeology. Such a comment goes wrong at the next edit, and it is the one kind
+of staleness a reader cannot detect, because nothing in the package contradicts
+it.
+
+Legitimately time-bearing, because each is present and actionable: a
+`TODO(name)` with a tracking reference; a workaround naming its upstream issue
+and the condition that retires it; the `// Deprecated:` paragraph godoc
+recognizes, naming the replacement; and an invariant with its expiry trigger.
+
+### Assertive voice and the stop rule
+
+Lead with the identifier name and one declarative sentence in the present tense
+indicative — `Parse reads...`, not `Parse will basically read...`. Cut hedges and
+self-reference. A doc comment is finished when a competent caller can use the
+identifier correctly without reading its body; implementation reasoning goes in a
+`//` comment inside the body at the line it explains, and history goes nowhere.
+
+### Before and after
+
+```go
+// ParsePort is basically a helper function which is used in order to parse a
+// port number from a string. It is important to note that it returns an error
+// as its second value. This function was originally in config/legacy.go but
+// was moved here during the Q3 refactor, and previously it accepted port 0.
+func ParsePort(s string) (uint16, error)
+```
+
+```go
+// ParsePort parses a TCP port from s, rejecting 0.
+//
+// Port 0 asks the OS for an arbitrary free port. That is valid when binding a
+// listener but never valid in configuration, where it silently yields a service
+// on an address nobody can predict.
+//
+// The returned error wraps ErrReservedPort for 0 and ErrPortRange above 65535,
+// so callers can distinguish a typo from a deliberate 0.
+func ParsePort(s string) (uint16, error)
+```
+
+Shorter because the padding left, not because information did. The caller gained
+the two facts the signature could not express: why 0 is refused, and which errors
+are distinguishable.
+
+---
+
 ## Comment Types
 
 ### Doc Comments — `//` preceding declarations
