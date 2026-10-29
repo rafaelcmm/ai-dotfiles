@@ -6,6 +6,8 @@ description: "Load when writing, reviewing, or modifying any code in any languag
 
 This instruction is mandatory whenever writing, reviewing, or modifying code.
 
+Sync note: this rule must stay semantically identical across Claude rules, Copilot instructions, and Cursor rules; update all three files in the same change.
+
 ## Normative Language
 
 - MUST = mandatory rule.
@@ -34,14 +36,25 @@ Every class, module, function, method, getter, setter, and public property must 
 docblock. A docblock documents the **contract** — what the construct guarantees,
 requires, and communicates.
 
+Coverage is absolute. Depth is proportional: a self-evident signature is fully
+documented by one assertive sentence, while a public API whose misuse is costly owes the
+full contract. Agent MUST NOT pad a docblock to look thorough.
+
 A compliant docblock:
 
-- States the construct's role in the broader system (not just what it does)
+- Opens with one declarative sentence stating what the construct does or guarantees
 - Documents parameters with their semantic meaning, constraints, and edge cases —
   never just their type
 - States behavioral guarantees callers can rely on
 - States failure modes — how errors, nulls, or empty states are communicated
-- Notes concurrency, ordering, or lifecycle constraints when relevant
+- Notes concurrency, ordering, or lifecycle constraints **when they exist**
+- States the construct's role in the broader system **when that role is not local**
+- Describes the code as it is now, with no account of how it came to be
+
+Where a language convention expects structured tags or sections — TSDoc/JSDoc `@param`,
+`@returns`, `@throws`; Python `Args:`/`Returns:`/`Raises:`; rustdoc `# Errors`/`# Panics`
+— those tags MUST be present. Economy applies to a tag's description, never to its
+presence: dropping a tag to shorten a docblock removes a machine-readable fact.
 
 ### Inline comments
 
@@ -63,6 +76,34 @@ A compliant inline comment:
 - Undocumented public properties or fields
 - Methods with no docblock, regardless of perceived obviousness
 
+### Change history in comments
+
+In-code documentation MUST NOT be used as a change log. Version control owns history,
+keeps it accurate for free, and attributes it. A comment narrating change goes wrong at
+the next edit and is the one kind of staleness a reader cannot detect, because nothing in
+the file contradicts it.
+
+Prohibited:
+
+- Provenance: `Extracted from UserService when billing needed it too`
+- Removed behavior: `This used to batch requests, but that resolver is gone`
+- Dated claims: `Until 2026-09-17 the opposite applied here`
+- Supersession notices: `SUPERSEDED by rebalance.mjs on 2026-09-17`
+- Plan or ticket archaeology: `Renamed from parseInput; see plan 054 phase 3`
+- Appending a paragraph that describes what the current change did
+
+Permitted, because each is a present and actionable fact:
+
+- `TODO`/`FIXME` with a tracking reference
+- A workaround with its upstream issue and the condition that retires it
+- A deprecation marker naming the replacement
+- An invariant with its expiry trigger
+- A measured value with the method needed to re-derive it
+
+When editing already-documented code, agent MUST delete history narration found in the
+comments it touches rather than preserving or extending it, and MUST rewrite a stale
+claim rather than appending a correction beside it.
+
 ## Enforcement
 
 - Every new or modified construct must pass both checklists from the
@@ -77,8 +118,17 @@ Before final output, agent MUST verify:
 1. Coverage gate: every changed public symbol has a docblock.
 2. Contract gate: docblocks include intent, behavioral guarantees, and failure modes.
 3. Quality gate: inline comments explain non-obvious why/invariants, not syntax narration.
+4. Currency gate: every comment describes the code as it now stands. No provenance, no
+   removed behavior, no dated claims, no supersession notices, no plan archaeology. Any
+   comment contradicted by the code is treated as a bug and fixed in the same change.
+5. Economy gate: every line earns its place. No hedging, no self-reference
+   ("This function..."), no restatement of a type, no inapplicable checklist item
+   answered for completeness. Depth matches the construct's visibility and blast radius.
 
 If any gate fails, agent MUST fix documentation before considering task done.
+
+Gates 4 and 5 are not stylistic preferences. A padded docblock buries the line that
+mattered, and a historical one is a claim that will become false without warning.
 
 ## Exception Policy
 
@@ -98,6 +148,7 @@ Agent MUST report:
 
 - Which files received doc updates.
 - Which symbols were documented.
+- Any history narration or stale claims deleted.
 - Any approved exception record.
 
 Claims without this evidence are non-compliant.
