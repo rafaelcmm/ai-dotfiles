@@ -154,6 +154,7 @@ VS Code MCP merge policy keeps existing user `servers` entries when names collid
 - Self-update is fail-open: network or install errors do not block config synchronization.
 - Release checksum lists are verified for expected asset presence before self-update install.
 - External cache state remains separate from installed ownership state.
+- The shipped `guard-paths.sh` hook refuses agent writes outside the current repository, with one exemption: Markdown files directly inside `~/.claude/projects/<project-slug>/memory/`, where Claude Code keeps per-project memory. Paths are resolved before matching, so `..` and symlinks cannot widen it.
 
 ## Development and validation
 

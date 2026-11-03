@@ -11,4 +11,6 @@ pub use constants::Command;
 pub use operations::run;
 
 #[cfg(test)]
+mod guard_paths_tests;
+#[cfg(test)]
 mod tests;

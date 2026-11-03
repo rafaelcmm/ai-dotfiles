@@ -30,6 +30,20 @@ FILE="$(
 # `realpath -m` tolerates non-existent files (new writes).
 ABS="$(realpath -m "$FILE" 2>/dev/null || printf '%s' "$FILE")"
 
+# Claude Code keeps per-project memory outside every repository by design, so the
+# repo-root check below would block every memory write made from inside a repo.
+# Allow exactly one shape: a Markdown file directly inside
+# ~/.claude/projects/<project-slug>/memory/. ABS is already resolved, so `..` and
+# symlinks cannot reach anything else through this branch.
+# The root is resolved the same way as ABS, so a symlinked HOME (macOS /var) still matches.
+MEMORY_ROOT="$(realpath -m "${HOME:-/nonexistent}/.claude/projects" 2>/dev/null)/"
+if [ -n "${HOME:-}" ] && [[ "$ABS" == "$MEMORY_ROOT"* ]]; then
+  MEMORY_REL="${ABS#"$MEMORY_ROOT"}"
+  if [[ "$MEMORY_REL" =~ ^[^/]+/memory/[^/]+\.md$ ]]; then
+    exit 0
+  fi
+fi
+
 # If we're in a git repo, refuse writes outside it. This catches the
 # occasional agent that decides to edit your ~/.zshrc.
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || true)"
