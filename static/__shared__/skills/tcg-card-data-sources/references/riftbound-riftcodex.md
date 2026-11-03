@@ -1,6 +1,6 @@
 # Riftcodex — Riftbound (League of Legends TCG)
 
-**Last verified 2026-11-02** by fetching all 1451 cards and all 8 sets and counting. Every
+**Last verified 2026-11-03** by fetching all 1451 cards and all 8 sets and counting. Every
 number below is that measurement, not a contract the operators owe you.
 
 Docs: <https://riftcodex.com/docs/> — endpoint pages under `/docs/endpoints/cards/` and
@@ -138,6 +138,15 @@ All 14 top-level fields were present on all 1451 cards:
 Measured nullability: `classification.supertype` is null on 952 cards, `text.flavour` on 682,
 every `attributes` member is `number | null`, and `text.rich` is empty on 20 cards. `media.artist`
 was populated on all 1451. `tags` is `[]` on 399 cards and holds up to 4 entries.
+
+`text.flavour` is not markup-free, although nothing documents it as HTML. Measured 2026-11-03:
+five records, three distinct strings, each carrying a differently-cut `<em>` — `…walks
+away."</e>` (`sfd-113-221`, `sfd-113a-221`), `…Common last words</em` at the very end
+(`unl-124-219`), and `<em?"I will light…` with `?` where the `>` belongs (`ven-068-166`,
+`ven-068a-166`). A stripper that only matches a closed `<…>` misses two of the three; strip by
+how a tag *opens* (`<` then a letter, `/` or `!`) and stop at the end of the element name when
+no `>` follows, so the prose after the fragment survives. Re-measure with the full sweep below
+plus `re.search(r'<[A-Za-z/!]', text['flavour'])` over the result.
 
 Despite 100% top-level presence, narrow defensively. The API is a declared work in progress,
 and the right posture is: **drop a card that is missing something unrenderable** (`id`,

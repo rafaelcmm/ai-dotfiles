@@ -46,7 +46,7 @@ feature that arrived for free.
 |---|---|---|---|
 | `api.tcgdex.net` / `assets.tcgdex.net` | Pokémon | 2026-11-02 | `node scripts/probe-json-source.mjs https://api.tcgdex.net/v2/en/cards/swsh3-136` |
 | `lorcanajson.org` | Disney Lorcana | 2026-11-02 | `node scripts/probe-json-source.mjs https://lorcanajson.org/files/current/en/metadata.json` |
-| `api.riftcodex.com` | Riftbound (LoL) | 2026-11-02 | `node scripts/probe-json-source.mjs https://api.riftcodex.com/sets?size=3` |
+| `api.riftcodex.com` | Riftbound (LoL) | 2026-11-03 | `node scripts/probe-json-source.mjs https://api.riftcodex.com/sets?size=3` |
 | `api.scryfall.com` | Magic | 2026-11-02 | `node scripts/probe-json-source.mjs https://api.scryfall.com/bulk-data` |
 | `db.ygoprodeck.com` | Yu-Gi-Oh | 2026-11-02 | `node scripts/probe-json-source.mjs "https://db.ygoprodeck.com/api/v7/cardinfo.php?name=Dark%20Magician"` |
 | `tcgcsv.com` | prices, 94 categories | 2026-11-02 | `node scripts/probe-json-source.mjs https://tcgcsv.com/tcgplayer/categories` |
