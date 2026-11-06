@@ -956,3 +956,234 @@ path = "skills/google-ads/shopping-ads"
 platforms = ["all"]
 enabled = true
 checksum = "5e495d5efda1c72481958e9b65cd8b8b2d4ec73f1f423a0e14346865d2ef8b27"
+# -----------------------------------------------------------------------------
+# Repository zone: Flutter agent-plugins (BSD-3-Clause)
+# Repo: https://github.com/flutter/agent-plugins
+# -----------------------------------------------------------------------------
+# Official Dart and Flutter skills. Upstream ships them flat under skills/<id>,
+# so each source maps one-to-one to skills/<id>/... destinations.
+
+[[source]]
+id = "dart-add-unit-test"
+repository = "https://github.com/flutter/agent-plugins"
+commit = "b7d5a0be4195b82fe073620fb52f594b0809eacf"
+path = "skills/dart-add-unit-test"
+platforms = ["all"]
+enabled = true
+checksum = "02428fa20c2cb90afcaf17a52c559641b85eb04f2765a54da2bc72ca858c1fce"
+
+[[source]]
+id = "dart-build-cli-app"
+repository = "https://github.com/flutter/agent-plugins"
+commit = "b7d5a0be4195b82fe073620fb52f594b0809eacf"
+path = "skills/dart-build-cli-app"
+platforms = ["all"]
+enabled = true
+checksum = "62880f343b3a927cc23a5ca6cfa65c2b77c35a5129755245e5a52f965fc54d73"
+
+[[source]]
+id = "dart-collect-coverage"
+repository = "https://github.com/flutter/agent-plugins"
+commit = "b7d5a0be4195b82fe073620fb52f594b0809eacf"
+path = "skills/dart-collect-coverage"
+platforms = ["all"]
+enabled = true
+checksum = "229035193bfd785368c48e3dd8ee059df43fcbdfe227dfd8a9a0178b995ee6c6"
+
+[[source]]
+id = "dart-fix-runtime-errors"
+repository = "https://github.com/flutter/agent-plugins"
+commit = "b7d5a0be4195b82fe073620fb52f594b0809eacf"
+path = "skills/dart-fix-runtime-errors"
+platforms = ["all"]
+enabled = true
+checksum = "0c18be0cbda925cb1322c2c47a52c288cce1dc34218705a20c4c071eed1b066d"
+
+[[source]]
+id = "dart-generate-test-mocks"
+repository = "https://github.com/flutter/agent-plugins"
+commit = "b7d5a0be4195b82fe073620fb52f594b0809eacf"
+path = "skills/dart-generate-test-mocks"
+platforms = ["all"]
+enabled = true
+checksum = "ca58b0e0d045595aa99990715bbf48fc75b1c5dca4053bc1940ef289cbcf2f00"
+
+[[source]]
+id = "dart-migrate-to-checks-package"
+repository = "https://github.com/flutter/agent-plugins"
+commit = "b7d5a0be4195b82fe073620fb52f594b0809eacf"
+path = "skills/dart-migrate-to-checks-package"
+platforms = ["all"]
+enabled = true
+checksum = "005dbd697fcfb314e069a9954e46005f18b9333282057bad238b5e5a65976e77"
+
+[[source]]
+id = "dart-resolve-package-conflicts"
+repository = "https://github.com/flutter/agent-plugins"
+commit = "b7d5a0be4195b82fe073620fb52f594b0809eacf"
+path = "skills/dart-resolve-package-conflicts"
+platforms = ["all"]
+enabled = true
+checksum = "967093ae2bca2784ba6a104dba3821ad809b399ca22071e9afc512915f60fa0a"
+
+[[source]]
+id = "dart-run-static-analysis"
+repository = "https://github.com/flutter/agent-plugins"
+commit = "b7d5a0be4195b82fe073620fb52f594b0809eacf"
+path = "skills/dart-run-static-analysis"
+platforms = ["all"]
+enabled = true
+checksum = "5e41a03011647bcaee182ddc5d4471122f45f93fec6570480c237077e7f9438c"
+
+[[source]]
+id = "dart-setup-ffi-assets"
+repository = "https://github.com/flutter/agent-plugins"
+commit = "b7d5a0be4195b82fe073620fb52f594b0809eacf"
+path = "skills/dart-setup-ffi-assets"
+platforms = ["all"]
+enabled = true
+checksum = "361b38a74d11abe5ba95aa9a6f0ad51e4850e5daf03acd7e1ab419bf0dfae0a8"
+
+[[source]]
+id = "dart-use-doc-examples"
+repository = "https://github.com/flutter/agent-plugins"
+commit = "b7d5a0be4195b82fe073620fb52f594b0809eacf"
+path = "skills/dart-use-doc-examples"
+platforms = ["all"]
+enabled = true
+checksum = "30b456ce311ca15b7b18bcda9008f379bf76f0a6a1d49ad97dce965c461fd4c7"
+
+[[source]]
+id = "dart-use-ffigen"
+repository = "https://github.com/flutter/agent-plugins"
+commit = "b7d5a0be4195b82fe073620fb52f594b0809eacf"
+path = "skills/dart-use-ffigen"
+platforms = ["all"]
+enabled = true
+checksum = "129ae526e854ea73e829dfa0f4f90fa5cb6e9b80a86aefd1bdd5d761afa4b676"
+
+[[source]]
+id = "dart-use-path-package"
+repository = "https://github.com/flutter/agent-plugins"
+commit = "b7d5a0be4195b82fe073620fb52f594b0809eacf"
+path = "skills/dart-use-path-package"
+platforms = ["all"]
+enabled = true
+checksum = "edbc27c8764d7ae4d7dbb7d016c1ae80ab6da19c901d77de5cc6a20677f5340c"
+
+[[source]]
+id = "dart-use-pattern-matching"
+repository = "https://github.com/flutter/agent-plugins"
+commit = "b7d5a0be4195b82fe073620fb52f594b0809eacf"
+path = "skills/dart-use-pattern-matching"
+platforms = ["all"]
+enabled = true
+checksum = "503d31e7bc08c26976d68c7569e72b4206bf57d54e443813063540b6eb0f8df5"
+
+[[source]]
+id = "dart-use-primary-constructors"
+repository = "https://github.com/flutter/agent-plugins"
+commit = "b7d5a0be4195b82fe073620fb52f594b0809eacf"
+path = "skills/dart-use-primary-constructors"
+platforms = ["all"]
+enabled = true
+checksum = "598d2fcb7641f6715861827840698450c3e8d077b4e92326e8bffe87e5b23c0c"
+
+[[source]]
+id = "dart-write-documentation"
+repository = "https://github.com/flutter/agent-plugins"
+commit = "b7d5a0be4195b82fe073620fb52f594b0809eacf"
+path = "skills/dart-write-documentation"
+platforms = ["all"]
+enabled = true
+checksum = "0629abbb9e0c0bb9aee2237b6617600a01499015bb4484a20b81ee96857d67ef"
+
+[[source]]
+id = "flutter-add-integration-test"
+repository = "https://github.com/flutter/agent-plugins"
+commit = "b7d5a0be4195b82fe073620fb52f594b0809eacf"
+path = "skills/flutter-add-integration-test"
+platforms = ["all"]
+enabled = true
+checksum = "8d81b053c5fdf5b61aa7d0165cbc35e7a9a1c5bdcd7a301b8293a108771e6bab"
+
+[[source]]
+id = "flutter-add-widget-preview"
+repository = "https://github.com/flutter/agent-plugins"
+commit = "b7d5a0be4195b82fe073620fb52f594b0809eacf"
+path = "skills/flutter-add-widget-preview"
+platforms = ["all"]
+enabled = true
+checksum = "da257f97d23bb0ff4d5f1d1a0da48d78db7d056ccd11c0a51d3ff37c80beb54b"
+
+[[source]]
+id = "flutter-add-widget-test"
+repository = "https://github.com/flutter/agent-plugins"
+commit = "b7d5a0be4195b82fe073620fb52f594b0809eacf"
+path = "skills/flutter-add-widget-test"
+platforms = ["all"]
+enabled = true
+checksum = "6c449ebd844e331e661b12630b6ad2a218e84d1bd8ea8377ba9dbd62ffe2798a"
+
+[[source]]
+id = "flutter-apply-architecture-best-practices"
+repository = "https://github.com/flutter/agent-plugins"
+commit = "b7d5a0be4195b82fe073620fb52f594b0809eacf"
+path = "skills/flutter-apply-architecture-best-practices"
+platforms = ["all"]
+enabled = true
+checksum = "00497869976a903c83f509a59d4b6a501d409fa711eb8e1f89945921e1983b65"
+
+[[source]]
+id = "flutter-build-responsive-layout"
+repository = "https://github.com/flutter/agent-plugins"
+commit = "b7d5a0be4195b82fe073620fb52f594b0809eacf"
+path = "skills/flutter-build-responsive-layout"
+platforms = ["all"]
+enabled = true
+checksum = "c7a5d18071c625137cad2def9b13f3579d9bdf0aae29621a1825f12b560394c0"
+
+[[source]]
+id = "flutter-fix-layout-issues"
+repository = "https://github.com/flutter/agent-plugins"
+commit = "b7d5a0be4195b82fe073620fb52f594b0809eacf"
+path = "skills/flutter-fix-layout-issues"
+platforms = ["all"]
+enabled = true
+checksum = "e82c82b4245ef502bd93bc543d4f5968f4ee8043fa7556ffebcb34f30651fc9b"
+
+[[source]]
+id = "flutter-implement-json-serialization"
+repository = "https://github.com/flutter/agent-plugins"
+commit = "b7d5a0be4195b82fe073620fb52f594b0809eacf"
+path = "skills/flutter-implement-json-serialization"
+platforms = ["all"]
+enabled = true
+checksum = "05a4478e0a3d119f26ae6e6983da3d5c2ea134763aeff59a06cef346bef391b1"
+
+[[source]]
+id = "flutter-setup-declarative-routing"
+repository = "https://github.com/flutter/agent-plugins"
+commit = "b7d5a0be4195b82fe073620fb52f594b0809eacf"
+path = "skills/flutter-setup-declarative-routing"
+platforms = ["all"]
+enabled = true
+checksum = "3a52fc5663cf37d68b6e096ef3e59f5056a01e9151b64cdf0728672a13398953"
+
+[[source]]
+id = "flutter-setup-localization"
+repository = "https://github.com/flutter/agent-plugins"
+commit = "b7d5a0be4195b82fe073620fb52f594b0809eacf"
+path = "skills/flutter-setup-localization"
+platforms = ["all"]
+enabled = true
+checksum = "dda4ef8b74976a3e51faa43d7ad00f03eab64d6d5ed0ef89cf4184a04196da17"
+
+[[source]]
+id = "flutter-use-http-package"
+repository = "https://github.com/flutter/agent-plugins"
+commit = "b7d5a0be4195b82fe073620fb52f594b0809eacf"
+path = "skills/flutter-use-http-package"
+platforms = ["all"]
+enabled = true
+checksum = "439fec047f07e9ec7cd387bf506801bb11b2b9037e5d2c5c03602360532980c4"
