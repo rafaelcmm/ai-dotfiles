@@ -16,6 +16,7 @@ This file extends shared contract from `AGENTS.md`.
 - For non-trivial code changes, invoke `workflow-orchestrator` first when available.
 - For Shopify-related prompts, load `shopify-skills` rule and consult matching `shopify-*` skills first.
 - For paid traffic, analytics, feed, or SEO prompts, load `growth-platform-skills` rule and consult matching growth skills first.
+- For Dart or Flutter prompts, load `flutter-skills` rule and consult matching `dart-*` and `flutter-*` skills first.
 - For trading-card-game data prompts, load `tcg-data-skills` rule and consult `tcg-card-data-sources` before writing any fetch code.
 - Before any change to a live external account, load `live-account-mutations` rule and satisfy its idempotency, blast-radius, reversibility, and attribution gates.
 - Before any action that publishes, sends, or submits under the user's identity, load `acting-in-the-users-name` rule and satisfy its identity, authorization, irreversibility, and audience gates.
