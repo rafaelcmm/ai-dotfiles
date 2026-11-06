@@ -9,9 +9,10 @@ Rust CLI to install, update, and debloat Rafael Monteiro AI configuration files 
 
 ## Third-party content
 
-Some installed skills are adapted from third-party work, principally
-[obra/superpowers](https://github.com/obra/superpowers) (MIT). Provenance, pinned upstream
-commits, and the MIT notice are recorded in
+Some installed skills and rules are adapted from third-party work, principally
+[obra/superpowers](https://github.com/obra/superpowers) (MIT) and
+[flutter/agent-plugins](https://github.com/flutter/agent-plugins) (BSD-3-Clause). Provenance,
+pinned upstream commits, and the license notices are recorded in
 [static/__shared__/skills/NOTICE.md](static/__shared__/skills/NOTICE.md), which installs
 alongside the skills.
 

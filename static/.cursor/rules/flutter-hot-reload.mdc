@@ -12,7 +12,7 @@ After editing a `.dart` file under `lib/`, push the change into any running Dart
 
 ## Precondition
 
-This rule acts only when the Dart MCP server (`dart mcp-server`) is connected in the current session. When it is not connected, do nothing beyond one line in the response saying hot reload was skipped because the server is unavailable. Never claim a reload or restart that did not run.
+This rule acts only when the Dart MCP server (`dart mcp-server`) is connected in the current session. When it is not connected, say once per session that hot reload is skipped because the server is unavailable, and otherwise do nothing. Never claim a reload or restart that did not run.
 
 ## When to skip
 
@@ -27,9 +27,9 @@ Find running app instances with the Dart MCP server's discovery tools (`dtd`, `l
 ## Reload or restart
 
 - Run `hot_reload` after changes to UI widgets, including `build` methods of stateful widgets, or to simple method bodies.
-- Run `hot_restart` when the change touches `main()`, state initialization such as `initState`, global or static state, or other fundamental logic that a reload does not re-run.
+- Run `hot_restart` when the change touches `main()`, state initialization such as `initState`, global or static state, or other fundamental logic that a reload does not re-run. A restart discards in-memory app state; when the user is mid-debug-session, say a restart is needed and ask before running it.
 - Report which one ran and its result. A reload that reports errors is a failed check, not a completed one.
 
 ## Attribution
 
-Adapted from `rules/flutter-hot-reload.md` in <https://github.com/flutter/agent-plugins> at commit `b7d5a0be4195b82fe073620fb52f594b0809eacf`. Copyright 2026 The Flutter Authors. All rights reserved. Distributed under the BSD-3-Clause license; the full notice and disclaimer are recorded in `skills/NOTICE.md`.
+Adapted from `rules/flutter-hot-reload.md` in <https://github.com/flutter/agent-plugins> at commit `b7d5a0be4195b82fe073620fb52f594b0809eacf`. Copyright 2026 The Flutter Authors. All rights reserved. Distributed under the BSD-3-Clause license; the full notice and disclaimer are recorded in `~/.claude/skills/NOTICE.md`, installed from `static/__shared__/skills/NOTICE.md` in this repository.

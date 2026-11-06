@@ -6,7 +6,7 @@ When the request targets Dart or Flutter code, always consult the Dart and Flutt
 
 ## Activation
 
-Activate this rule when the request mentions Dart, Flutter, pub, pubspec.yaml, `dart analyze`, `dart fix`, `flutter test`, widgets, `WidgetTester`, `build_runner`, mockito, `package:checks`, go_router, `flutter_localizations`, Dart FFI, ffigen, native assets, Dart MCP server, hot reload, or hot restart, or when the files in play are `.dart` sources.
+Activate this rule when the request mentions Dart, Flutter, pub, pubspec.yaml, `dart analyze`, `dart fix`, `flutter test`, Flutter widgets, `WidgetTester`, `build_runner`, mockito, `package:checks`, go_router, `flutter_localizations`, Dart FFI, ffigen, native assets, Dart MCP server, Flutter hot reload, or Flutter hot restart, or when the files in play are `.dart` sources.
 
 ## Activation Scope
 
@@ -26,7 +26,7 @@ Activate only when the request primarily targets Dart or Flutter work. Do not ac
 - Prefer the most specific skill for the request.
 - If the request spans several areas, combine the relevant skills before falling back to generic cross-language skills.
 - `dart-write-documentation` governs Dart doc-comment syntax and placement. `commenting-standards` still governs what every docblock must say; apply both, and the stricter one wins on conflict.
-- Several skills (`dart-fix-runtime-errors`, `flutter-fix-layout-issues`, `flutter-add-integration-test`) drive the Dart MCP server. When that server is not connected, say so, fall back to the equivalent CLI command (`dart analyze`, `flutter test`, `flutter run`), and never report a hot reload or runtime check that did not run.
+- Several skills (`dart-fix-runtime-errors`, `flutter-fix-layout-issues`, `flutter-add-integration-test`) drive the Dart MCP server. When that server is not connected, say so and fall back to the CLI: `dart analyze` for diagnostics, `flutter test` for unit and widget tests, `flutter test integration_test` for integration tests. `flutter run` is interactive and long-running; ask the user to run it rather than starting it. Never report a hot reload or runtime check that did not run.
 - When editing `.dart` files under `lib/` of a running app, also apply the `flutter-hot-reload` rule.
 
 ## Agent delegation

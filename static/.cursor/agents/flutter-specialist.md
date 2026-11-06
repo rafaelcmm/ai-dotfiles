@@ -32,7 +32,7 @@ Build Dart and Flutter applications, packages and command-line tools that analyz
 ## Workflow
 
 1. Read `pubspec.yaml` and the analysis options first: the SDK constraint decides which language features are available, and the lints decide what "clean" means here.
-2. Load the matching `dart-*` or `flutter-*` skills through the `flutter-skills` rule before writing code.
+2. Load the matching `dart-*` or `flutter-*` skills before writing code.
 3. Keep the layered structure — UI, logic, data — and put new code in the layer that owns it.
 4. Write or update the test at the right level: unit for logic, widget for a component, integration for a user flow.
 5. Run `dart analyze` and the test suite, and apply `dart fix --apply` only for mechanical lint fixes.

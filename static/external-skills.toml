@@ -956,6 +956,7 @@ path = "skills/google-ads/shopping-ads"
 platforms = ["all"]
 enabled = true
 checksum = "5e495d5efda1c72481958e9b65cd8b8b2d4ec73f1f423a0e14346865d2ef8b27"
+
 # -----------------------------------------------------------------------------
 # Repository zone: Flutter agent-plugins (BSD-3-Clause)
 # Repo: https://github.com/flutter/agent-plugins
