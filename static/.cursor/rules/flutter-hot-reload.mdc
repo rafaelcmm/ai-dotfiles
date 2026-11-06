@@ -1,0 +1,35 @@
+---
+description: "After editing .dart files under lib/, hot reload or hot restart running Dart and Flutter apps through the Dart MCP server, only when that server is connected."
+globs: "**/lib/**/*.dart"
+alwaysApply: false
+---
+
+# Flutter Hot Reload Rule
+
+Sync note: this rule must stay semantically identical across Claude rules, Copilot instructions, and Cursor rules; update all three files in the same change.
+
+After editing a `.dart` file under `lib/`, push the change into any running Dart or Flutter app through the Dart MCP server, so the running app reflects the code on disk.
+
+## Precondition
+
+This rule acts only when the Dart MCP server (`dart mcp-server`) is connected in the current session. When it is not connected, do nothing beyond one line in the response saying hot reload was skipped because the server is unavailable. Never claim a reload or restart that did not run.
+
+## When to skip
+
+- **Files outside `lib/`**: do not trigger for edits under `test/`, `integration_test/`, `benchmark/`, `test_driver/`, `example/`, or anywhere else outside `lib/`.
+- **Comments and documentation only**: do not trigger when the change touches only comments, doc comments, or whitespace.
+- **No running app**: do not launch an app to satisfy this rule. Discovery that finds no running instance ends the rule.
+
+## Discover and connect
+
+Find running app instances with the Dart MCP server's discovery tools (`dtd`, `list_running_apps`, or `vm_service`).
+
+## Reload or restart
+
+- Run `hot_reload` after changes to UI widgets, including `build` methods of stateful widgets, or to simple method bodies.
+- Run `hot_restart` when the change touches `main()`, state initialization such as `initState`, global or static state, or other fundamental logic that a reload does not re-run.
+- Report which one ran and its result. A reload that reports errors is a failed check, not a completed one.
+
+## Attribution
+
+Adapted from `rules/flutter-hot-reload.md` in <https://github.com/flutter/agent-plugins> at commit `b7d5a0be4195b82fe073620fb52f594b0809eacf`. Copyright 2026 The Flutter Authors. All rights reserved. Distributed under the BSD-3-Clause license; the full notice and disclaimer are recorded in `skills/NOTICE.md`.
