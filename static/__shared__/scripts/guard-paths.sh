@@ -73,9 +73,11 @@ fi
 # Claude Code gives each session a scratchpad for temporary files at
 # <tmp>/claude-<uid>/<project-slug>/<session-id>/scratchpad/. Allow any file under a
 # `scratchpad` directory at exactly that depth, for the current user only. <tmp> is
-# each of CLAUDE_CODE_TMPDIR, TMPDIR and /tmp that is set. The claude-<uid> folder must
-# be a real directory (not a symlink) owned by the current user: on a shared /tmp
-# another account could pre-create it and collect or plant files there. A symlink
+# each non-empty one of CLAUDE_CODE_TMPDIR and TMPDIR, plus /tmp. The claude-<uid> folder
+# must be a real directory (not a symlink), owned by the current user and not writable by
+# group or others: on a shared /tmp another account could otherwise pre-create or share
+# it and collect or plant files there. `find -perm -mode` is POSIX, so this holds on
+# GNU and BSD alike. A symlink
 # planted inside the scratchpad resolves to its real target and no longer matches.
 SCRATCH_UID="$(id -u 2>/dev/null || true)"
 if [ "$EXEMPT" = false ] && [ -n "$SCRATCH_UID" ]; then
@@ -83,6 +85,9 @@ if [ "$EXEMPT" = false ] && [ -n "$SCRATCH_UID" ]; then
     [ -z "$tmp_base" ] && continue
     scratch_dir="$tmp_base/claude-$SCRATCH_UID"
     if [ ! -d "$scratch_dir" ] || [ -L "$scratch_dir" ] || [ ! -O "$scratch_dir" ]; then
+      continue
+    fi
+    if [ -n "$(find "$scratch_dir" -maxdepth 0 \( -perm -0020 -o -perm -0002 \) 2>/dev/null)" ]; then
       continue
     fi
     scratch_root="$(resolve "$scratch_dir")"
@@ -102,12 +107,14 @@ fi
 # write anywhere under that folder is in scope even when the agent's working directory
 # sits in one repository. The folder is trusted only when it lies strictly inside
 # $HOME, has no hidden component below $HOME (.ssh, .claude, .config, ...), and holds
-# the hook's own working directory. That rules out $HOME itself and everything above
+# the working directory the hook payload reports (`cwd`, else the hook's own). That rules out $HOME itself and everything above
 # it, system folders, and a value that does not describe this session.
 PROJECT_ROOT=""
 if [ "$EXEMPT" = false ] && [ -n "${CLAUDE_PROJECT_DIR:-}" ] &&
   [ -n "$HOME_ABS" ] && [ "$HOME_ABS" != "/" ]; then
   PROJECT_ROOT="$(resolve "$CLAUDE_PROJECT_DIR")"
+  # The strip leaves PROJECT_ROOT unchanged when it is $HOME itself or outside $HOME; the
+  # check below reads that as "not strictly inside $HOME".
   PROJECT_BELOW_HOME="${PROJECT_ROOT#"$HOME_ABS/"}"
   HOOK_CWD="$(printf '%s' "$INPUT" | jq -r '.cwd // empty' 2>/dev/null)"
   HOOK_CWD="$(resolve "${HOOK_CWD:-$PWD}")"
@@ -131,10 +138,12 @@ if [ "$EXEMPT" = false ] && [ -n "$REPO_ROOT" ] &&
   exit 2
 fi
 
-# Paths are matched relative to the repository when the target is inside it, and as
-# the full resolved path everywhere: the `*/` prefix lets a pattern match at any depth,
-# so a protected folder above the repository or project root (a project inside .ssh)
-# is caught too.
+# Each pattern is tried against REL (repository-relative when the target is inside the
+# repository) and as a suffix of the full resolved path (`*/$pat`), so a protected folder
+# above the repository or project root, such as a project inside .ssh, is caught too.
+# Key files are matched on the file name alone: in bash `[[ == ]]` a `*` also crosses
+# `/`, so a path-wide pattern such as `*id_rsa*` would block a whole repository whose
+# folder name merely contains it.
 REL="${ABS#"$REPO_ROOT"/}"
 
 # Blocklist. Glob-style patterns, matched with bash's `==`.
@@ -142,7 +151,6 @@ BLOCKED_PATTERNS=(
   '.git/*'        '*/.git/*'
   '.ssh/*'        '*/.ssh/*'
   '.gnupg/*'      '*/.gnupg/*'
-  '*.pem'         '*.key'          '*id_rsa*'       '*id_ed25519*'
   'node_modules/*'   '*/node_modules/*'
   '.venv/*'          '*/.venv/*'      'venv/*'       '*/venv/*'
   '__pycache__/*'    '*/__pycache__/*'
@@ -151,6 +159,17 @@ BLOCKED_PATTERNS=(
 for pat in "${BLOCKED_PATTERNS[@]}"; do
   # shellcheck disable=SC2053  # we want glob matching on the RHS
   if [[ "$REL" == $pat ]] || [[ "$ABS" == */$pat ]]; then
+    echo "BLOCKED: $FILE matches protected pattern '$pat'." >&2
+    echo "If you really need to edit this, do it outside the agent." >&2
+    exit 2
+  fi
+done
+
+KEY_FILE_PATTERNS=('*.pem' '*.key' 'id_rsa*' 'id_ed25519*')
+TARGET_NAME="${ABS##*/}"
+for pat in "${KEY_FILE_PATTERNS[@]}"; do
+  # shellcheck disable=SC2053  # we want glob matching on the RHS
+  if [[ "$TARGET_NAME" == $pat ]]; then
     echo "BLOCKED: $FILE matches protected pattern '$pat'." >&2
     echo "If you really need to edit this, do it outside the agent." >&2
     exit 2

@@ -155,11 +155,11 @@ VS Code MCP merge policy keeps existing user `servers` entries when names collid
 - Release checksum lists are verified for expected asset presence before self-update install.
 - External cache state remains separate from installed ownership state.
 - The shipped `guard-paths.sh` hook refuses agent writes outside the current repository, with these exemptions:
-  - anything under `CLAUDE_PROJECT_DIR`, the folder the Claude Code session was started in, when that folder lies strictly inside `$HOME`, has no hidden component below `$HOME`, and contains the hook's working directory;
+  - anything under `CLAUDE_PROJECT_DIR`, the folder the Claude Code session was started in, when that folder lies strictly inside `$HOME`, has no hidden component below `$HOME`, and contains the working directory the hook payload reports;
   - Markdown files directly inside `~/.claude/projects/<project-slug>/memory/` (per-project memory) or `~/.claude/plans/` (plan mode);
-  - files under a session scratchpad, `<tmp>/claude-<uid>/<project-slug>/<session-id>/scratchpad/`, where `<tmp>` is `CLAUDE_CODE_TMPDIR`, `TMPDIR` or `/tmp` and `claude-<uid>` is a real directory owned by the current user.
+  - files under a session scratchpad, `<tmp>/claude-<uid>/<project-slug>/<session-id>/scratchpad/`, where `<tmp>` is `CLAUDE_CODE_TMPDIR`, `TMPDIR` or `/tmp` and `claude-<uid>` is a real directory owned by the current user and not writable by group or others.
 
-  Paths are resolved before matching (`realpath -m`, else Python's `os.path.realpath`; the hook refuses the write when neither exists), so `..` and symlinks cannot widen an exemption. The protected-pattern blocklist (`.git`, `.ssh`, `.gnupg`, keys, `node_modules`, virtualenvs) applies to every write the hook allows, matched at any depth of the resolved path. Configuration under `~/.claude` (`settings.json`, `CLAUDE.md`, rules, agents) stays blocked.
+  Paths are resolved before matching (`realpath -m`, else Python's `os.path.realpath`; the hook refuses the write when neither exists), so `..` and symlinks cannot widen an exemption. The protected-pattern blocklist (`.git`, `.ssh`, `.gnupg`, keys, `node_modules`, virtualenvs) applies to every write the hook allows, matched at any depth of the resolved path, so a repository inside a folder such as `node_modules` or `venv` is blocked as a whole. Inside a git repository, configuration under `~/.claude` (`settings.json`, `CLAUDE.md`, rules, agents) stays blocked by the repository-root check. Outside a repository the hook has no root to compare against, so only the protected-pattern blocklist applies.
 
   The hook guards the edit tools only. Shell commands are not checked, so it stops accidental writes, not an agent set on getting around it.
 

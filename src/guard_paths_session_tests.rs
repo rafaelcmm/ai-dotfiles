@@ -62,6 +62,7 @@ fn only_the_scratchpad_shape_of_the_current_user_is_exempt() {
         mine.join("-work-repo/scratchpad/x.md"),
         mine.join("-work-repo/0b6f-session/scratchpad"),
         mine.join("-work-repo/0b6f-session/scratchpad/../../x.md"),
+        // Right shape, so only the blocklist refuses these two.
         mine.join("-work-repo/0b6f-session/scratchpad/.git/config"),
         mine.join("-work-repo/0b6f-session/scratchpad/deploy.pem"),
         tmp.path()
@@ -228,4 +229,29 @@ fn a_project_dir_at_or_above_home_exempts_nothing() {
             project.display()
         );
     }
+}
+
+#[cfg(unix)]
+#[test]
+fn a_scratch_root_writable_by_others_exempts_nothing() {
+    use std::os::unix::fs::PermissionsExt;
+    let home = tempdir().unwrap();
+    let repo = tempdir().unwrap();
+    init_repo(repo.path());
+    let tmp = tempdir().unwrap();
+    let uid_dir = tmp.path().join(format!("claude-{}", current_uid()));
+    std::fs::create_dir_all(&uid_dir).unwrap();
+    let target = uid_dir.join("-p/s/scratchpad/x.md");
+    let env = [("TMPDIR", tmp.path())];
+
+    for mode in [0o777, 0o770] {
+        std::fs::set_permissions(&uid_dir, std::fs::Permissions::from_mode(mode)).unwrap();
+        assert_eq!(
+            verdict_with_env(home.path(), repo.path(), &target, &env),
+            2,
+            "mode {mode:o} must not be exempt"
+        );
+    }
+    std::fs::set_permissions(&uid_dir, std::fs::Permissions::from_mode(0o700)).unwrap();
+    assert_eq!(verdict_with_env(home.path(), repo.path(), &target, &env), 0);
 }
