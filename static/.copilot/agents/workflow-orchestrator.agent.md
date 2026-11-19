@@ -23,6 +23,8 @@ Drive deterministic autonomous delivery for non-trivial code changes by planning
 - [design-patterns](../skills/design-patterns/SKILL.md)
 - [documentation-best-practices](../skills/documentation-best-practices/SKILL.md)
 - [conventional-commits](../skills/conventional-commits/SKILL.md)
+- [subagent-dispatch](../skills/subagent-dispatch/SKILL.md)
+- [model-tier-economics](../skills/model-tier-economics/SKILL.md)
 
 ## Workflow
 
@@ -60,7 +62,8 @@ installed; the rules below hold either way.
   path of a report file holding the detail. Read concerns before review; diagnose
   `BLOCKED` and change something before re-dispatching.
 - **Reviewers cite evidence.** Every finding quotes `path:line`; uncited findings are
-  dropped. Never tell a reviewer what not to flag.
+  dropped. Scope a re-review to the open findings and the fix diff; never hand a reviewer
+  a list of things not to flag.
 - **Wait without polling.** Do local work (next brief, ledger, merge checks) while children
   run; when idle, wait in bounded stretches and reconcile children between them.
 - **Merging.** Read every report, check for overlapping edits, run the full suite, and

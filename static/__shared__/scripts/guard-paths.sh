@@ -26,91 +26,122 @@ FILE="$(
 # No path in payload → nothing to guard, allow.
 [ -z "$FILE" ] && exit 0
 
-# Resolve to absolute form so `../` tricks don't slip through.
-# `realpath -m` tolerates non-existent files (new writes).
-ABS="$(realpath -m "$FILE" 2>/dev/null || printf '%s' "$FILE")"
+# Resolves a path to absolute form with `..` and symlinks removed, tolerating
+# components that do not exist yet (new writes). Uses `realpath -m` (GNU coreutils)
+# and falls back to Python's non-strict os.path.realpath where `-m` is missing
+# (stock macOS, busybox). Prints nothing and fails when neither is available.
+resolve() {
+  realpath -m -- "$1" 2>/dev/null && return 0
+  command -v python3 >/dev/null 2>&1 &&
+    python3 -I -c 'import os, sys; print(os.path.realpath(sys.argv[1]))' "$1" 2>/dev/null
+}
+
+# Every check below compares resolved paths; an unresolved target could carry `..`
+# past them, so refuse the write instead.
+ABS="$(resolve "$FILE")"
+if [ -z "$ABS" ]; then
+  echo "guard-paths.sh: cannot resolve $FILE (install coreutils for realpath -m, or python3)." >&2
+  exit 2
+fi
+HOME_ABS=""
+[ -n "${HOME:-}" ] && HOME_ABS="$(resolve "$HOME")"
+
+# Writes that fall in one of the exemptions below skip the repository-root check.
+# They still go through the protected-pattern blocklist at the end.
+EXEMPT=false
 
 # Claude Code keeps per-project memory outside every repository by design, so the
 # repo-root check below would block every memory write made from inside a repo.
 # Allow exactly one shape: a Markdown file directly inside
 # ~/.claude/projects/<project-slug>/memory/. ABS is already resolved, so `..` and
-# symlinks cannot reach anything else through this branch.
-# The root is resolved the same way as ABS, so a symlinked HOME (macOS /var) still matches.
-MEMORY_ROOT="$(realpath -m "${HOME:-/nonexistent}/.claude/projects" 2>/dev/null)/"
-if [ -n "${HOME:-}" ] && [[ "$ABS" == "$MEMORY_ROOT"* ]]; then
-  MEMORY_REL="${ABS#"$MEMORY_ROOT"}"
-  if [[ "$MEMORY_REL" =~ ^[^/]+/memory/[^/]+\.md$ ]]; then
-    exit 0
+# symlinks cannot reach anything else through this branch, and the root is resolved
+# the same way, so a symlinked HOME (macOS /var) still matches.
+if [ -n "$HOME_ABS" ] && [ "$HOME_ABS" != "/" ]; then
+  MEMORY_ROOT="$HOME_ABS/.claude/projects/"
+  if [[ "$ABS" == "$MEMORY_ROOT"* ]] &&
+    [[ "${ABS#"$MEMORY_ROOT"}" =~ ^[^/]+/memory/[^/]+\.md$ ]]; then
+    EXEMPT=true
   fi
-fi
-
-# Plan mode saves plans as Markdown files directly inside ~/.claude/plans/. Same
-# shape rule as memory: a flat .md file, nothing nested, nothing else under ~/.claude.
-PLANS_ROOT="$(realpath -m "${HOME:-/nonexistent}/.claude/plans" 2>/dev/null)/"
-if [ -n "${HOME:-}" ] && [[ "$ABS" == "$PLANS_ROOT"* ]]; then
-  if [[ "${ABS#"$PLANS_ROOT"}" =~ ^[^/]+\.md$ ]]; then
-    exit 0
+  # Plan mode saves plans as Markdown files directly inside ~/.claude/plans/: the
+  # same flat-file rule, so nothing else under ~/.claude becomes writable.
+  PLANS_ROOT="$HOME_ABS/.claude/plans/"
+  if [[ "$ABS" == "$PLANS_ROOT"* ]] && [[ "${ABS#"$PLANS_ROOT"}" =~ ^[^/]+\.md$ ]]; then
+    EXEMPT=true
   fi
 fi
 
 # Claude Code gives each session a scratchpad for temporary files at
 # <tmp>/claude-<uid>/<project-slug>/<session-id>/scratchpad/. Allow any file under a
 # `scratchpad` directory at exactly that depth, for the current user only. <tmp> is
-# whichever of CLAUDE_CODE_TMPDIR, TMPDIR and /tmp is set; each root is resolved like
-# ABS, so /tmp -> /private/tmp on macOS matches and a symlink planted inside the
-# scratchpad resolves to its real target and falls through to the checks below.
+# each of CLAUDE_CODE_TMPDIR, TMPDIR and /tmp that is set. The claude-<uid> folder must
+# be a real directory (not a symlink) owned by the current user: on a shared /tmp
+# another account could pre-create it and collect or plant files there. A symlink
+# planted inside the scratchpad resolves to its real target and no longer matches.
 SCRATCH_UID="$(id -u 2>/dev/null || true)"
-if [ -n "$SCRATCH_UID" ]; then
+if [ "$EXEMPT" = false ] && [ -n "$SCRATCH_UID" ]; then
   for tmp_base in "${CLAUDE_CODE_TMPDIR:-}" "${TMPDIR:-}" /tmp; do
     [ -z "$tmp_base" ] && continue
-    SCRATCH_ROOT="$(realpath -m "$tmp_base/claude-$SCRATCH_UID" 2>/dev/null)/"
-    if [[ "$ABS" == "$SCRATCH_ROOT"* ]] &&
-      [[ "${ABS#"$SCRATCH_ROOT"}" =~ ^[^/]+/[^/]+/scratchpad/.+ ]]; then
-      exit 0
+    scratch_dir="$tmp_base/claude-$SCRATCH_UID"
+    if [ ! -d "$scratch_dir" ] || [ -L "$scratch_dir" ] || [ ! -O "$scratch_dir" ]; then
+      continue
+    fi
+    scratch_root="$(resolve "$scratch_dir")"
+    if [ -z "$scratch_root" ] || [ "$scratch_root" = "/" ]; then
+      continue
+    fi
+    if [[ "$ABS" == "$scratch_root/"* ]] &&
+      [[ "${ABS#"$scratch_root/"}" =~ ^[^/]+/[^/]+/scratchpad/.+ ]]; then
+      EXEMPT=true
+      break
     fi
   done
 fi
 
-# Claude Code exports CLAUDE_PROJECT_DIR, the directory the session was started in.
-# A session started in a folder of several repositories works across all of them, so a
+# Claude Code exports CLAUDE_PROJECT_DIR, the directory the session was started in. A
+# session started in a folder of several repositories works across all of them, so a
 # write anywhere under that folder is in scope even when the agent's working directory
-# sits in one repository. Skipped when the folder is $HOME, an ancestor of it, or `/`:
-# a session started there would otherwise exempt ~/.zshrc and the rest of $HOME. The
-# protected-pattern blocklist below still applies to these writes.
+# sits in one repository. The folder is trusted only when it lies strictly inside
+# $HOME, has no hidden component below $HOME (.ssh, .claude, .config, ...), and holds
+# the hook's own working directory. That rules out $HOME itself and everything above
+# it, system folders, and a value that does not describe this session.
 PROJECT_ROOT=""
-if [ -n "${CLAUDE_PROJECT_DIR:-}" ]; then
-  PROJECT_ROOT="$(realpath -m "$CLAUDE_PROJECT_DIR" 2>/dev/null || true)"
-  HOME_ABS="$(realpath -m "${HOME:-/}" 2>/dev/null || printf '/')"
-  if [ "$PROJECT_ROOT" = "/" ] || [ "$PROJECT_ROOT" = "$HOME_ABS" ] ||
-    [[ "$HOME_ABS/" == "$PROJECT_ROOT/"* ]]; then
+if [ "$EXEMPT" = false ] && [ -n "${CLAUDE_PROJECT_DIR:-}" ] &&
+  [ -n "$HOME_ABS" ] && [ "$HOME_ABS" != "/" ]; then
+  PROJECT_ROOT="$(resolve "$CLAUDE_PROJECT_DIR")"
+  PROJECT_BELOW_HOME="${PROJECT_ROOT#"$HOME_ABS/"}"
+  HOOK_CWD="$(printf '%s' "$INPUT" | jq -r '.cwd // empty' 2>/dev/null)"
+  HOOK_CWD="$(resolve "${HOOK_CWD:-$PWD}")"
+  if [ -z "$PROJECT_ROOT" ] || [ "$PROJECT_BELOW_HOME" = "$PROJECT_ROOT" ] ||
+    [[ "/$PROJECT_BELOW_HOME" == */.* ]] ||
+    { [ "$HOOK_CWD" != "$PROJECT_ROOT" ] && [[ "$HOOK_CWD" != "$PROJECT_ROOT/"* ]]; }; then
     PROJECT_ROOT=""
   fi
 fi
-IN_PROJECT=false
 if [ -n "$PROJECT_ROOT" ] && { [ "$ABS" = "$PROJECT_ROOT" ] || [[ "$ABS" == "$PROJECT_ROOT/"* ]]; }; then
-  IN_PROJECT=true
+  EXEMPT=true
 fi
 
-# If we're in a git repo, refuse writes outside it. This catches the
-# occasional agent that decides to edit your ~/.zshrc.
+# In a git repo, refuse writes outside it unless an exemption above applies. This
+# catches the occasional agent that decides to edit your ~/.zshrc. The trailing slash
+# keeps a sibling such as <repo>-other from passing as inside <repo>.
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || true)"
-# The trailing slash keeps a sibling such as <repo>-other from passing as inside <repo>.
-if [ "$IN_PROJECT" = false ] && [ -n "$REPO_ROOT" ] &&
+if [ "$EXEMPT" = false ] && [ -n "$REPO_ROOT" ] &&
   [[ "$ABS" != "$REPO_ROOT" ]] && [[ "$ABS" != "$REPO_ROOT/"* ]]; then
   echo "BLOCKED: $FILE is outside the repository root ($REPO_ROOT)." >&2
   exit 2
 fi
 
-# Paths matched against the basename or the repo-relative path.
+# Paths are matched relative to the repository when the target is inside it, and as
+# the full resolved path everywhere: the `*/` prefix lets a pattern match at any depth,
+# so a protected folder above the repository or project root (a project inside .ssh)
+# is caught too.
 REL="${ABS#"$REPO_ROOT"/}"
-if [ "$IN_PROJECT" = true ] && [[ "$REL" == "$ABS" ]]; then
-  REL="${ABS#"$PROJECT_ROOT"/}"
-fi
 
 # Blocklist. Glob-style patterns, matched with bash's `==`.
 BLOCKED_PATTERNS=(
   '.git/*'        '*/.git/*'
   '.ssh/*'        '*/.ssh/*'
+  '.gnupg/*'      '*/.gnupg/*'
   '*.pem'         '*.key'          '*id_rsa*'       '*id_ed25519*'
   'node_modules/*'   '*/node_modules/*'
   '.venv/*'          '*/.venv/*'      'venv/*'       '*/venv/*'
@@ -119,7 +150,7 @@ BLOCKED_PATTERNS=(
 
 for pat in "${BLOCKED_PATTERNS[@]}"; do
   # shellcheck disable=SC2053  # we want glob matching on the RHS
-  if [[ "$REL" == $pat ]] || [[ "$ABS" == *"/$pat" ]]; then
+  if [[ "$REL" == $pat ]] || [[ "$ABS" == */$pat ]]; then
     echo "BLOCKED: $FILE matches protected pattern '$pat'." >&2
     echo "If you really need to edit this, do it outside the agent." >&2
     exit 2
