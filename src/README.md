@@ -154,7 +154,12 @@ VS Code MCP merge policy keeps existing user `servers` entries when names collid
 - Self-update is fail-open: network or install errors do not block config synchronization.
 - Release checksum lists are verified for expected asset presence before self-update install.
 - External cache state remains separate from installed ownership state.
-- The shipped `guard-paths.sh` hook refuses agent writes outside the current repository, with one exemption: Markdown files directly inside `~/.claude/projects/<project-slug>/memory/`, where Claude Code keeps per-project memory. Paths are resolved before matching, so `..` and symlinks cannot widen it.
+- The shipped `guard-paths.sh` hook refuses agent writes outside the current repository, with these exemptions:
+  - anything under `CLAUDE_PROJECT_DIR`, the folder the Claude Code session was started in, unless that folder is `$HOME`, an ancestor of it, or `/`;
+  - Markdown files directly inside `~/.claude/projects/<project-slug>/memory/` (per-project memory) or `~/.claude/plans/` (plan mode);
+  - files under a session scratchpad, `<tmp>/claude-<uid>/<project-slug>/<session-id>/scratchpad/`, for the current user, where `<tmp>` is `CLAUDE_CODE_TMPDIR`, `TMPDIR` or `/tmp`.
+
+  Paths are resolved before matching, so `..` and symlinks cannot widen an exemption, and the protected-pattern blocklist (`.git`, `.ssh`, keys, `node_modules`, virtualenvs) applies to every allowed write. Claude configuration (`settings.json`, `CLAUDE.md`, rules, agents) stays blocked.
 
 ## Development and validation
 

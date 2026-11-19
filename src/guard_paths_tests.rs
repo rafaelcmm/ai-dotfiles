@@ -24,11 +24,29 @@ fn hook() -> PathBuf {
 /// hook resolves the repository root from. Panics when the hook cannot be spawned or
 /// is killed by a signal, since neither is a verdict.
 fn verdict(home: &Path, cwd: &Path, target: &Path) -> i32 {
+    verdict_with_env(home, cwd, target, &[])
+}
+
+/// Runs the hook like [`verdict`] with extra environment variables.
+///
+/// The variables the hook reads besides `HOME` (`CLAUDE_PROJECT_DIR`,
+/// `CLAUDE_CODE_TMPDIR`, `TMPDIR`) are removed first, so a test run started from inside
+/// an agent session sees only what `extra` sets. `TMPDIR` falls back to `home`, which
+/// keeps the real `/tmp` scratchpad shape out of every test that does not opt in.
+fn verdict_with_env(home: &Path, cwd: &Path, target: &Path, extra: &[(&str, &Path)]) -> i32 {
     let payload = format!(r#"{{"tool_input":{{"file_path":"{}"}}}}"#, target.display());
-    let mut child = Command::new("bash")
+    let mut command = Command::new("bash");
+    command
         .arg(hook())
         .current_dir(cwd)
         .env("HOME", home)
+        .env_remove("CLAUDE_PROJECT_DIR")
+        .env_remove("CLAUDE_CODE_TMPDIR")
+        .env("TMPDIR", home);
+    for (key, value) in extra {
+        command.env(key, value);
+    }
+    let mut child = command
         .stdin(Stdio::piped())
         .stdout(Stdio::null())
         .stderr(Stdio::null())
@@ -130,4 +148,149 @@ fn writes_inside_the_repository_stay_allowed() {
         verdict(home.path(), repo.path(), &repo.path().join("src/x.rs")),
         0
     );
+}
+
+/// Numeric id of the user running the tests, as the hook reads it with `id -u`.
+fn current_uid() -> String {
+    let out = Command::new("id")
+        .arg("-u")
+        .output()
+        .expect("id must be available");
+    String::from_utf8(out.stdout).unwrap().trim().to_owned()
+}
+
+#[test]
+fn session_scratchpad_files_are_writable_from_inside_a_repo() {
+    let home = tempdir().unwrap();
+    let repo = tempdir().unwrap();
+    init_repo(repo.path());
+    let tmp = tempdir().unwrap();
+    let session = tmp
+        .path()
+        .join(format!("claude-{}", current_uid()))
+        .join("-work-repo/0b6f-session");
+
+    for target in [
+        session.join("scratchpad/notes.md"),
+        session.join("scratchpad/covers/a.jpg"),
+    ] {
+        assert_eq!(
+            verdict_with_env(home.path(), repo.path(), &target, &[("TMPDIR", tmp.path())]),
+            0,
+            "{} must be allowed",
+            target.display()
+        );
+    }
+}
+
+#[test]
+fn only_the_scratchpad_shape_of_the_current_user_is_exempt() {
+    let home = tempdir().unwrap();
+    let repo = tempdir().unwrap();
+    init_repo(repo.path());
+    let tmp = tempdir().unwrap();
+    let mine = tmp.path().join(format!("claude-{}", current_uid()));
+
+    let refused = [
+        mine.join("-work-repo/0b6f-session/tool-results/x.txt"),
+        mine.join("-work-repo/scratchpad/x.md"),
+        mine.join("-work-repo/0b6f-session/scratchpad"),
+        mine.join("-work-repo/0b6f-session/scratchpad/../../x.md"),
+        tmp.path()
+            .join("claude-999999/-work-repo/s/scratchpad/x.md"),
+        tmp.path().join("other/-work-repo/s/scratchpad/x.md"),
+    ];
+    for target in refused {
+        assert_eq!(
+            verdict_with_env(home.path(), repo.path(), &target, &[("TMPDIR", tmp.path())]),
+            2,
+            "{} must be blocked",
+            target.display()
+        );
+    }
+}
+
+#[test]
+fn plan_markdown_is_writable_but_nothing_else_under_claude() {
+    let home = tempdir().unwrap();
+    let repo = tempdir().unwrap();
+    init_repo(repo.path());
+    let plans = home.path().join(".claude/plans");
+
+    assert_eq!(
+        verdict(home.path(), repo.path(), &plans.join("a-plan.md")),
+        0
+    );
+    for target in [
+        plans.join("nested/a.md"),
+        plans.join("run.sh"),
+        home.path().join(".claude/agents/x.md"),
+        home.path().join(".claude/CLAUDE.md"),
+    ] {
+        assert_eq!(
+            verdict(home.path(), repo.path(), &target),
+            2,
+            "{} must be blocked",
+            target.display()
+        );
+    }
+}
+
+#[test]
+fn a_sibling_directory_sharing_the_repo_prefix_is_outside() {
+    let home = tempdir().unwrap();
+    let parent = tempdir().unwrap();
+    let repo = parent.path().join("repo");
+    std::fs::create_dir_all(&repo).unwrap();
+    init_repo(&repo);
+
+    assert_eq!(
+        verdict(home.path(), &repo, &parent.path().join("repo-other/x.rs")),
+        2
+    );
+}
+
+#[test]
+fn writes_anywhere_under_the_session_project_dir_are_allowed() {
+    let home = tempdir().unwrap();
+    let workspace = tempdir().unwrap();
+    let repo = workspace.path().join("site");
+    std::fs::create_dir_all(&repo).unwrap();
+    init_repo(&repo);
+    let project = [("CLAUDE_PROJECT_DIR", workspace.path())];
+
+    let sibling = workspace.path().join("dotfiles/static/agent.md");
+    assert_eq!(verdict_with_env(home.path(), &repo, &sibling, &project), 0);
+    // The blocklist still applies inside the project folder.
+    let git_internal = workspace.path().join("dotfiles/.git/config");
+    assert_eq!(
+        verdict_with_env(home.path(), &repo, &git_internal, &project),
+        2
+    );
+    // Outside the project folder the repo-root check is back in force.
+    let outside = home.path().join(".zshrc");
+    assert_eq!(verdict_with_env(home.path(), &repo, &outside, &project), 2);
+}
+
+#[test]
+fn a_project_dir_at_or_above_home_exempts_nothing() {
+    let home = tempdir().unwrap();
+    let repo = home.path().join("work/site");
+    std::fs::create_dir_all(&repo).unwrap();
+    init_repo(&repo);
+    let zshrc = home.path().join(".zshrc");
+
+    for project in [home.path(), home.path().parent().unwrap(), Path::new("/")] {
+        assert_eq!(
+            verdict_with_env(
+                home.path(),
+                &repo,
+                &zshrc,
+                &[("CLAUDE_PROJECT_DIR", project)]
+            ),
+            2,
+            "CLAUDE_PROJECT_DIR={} must not exempt $HOME",
+            project.display()
+        );
+    }
 }

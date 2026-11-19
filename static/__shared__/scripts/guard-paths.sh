@@ -44,16 +44,68 @@ if [ -n "${HOME:-}" ] && [[ "$ABS" == "$MEMORY_ROOT"* ]]; then
   fi
 fi
 
+# Plan mode saves plans as Markdown files directly inside ~/.claude/plans/. Same
+# shape rule as memory: a flat .md file, nothing nested, nothing else under ~/.claude.
+PLANS_ROOT="$(realpath -m "${HOME:-/nonexistent}/.claude/plans" 2>/dev/null)/"
+if [ -n "${HOME:-}" ] && [[ "$ABS" == "$PLANS_ROOT"* ]]; then
+  if [[ "${ABS#"$PLANS_ROOT"}" =~ ^[^/]+\.md$ ]]; then
+    exit 0
+  fi
+fi
+
+# Claude Code gives each session a scratchpad for temporary files at
+# <tmp>/claude-<uid>/<project-slug>/<session-id>/scratchpad/. Allow any file under a
+# `scratchpad` directory at exactly that depth, for the current user only. <tmp> is
+# whichever of CLAUDE_CODE_TMPDIR, TMPDIR and /tmp is set; each root is resolved like
+# ABS, so /tmp -> /private/tmp on macOS matches and a symlink planted inside the
+# scratchpad resolves to its real target and falls through to the checks below.
+SCRATCH_UID="$(id -u 2>/dev/null || true)"
+if [ -n "$SCRATCH_UID" ]; then
+  for tmp_base in "${CLAUDE_CODE_TMPDIR:-}" "${TMPDIR:-}" /tmp; do
+    [ -z "$tmp_base" ] && continue
+    SCRATCH_ROOT="$(realpath -m "$tmp_base/claude-$SCRATCH_UID" 2>/dev/null)/"
+    if [[ "$ABS" == "$SCRATCH_ROOT"* ]] &&
+      [[ "${ABS#"$SCRATCH_ROOT"}" =~ ^[^/]+/[^/]+/scratchpad/.+ ]]; then
+      exit 0
+    fi
+  done
+fi
+
+# Claude Code exports CLAUDE_PROJECT_DIR, the directory the session was started in.
+# A session started in a folder of several repositories works across all of them, so a
+# write anywhere under that folder is in scope even when the agent's working directory
+# sits in one repository. Skipped when the folder is $HOME, an ancestor of it, or `/`:
+# a session started there would otherwise exempt ~/.zshrc and the rest of $HOME. The
+# protected-pattern blocklist below still applies to these writes.
+PROJECT_ROOT=""
+if [ -n "${CLAUDE_PROJECT_DIR:-}" ]; then
+  PROJECT_ROOT="$(realpath -m "$CLAUDE_PROJECT_DIR" 2>/dev/null || true)"
+  HOME_ABS="$(realpath -m "${HOME:-/}" 2>/dev/null || printf '/')"
+  if [ "$PROJECT_ROOT" = "/" ] || [ "$PROJECT_ROOT" = "$HOME_ABS" ] ||
+    [[ "$HOME_ABS/" == "$PROJECT_ROOT/"* ]]; then
+    PROJECT_ROOT=""
+  fi
+fi
+IN_PROJECT=false
+if [ -n "$PROJECT_ROOT" ] && { [ "$ABS" = "$PROJECT_ROOT" ] || [[ "$ABS" == "$PROJECT_ROOT/"* ]]; }; then
+  IN_PROJECT=true
+fi
+
 # If we're in a git repo, refuse writes outside it. This catches the
 # occasional agent that decides to edit your ~/.zshrc.
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || true)"
-if [ -n "$REPO_ROOT" ] && [[ "$ABS" != "$REPO_ROOT"* ]]; then
+# The trailing slash keeps a sibling such as <repo>-other from passing as inside <repo>.
+if [ "$IN_PROJECT" = false ] && [ -n "$REPO_ROOT" ] &&
+  [[ "$ABS" != "$REPO_ROOT" ]] && [[ "$ABS" != "$REPO_ROOT/"* ]]; then
   echo "BLOCKED: $FILE is outside the repository root ($REPO_ROOT)." >&2
   exit 2
 fi
 
 # Paths matched against the basename or the repo-relative path.
 REL="${ABS#"$REPO_ROOT"/}"
+if [ "$IN_PROJECT" = true ] && [[ "$REL" == "$ABS" ]]; then
+  REL="${ABS#"$PROJECT_ROOT"/}"
+fi
 
 # Blocklist. Glob-style patterns, matched with bash's `==`.
 BLOCKED_PATTERNS=(
