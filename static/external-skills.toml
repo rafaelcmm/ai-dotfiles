@@ -4,7 +4,8 @@
 # Security:
 # - commit: MUST be full 40-char SHA-1 or 64-char SHA-256 hash (not branch/tag)
 # - checksum: Optional SHA256 of SKILL.md for integrity verification
-# - path: Validated against directory traversal attacks
+# - path: Validated against directory traversal attacks; "." selects the
+#   repository root, and an empty or slash-only path is rejected
 # - Files limited to 100 per source, max depth 10 directories
 # - Network timeouts: 10s connect, 30s total per request
 
@@ -1188,3 +1189,24 @@ path = "skills/flutter-use-http-package"
 platforms = ["all"]
 enabled = true
 checksum = "439fec047f07e9ec7cd387bf506801bb11b2b9037e5d2c5c03602360532980c4"
+
+# -----------------------------------------------------------------------------
+# Repository zone: browser-use video-use (MIT)
+# Repo: https://github.com/browser-use/video-use
+# -----------------------------------------------------------------------------
+# Conversational video editing. Upstream ships SKILL.md at the repository root
+# and resolves helpers/*.py relative to it, so the whole repository is the
+# skill (path = "."). Runtime needs ffmpeg, Python deps and ELEVENLABS_API_KEY.
+# Keep the key in the environment, not in a .env inside the installed skill
+# directory: that directory is installer-managed and may be rewritten.
+# Every upstream file except top-level dot entries, CLAUDE.md and AGENTS.md is
+# installed; re-check the 100-file limit on commit bumps.
+
+[[source]]
+id = "video-use"
+repository = "https://github.com/browser-use/video-use"
+commit = "43cfc566833548093455c9d4a46bd69913b7e552"
+path = "."
+platforms = ["all"]
+enabled = true
+checksum = "d3bbeb19bc0e81e197d74806fba15e0a5f5694a0cdf33f0a2348bffe8472a27b"
