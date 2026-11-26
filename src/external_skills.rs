@@ -24,6 +24,10 @@ pub(crate) struct ExternalSkillSource {
     id: String,
     repository: String,
     commit: String,
+    /// Directory inside the repository that holds the skill's `SKILL.md`;
+    /// surrounding whitespace and slashes are ignored. `"."` selects the
+    /// repository root. An empty, blank or slash-only value is rejected, so a
+    /// whole repository is installed only when spelled out.
     path: String,
     #[serde(default)]
     platforms: Vec<String>,
@@ -245,6 +249,22 @@ impl ExternalSkillSource {
         })
     }
 
+    /// Returns the source directory as a GitHub contents-API path: whitespace
+    /// and leading/trailing slashes trimmed, and `"."` mapped to `""`, which the
+    /// contents API reads as the repository root.
+    ///
+    /// `""` means "root" only after [`validate_source`] has passed; an empty
+    /// path that has not been validated also maps to `""`. Callers building a
+    /// strip prefix must special-case `""`, since `"{root}/"` would be `"/"`.
+    fn repo_relative_path(&self) -> &str {
+        let trimmed = self.path.trim().trim_matches('/');
+        if trimmed == "." {
+            ""
+        } else {
+            trimmed
+        }
+    }
+
     fn resolve_files(&self, home: &Path) -> Result<Vec<(PathBuf, Vec<u8>)>> {
         validate_source(self)?;
 
@@ -292,12 +312,26 @@ fn validate_source(source: &ExternalSkillSource) -> Result<()> {
             source.commit
         );
     }
-    if source.path.trim().is_empty() {
-        anyhow::bail!("source '{}' path cannot be empty", source.id)
+    // An empty or slash-only path is rejected rather than read as the root:
+    // installing a whole repository must be spelled out as `path = "."`.
+    if source.path.trim().trim_matches('/').is_empty() {
+        anyhow::bail!(
+            "source '{}' path cannot be empty; use \".\" for the repository root",
+            source.id
+        )
     }
     Ok(())
 }
 
+/// Downloads every file under the source directory at its pinned commit,
+/// keyed by path relative to that directory (the repository root for `path = "."`).
+///
+/// # Errors
+///
+/// Fails on a non-GitHub repository URL, any HTTP or JSON failure, a tree
+/// deeper than 10 levels or larger than 100 files, a file over 10 MiB, an
+/// unsafe relative path, a missing top-level `SKILL.md`, or a `SKILL.md`
+/// checksum mismatch.
 fn fetch_from_github(source: &ExternalSkillSource) -> Result<Vec<(PathBuf, Vec<u8>)>> {
     let (owner, repo) = parse_github_repo(&source.repository)?;
 
@@ -322,7 +356,7 @@ fn fetch_from_github(source: &ExternalSkillSource) -> Result<Vec<(PathBuf, Vec<u
         &owner,
         &repo,
         source,
-        source.path.trim_matches('/'),
+        source.repo_relative_path(),
         &mut output,
         0, // Initial depth
     )?;
@@ -345,6 +379,15 @@ fn fetch_from_github(source: &ExternalSkillSource) -> Result<Vec<(PathBuf, Vec<u
     Ok(output)
 }
 
+/// Lists `path` through the GitHub contents API and appends each file below it
+/// to `output`, keyed relative to the source directory. Files outside the
+/// source directory are skipped, and so are root-source entries rejected by
+/// [`is_excluded_root_entry`]. `depth` counts levels below the source directory.
+///
+/// # Errors
+///
+/// Fails past 10 levels, 100 files or a 10 MiB file, on any HTTP or JSON
+/// failure, or on a relative path that escapes the source directory.
 fn fetch_directory_recursively(
     client: &Client,
     owner: &str,
@@ -356,6 +399,7 @@ fn fetch_directory_recursively(
 ) -> Result<()> {
     const MAX_DEPTH: usize = 10;
     const MAX_FILES: usize = 100;
+    const MAX_FILE_SIZE_BYTES: usize = 10 * 1024 * 1024;
 
     // SECURITY: Prevent resource exhaustion via deep/wide directory trees
     if depth > MAX_DEPTH {
@@ -397,9 +441,18 @@ fn fetch_directory_recursively(
         .json()
         .context("failed to parse GitHub contents response")?;
 
-    let source_prefix = format!("{}/", source.path.trim_matches('/'));
+    let source_root = source.repo_relative_path();
+    // Root sources strip nothing: every entry path is already root-relative.
+    let source_prefix = if source_root.is_empty() {
+        String::new()
+    } else {
+        format!("{source_root}/")
+    };
 
     for entry in entries {
+        if source_root.is_empty() && is_excluded_root_entry(&entry.path) {
+            continue;
+        }
         match entry.kind.as_str() {
             "dir" => {
                 fetch_directory_recursively(
@@ -426,8 +479,16 @@ fn fetch_directory_recursively(
                     .bytes()
                     .with_context(|| format!("failed reading bytes for {}", entry.path))?
                     .to_vec();
+                if bytes.len() > MAX_FILE_SIZE_BYTES {
+                    anyhow::bail!(
+                        "source '{}' file {} exceeds maximum size of {} bytes",
+                        source.id,
+                        entry.path,
+                        MAX_FILE_SIZE_BYTES
+                    );
+                }
 
-                let relative = if entry.path == source.path.trim_matches('/') {
+                let relative = if entry.path == source_root {
                     PathBuf::from(
                         Path::new(&entry.path)
                             .file_name()
@@ -451,12 +512,34 @@ fn fetch_directory_recursively(
                 }
 
                 output.push((relative, bytes));
+                // The directory-entry check alone lets one wide listing
+                // download far past the cap, so recheck after every file.
+                if output.len() > MAX_FILES {
+                    anyhow::bail!(
+                        "source '{}' exceeded maximum file count of {}",
+                        source.id,
+                        MAX_FILES
+                    );
+                }
             }
             _ => {}
         }
     }
 
     Ok(())
+}
+
+/// Reports whether a repository-root entry is repository tooling rather than
+/// skill content: any top-level dot entry (`.github/`, `.claude/`, `.env*`,
+/// `.mcp.json`) and the agent instruction files `CLAUDE.md` and `AGENTS.md`.
+///
+/// Root sources install the whole repository into a skill directory, where
+/// agents would load such files as instructions or configuration. Nested
+/// sources are installed exactly as the upstream author placed them, so only
+/// root mode applies the filter.
+fn is_excluded_root_entry(path: &str) -> bool {
+    let first = path.split('/').next().unwrap_or_default();
+    first.starts_with('.') || first == "CLAUDE.md" || first == "AGENTS.md"
 }
 
 /// Validates that a relative path does not escape its parent via traversal.
@@ -728,6 +811,78 @@ mod tests {
             ..valid_sha1.clone()
         };
         assert!(validate_source(&invalid_branch).is_err());
+    }
+
+    #[test]
+    fn root_path_requires_explicit_dot() {
+        let base = ExternalSkillSource {
+            id: "test".to_string(),
+            repository: "https://github.com/owner/repo".to_string(),
+            commit: "73140fc5b3a214ad3222bcf557b397b3c02d11c1".to_string(),
+            path: ".".to_string(),
+            platforms: vec![],
+            enabled: true,
+            checksum: None,
+        };
+        assert!(validate_source(&base).is_ok());
+        assert_eq!(base.repo_relative_path(), "");
+
+        for rejected in ["", "  ", "/", "//"] {
+            let source = ExternalSkillSource {
+                path: rejected.to_string(),
+                ..base.clone()
+            };
+            assert!(
+                validate_source(&source).is_err(),
+                "path {rejected:?} must be rejected"
+            );
+        }
+
+        let nested = ExternalSkillSource {
+            path: "/skills/x/".to_string(),
+            ..base.clone()
+        };
+        assert_eq!(nested.repo_relative_path(), "skills/x");
+    }
+
+    #[test]
+    fn root_entry_exclusion_skips_tooling_only() {
+        for excluded in [
+            ".env.example",
+            ".github/workflows/ci.yml",
+            ".claude",
+            "CLAUDE.md",
+            "AGENTS.md",
+        ] {
+            assert!(
+                is_excluded_root_entry(excluded),
+                "{excluded} must be skipped"
+            );
+        }
+        for kept in ["SKILL.md", "helpers/render.py", "skills/x/CLAUDE.md"] {
+            assert!(!is_excluded_root_entry(kept), "{kept} must be kept");
+        }
+    }
+
+    #[test]
+    #[ignore = "network integration test"]
+    fn network_integration_fetch_root_source_strips_nothing() {
+        let manifest = load_manifest().expect("embedded external skills manifest should parse");
+        let source = manifest
+            .source
+            .into_iter()
+            .find(|source| source.repo_relative_path().is_empty())
+            .expect("manifest should include a repository-root source");
+
+        let files = fetch_from_github(&source).expect("GitHub fetch should succeed");
+
+        assert!(files
+            .iter()
+            .any(|(path, _)| path.as_path() == Path::new("SKILL.md")));
+        assert!(files.iter().all(|(path, _)| is_safe_relative_path(path)));
+        assert!(files
+            .iter()
+            .all(|(path, _)| !is_excluded_root_entry(&path.to_string_lossy())));
     }
 
     #[test]

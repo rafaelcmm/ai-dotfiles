@@ -51,6 +51,8 @@ This document describes how the Rust implementation works, module boundaries, an
   - Loads `static/external-skills.toml` for external source definitions.
   - Source contract: `id`, `repository`, `commit`, `path`, optional `platforms`, optional `enabled`, optional `checksum`.
   - Validates source safety constraints such as non-empty `id` and `path`, slash-free `id`, and full SHA commit pinning.
+  - `path = "."` installs the repository root as the skill; an empty, blank or slash-only `path` is rejected so the root is never selected by omission. Root sources skip top-level dot entries plus `CLAUDE.md` and `AGENTS.md`, and fetch every other upstream file, so they reach the 100-file and 10-level limits first.
+  - Fetches enforce at most 100 files, 10 directory levels and 10 MiB per file.
   - Filters by platform using `all` or normalized platform names (`claude`, `copilot`, `cursor`).
   - Requires `SKILL.md` under the configured source path.
   - Downloads enabled sources from pinned GitHub commits and caches files under `~/.cache/ai-dotfiles/external-skills`.
